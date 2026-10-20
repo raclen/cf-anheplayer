@@ -1,0 +1,922 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+import { Image } from "astro:assets";
+import {
+  MOBILE_REPO_URL,
+  MOBILE_RELEASES_URL,
+  MOBILE_RELEASES_LATEST_URL,
+  MOBILE_FALLBACK_VERSION,
+  MOBILE_FALLBACK_URL,
+  MOBILE_FEATURES,
+  MOBILE_GUIDE_STEPS,
+} from "@/data/mobile";
+
+import songImg from "@/assets/screenshots/mobile/歌曲页.jpg";
+import searchImg from "@/assets/screenshots/mobile/搜索页.jpg";
+import playImg from "@/assets/screenshots/mobile/播放页.jpg";
+import eqImg from "@/assets/screenshots/mobile/音效页.jpg";
+
+// 功能图标映射
+const featureIcons: Record<string, string> = {
+  design:
+    '<path d="M12 2.5a9.5 9.5 0 1 0 0 19c.83 0 1.5-.67 1.5-1.5 0-.4-.16-.76-.42-1.03a1.5 1.5 0 0 1 1.06-2.55H16a5 5 0 0 0 5-5C21 6.7 16.97 2.5 12 2.5Z"/><circle cx="7.5" cy="10.5" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16.5" cy="10.5" r="1.2"/>',
+  quickjs:
+    '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/><path d="m14.5 4-5 16"/>',
+  search:
+    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8a3 3 0 0 0-3 3"/>',
+  equalizer:
+    '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  library:
+    '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  download:
+    '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+};
+---
+
+<Layout
+  title="AnhePlayer 移动端 · Android 本地与洛雪在线音乐播放器"
+  description="AnhePlayer 移动端专为 Android 打造，遵循 Material 3 设计规范。支持 QuickJS 洛雪音源插件、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，纯净无广告。"
+  favicon="/mobile-logo.webp"
+>
+  <Nav current="mobile" downloadHref="#download" githubUrl={MOBILE_REPO_URL} />
+
+  <main>
+    <!-- Hero 区域 -->
+    <section class="hero" id="top">
+      <div class="color-block color-block-lilac">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Android 8.0+ · Material 3 · 开源无广告</span>
+            <h1 class="hero-title">
+              随身掌心随享<br /><span class="gradient-text">纯净自由音乐</span>
+            </h1>
+            <p class="hero-desc">
+              基于 Jetpack Compose 与 Media3 播放内核打造。原生内置 QuickJS 洛雪音源引擎，集成酷狗、网易云、QQ 音乐、酷我四平台聚合搜索，提供 10 组硬件级 AutoEQ 音效预设与高音质独立下载，彻底告别开屏广告与会员限制。
+            </p>
+
+            <div class="hero-actions">
+              <a
+                class="btn btn-primary"
+                id="mobile-hero-download-btn"
+                href={MOBILE_FALLBACK_URL}
+                target="_blank"
+                rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                </svg>
+                <span>下载 APK (v{MOBILE_FALLBACK_VERSION})</span>
+              </a>
+              <a class="btn btn-secondary" href={MOBILE_REPO_URL} target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.03 11.03 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/>
+                </svg>
+                在 GitHub 查看
+              </a>
+            </div>
+
+            <div class="hero-meta">
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                <span id="mobile-hero-version">v{MOBILE_FALLBACK_VERSION}</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
+                </svg>
+                <span>ARM64 · 约 6.8 MB</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span>支持 Android Auto</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="hero-visual reveal">
+            <div class="phone-mockup">
+              <div class="phone-frame">
+                <Image
+                  src={playImg}
+                  alt="AnhePlayer 移动端播放界面"
+                  loading="eager"
+                  quality={90}
+                />
+              </div>
+              <div class="floating-badge badge-top-right">
+                <span>🎵 10 档 AutoEQ 预设</span>
+              </div>
+              <div class="floating-badge badge-bottom-left">
+                <span>⚡ QuickJS 洛雪音源沙箱</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 核心特性 -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">特性一览</span>
+          <h2 class="section-title">
+            为移动端精心打磨的<br /><span class="gradient-text">全能音乐体验</span>
+          </h2>
+          <p class="section-desc">
+            既是高效纯净的本地音频管理器，又是支持多平台实时换源的在线随身听。
+          </p>
+        </div>
+
+        <div class="features-grid">
+          {MOBILE_FEATURES.map((f, i) => (
+            <article class="feature-card reveal" style={`transition-delay: ${i * 40}ms`}>
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={featureIcons[f.icon]} />
+              </div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 真机界面预览 -->
+    <section class="section screenshots-section" id="screenshots">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">真机界面</span>
+          <h2 class="section-title">
+            遵循 Material 3 的<span class="gradient-text">掌上美学</span>
+          </h2>
+          <p class="section-desc">
+            从媒体库、搜索、沉浸式播放到图形化均衡器，每一处动效都细腻顺滑。
+          </p>
+        </div>
+
+        <div class="mobile-screenshots-grid">
+          <figure class="mobile-shot-card reveal">
+            <div class="shot-img-wrap">
+              <Image src={songImg} alt="歌曲与媒体库界面" loading="lazy" quality={85} />
+            </div>
+            <figcaption>
+              <h4>歌曲与媒体库</h4>
+              <p>分类直观整理，内嵌封面高清渲染</p>
+            </figcaption>
+          </figure>
+
+          <figure class="mobile-shot-card reveal" style="transition-delay: 80ms">
+            <div class="shot-img-wrap">
+              <Image src={searchImg} alt="搜索与多音源切换" loading="lazy" quality={85} />
+            </div>
+            <figcaption>
+              <h4>多源聚合搜索</h4>
+              <p>酷狗 / 网易云 / QQ / 酷我一键切换</p>
+            </figcaption>
+          </figure>
+
+          <figure class="mobile-shot-card reveal" style="transition-delay: 160ms">
+            <div class="shot-img-wrap">
+              <Image src={playImg} alt="沉浸播放与歌词" loading="lazy" quality={85} />
+            </div>
+            <figcaption>
+              <h4>沉浸播放与歌词</h4>
+              <p>高保真动态光晕与滚动歌词对齐</p>
+            </figcaption>
+          </figure>
+
+          <figure class="mobile-shot-card reveal" style="transition-delay: 240ms">
+            <div class="shot-img-wrap">
+              <Image src={eqImg} alt="专业音效预设" loading="lazy" quality={85} />
+            </div>
+            <figcaption>
+              <h4>AutoEQ 音效系统</h4>
+              <p>10 组硬件级预设曲线与自研均衡器</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section class="section download-section" id="download">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">立即安装</span>
+          <h2 class="section-title">
+            获取 Android <span class="gradient-text">最新正式版</span>
+          </h2>
+          <p class="section-desc">
+            单 APK 安装包即装即用，无任何捆绑软件，权限仅用于本地媒体播放与网络取流。
+          </p>
+        </div>
+
+        <div class="download-card reveal">
+          <div class="download-card-header">
+            <div class="os-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 0 0-.1521-.5676.416.416 0 0 0-.5676.1521l-2.0223 3.503C15.5902 8.4116 13.8533 8.0827 12 8.0827s-3.5902.3289-5.1368.867L4.8409 5.4467a.4161.4161 0 0 0-.5677-.1521.4157.4157 0 0 0-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/>
+              </svg>
+            </div>
+            <div class="os-text-info">
+              <h3>Android 安装包 (.apk)</h3>
+              <span>适配 Android 8.0 及以上 · 兼容主流 64 位芯片 (ARM64-v8a)</span>
+            </div>
+          </div>
+
+          <div class="download-assets-list">
+            <a
+              class="asset-btn"
+              id="mobile-card-download-btn"
+              href={MOBILE_FALLBACK_URL}
+              target="_blank"
+              rel="noopener"
+            >
+              <div class="asset-info">
+                <span class="asset-label">
+                  AnhePlayer Release APK
+                  <span class="asset-badge">推荐</span>
+                </span>
+                <span class="asset-note">核心完整版 · 支持本地与在线播放 · 内置音源测试版</span>
+              </div>
+              <div class="asset-meta">
+                <span class="asset-size" id="mobile-asset-size">约 6.8 MB</span>
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+              </div>
+            </a>
+          </div>
+
+          <div class="download-footer">
+            <a class="footer-link" href={MOBILE_RELEASES_URL} target="_blank" rel="noopener">
+              在 GitHub Releases 查看所有更新日志与历史包 →
+            </a>
+            <p class="api-status" id="mobile-api-status">正在连接 GitHub Releases 校验最新版本…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 使用指南 -->
+    <section class="section guide-section" id="guide">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">上手指引</span>
+          <h2 class="section-title">
+            三步快速体验<br /><span class="gradient-text">洛雪移动听歌</span>
+          </h2>
+          <p class="section-desc">
+            开箱即用内置音源，简单几步即可配置高品质音效与自定义外部脚本。
+          </p>
+        </div>
+
+        <div class="guide-grid">
+          {MOBILE_GUIDE_STEPS.map((s, idx) => (
+            <div class="guide-card reveal" style={`transition-delay: ${idx * 60}ms`}>
+              <div class="guide-step-badge">{s.step}</div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 系列矩阵呼应 -->
+    <section class="section series-section">
+      <div class="container">
+        <div class="series-box color-block color-block-mint reveal">
+          <div class="series-content">
+            <span class="eyebrow">全端生态互联</span>
+            <h2>发现安禾播放器<br />系列家族</h2>
+            <p>
+              无论是在桌面大屏还是掌中手机，亦或是需要批量快速拉取无损 MP3，安禾播放器系列都能满足你的听歌诉求。
+            </p>
+          </div>
+          <div class="series-cards">
+            <a href="/" class="series-mini-card">
+              <span class="mini-tag">PC 桌面端</span>
+              <h4>AnhePlayer 桌面版</h4>
+              <p>Tauri v2 原生引擎打造，极低内存占用与洛雪插件系统</p>
+              <span class="mini-link">查看桌面版 →</span>
+            </a>
+            <a href="/downloader" class="series-mini-card">
+              <span class="mini-tag">轻量下载器</span>
+              <h4>风宝音乐下载器</h4>
+              <p>Go + WebView2 单文件 9.3MB，MP3 自动内嵌封面与滚动歌词</p>
+              <span class="mini-link">查看下载器 →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <script>
+    import {
+      MOBILE_LATEST_API,
+      MOBILE_FALLBACK_VERSION,
+      MOBILE_FALLBACK_URL,
+    } from "@/data/mobile";
+
+    async function checkMobileRelease() {
+      const statusEl = document.getElementById("mobile-api-status");
+      const versionEl = document.getElementById("mobile-hero-version");
+      const heroBtn = document.getElementById("mobile-hero-download-btn") as HTMLAnchorElement | null;
+      const cardBtn = document.getElementById("mobile-card-download-btn") as HTMLAnchorElement | null;
+      const sizeEl = document.getElementById("mobile-asset-size");
+
+      try {
+        const res = await fetch(MOBILE_LATEST_API);
+        if (!res.ok) throw new Error("API rate-limited or unavailable");
+        const data = await res.json();
+        const tag = (data.tag_name || `v${MOBILE_FALLBACK_VERSION}`).trim();
+        const apkAsset = Array.isArray(data.assets)
+          ? data.assets.find((a: any) => typeof a.name === "string" && a.name.endsWith(".apk"))
+          : null;
+
+        const downloadUrl = apkAsset?.browser_download_url || MOBILE_FALLBACK_URL;
+        const sizeFormatted = apkAsset?.size
+          ? `${(apkAsset.size / (1024 * 1024)).toFixed(1)} MB`
+          : "约 6.8 MB";
+
+        if (versionEl) versionEl.textContent = tag;
+        if (sizeEl) sizeEl.textContent = sizeFormatted;
+        if (heroBtn) {
+          heroBtn.href = downloadUrl;
+          const textSpan = heroBtn.querySelector("span");
+          if (textSpan) textSpan.textContent = `下载 APK (${tag})`;
+        }
+        if (cardBtn) {
+          cardBtn.href = downloadUrl;
+        }
+        if (statusEl) {
+          statusEl.textContent = `已同步最新正式版 ${tag}（${apkAsset?.name || "Release APK"}）`;
+        }
+      } catch {
+        if (statusEl) {
+          statusEl.textContent = `当前使用官方直链（v${MOBILE_FALLBACK_VERSION}）`;
+        }
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", checkMobileRelease);
+    } else {
+      checkMobileRelease();
+    }
+  </script>
+</Layout>
+
+<style>
+  /* Hero 区域 */
+  .hero {
+    min-height: max(580px, 75vh);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+
+  .hero :global(.color-block) {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .hero .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 56px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.3rem, 4.8vw, 3.8rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 22px;
+    color: var(--ink);
+  }
+
+  .hero-desc {
+    font-size: 1.08rem;
+    line-height: 1.68;
+    color: var(--ink);
+    opacity: 0.72;
+    margin-bottom: 32px;
+    font-weight: 350;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .meta-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* 手机展示框 */
+  .phone-mockup {
+    position: relative;
+    max-width: 320px;
+    margin-inline: auto;
+  }
+
+  .phone-frame {
+    border: 9px solid #1f1f22;
+    border-radius: 42px;
+    overflow: hidden;
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    background: #000;
+    aspect-ratio: 1080 / 2344;
+  }
+
+  .phone-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .floating-badge {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    white-space: nowrap;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .badge-top-right {
+    top: 15%;
+    right: -24px;
+    animation-delay: 0s;
+  }
+
+  .badge-bottom-left {
+    bottom: 12%;
+    left: -24px;
+    animation-delay: -2s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* 特性卡片 */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--hairline);
+  }
+
+  .feature-icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--block-mint);
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .feature-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .feature-card p {
+    color: var(--ink);
+    opacity: 0.68;
+    font-size: 0.95rem;
+    line-height: 1.64;
+    font-weight: 320;
+  }
+
+  /* 截图展示区 */
+  .mobile-screenshots-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .mobile-shot-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .shot-img-wrap {
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md);
+    background: #000;
+    aspect-ratio: 1080 / 2344;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .shot-img-wrap:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .shot-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mobile-shot-card figcaption {
+    margin-top: 16px;
+  }
+
+  .mobile-shot-card h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .mobile-shot-card p {
+    font-size: 0.85rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  /* 下载卡片 */
+  .download-card {
+    max-width: 760px;
+    margin-inline: auto;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .download-card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--hairline-soft);
+  }
+
+  .os-icon-wrap {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: var(--block-lime);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .os-icon-wrap svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .os-text-info h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .os-text-info span {
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .download-assets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .asset-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    transition: all 0.2s ease;
+  }
+
+  .asset-btn:hover {
+    background: var(--canvas);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .asset-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .asset-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  .asset-note {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+  }
+
+  .asset-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .asset-size {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+
+  .download-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--ink);
+  }
+
+  .download-footer {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-link {
+    font-size: 0.9rem;
+    color: var(--ink);
+    font-weight: 500;
+    opacity: 0.75;
+    transition: opacity 0.2s ease;
+  }
+
+  .footer-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .api-status {
+    font-size: 0.84rem;
+    color: var(--ink);
+    opacity: 0.55;
+    font-family: var(--font-mono);
+  }
+
+  /* 上手指引 */
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .guide-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+
+  .guide-step-badge {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0.25;
+    margin-bottom: 14px;
+  }
+
+  .guide-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .guide-card p {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--ink);
+    opacity: 0.68;
+    font-weight: 320;
+  }
+
+  /* 系列矩阵互联 */
+  .series-box {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .series-content h2 {
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .series-content p {
+    color: var(--ink);
+    opacity: 0.72;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .series-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .series-mini-card {
+    background: var(--canvas);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+  }
+
+  .series-mini-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+  }
+
+  .mini-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+
+  .series-mini-card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .series-mini-card p {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    flex: 1;
+  }
+
+  .mini-link {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 960px) {
+    .hero .container {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .hero-content {
+      text-align: center;
+    }
+    .hero-actions, .hero-meta {
+      justify-content: center;
+    }
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .mobile-screenshots-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+    .series-box {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+    .mobile-screenshots-grid {
+      grid-template-columns: 1fr;
+      max-width: 320px;
+      margin-inline: auto;
+    }
+    .series-cards {
+      grid-template-columns: 1fr;
+    }
+    .floating-badge {
+      display: none;
+    }
+    .download-card {
+      padding: 24px 18px;
+    }
+  }
+</style>

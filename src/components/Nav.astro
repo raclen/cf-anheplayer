@@ -1,33 +1,89 @@
 ---
-import { GITHUB_REPO_URL } from "@/data/platforms";
+import { GITHUB_REPO_URL as PC_GITHUB_URL } from "@/data/platforms";
+import { MOBILE_REPO_URL } from "@/data/mobile";
+import { DOWNLOADER_REPO_URL } from "@/data/downloader";
 
-const links = [
-  { href: "#features", label: "功能" },
-  { href: "#screenshots", label: "界面" },
-  { href: "#download", label: "下载" },
-  { href: "#plugins", label: "插件 & 主题" },
-  { href: "/sources", label: "音源状态" },
+export interface Props {
+  current?: "pc" | "mobile" | "downloader" | "sources";
+  downloadHref?: string;
+  githubUrl?: string;
+}
+
+const {
+  current = "pc",
+  downloadHref = "#download",
+  githubUrl = current === "mobile"
+    ? MOBILE_REPO_URL
+    : current === "downloader"
+      ? DOWNLOADER_REPO_URL
+      : PC_GITHUB_URL,
+} = Astro.props;
+
+const productLinks = [
+  { href: "/", key: "pc", label: "PC 桌面端" },
+  { href: "/mobile", key: "mobile", label: "移动端" },
+  { href: "/downloader", key: "downloader", label: "音乐下载器" },
+  { href: "/sources", key: "sources", label: "音源状态" },
 ];
+
+const pageSections: Record<string, { href: string; label: string }[]> = {
+  pc: [
+    { href: "#features", label: "功能特性" },
+    { href: "#screenshots", label: "界面预览" },
+    { href: "#download", label: "立即下载" },
+    { href: "#plugins", label: "插件 & 主题" },
+  ],
+  mobile: [
+    { href: "#features", label: "移动特性" },
+    { href: "#screenshots", label: "真机截图" },
+    { href: "#download", label: "APK 下载" },
+    { href: "#guide", label: "导入音源" },
+  ],
+  downloader: [
+    { href: "#features", label: "下载特性" },
+    { href: "#screenshots", label: "软件界面" },
+    { href: "#download", label: "单文件下载" },
+    { href: "#guide", label: "使用指南" },
+  ],
+  sources: [
+    { href: "#overview", label: "检测概览" },
+    { href: "#sources-list", label: "音源清单" },
+    { href: "/sources-status.json", label: "JSON 接口" },
+  ],
+};
+
+const currentSections = pageSections[current] || [];
+const logoSrc = current === "mobile" ? "/mobile-logo.webp" : current === "downloader" ? "/downloader-logo.png" : "/logo.png";
+const badgeText = current === "mobile" ? "Mobile" : current === "downloader" ? "Downloader" : current === "sources" ? "Status" : "";
 ---
 
 <header class="nav" id="nav">
   <div class="container nav-inner">
-    <a class="brand" href="#top" aria-label="AnhePlayer 首页">
-      <img src="/logo.png" alt="" width="34" height="34" />
+    <a class="brand" href={current === "pc" ? "#top" : "/"} aria-label="AnhePlayer 首页">
+      <img src={logoSrc} alt="Logo" width="34" height="34" />
       <span>AnhePlayer</span>
+      {badgeText && <span class="brand-badge">{badgeText}</span>}
     </a>
 
-    <nav class="nav-links" aria-label="主导航">
-      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    <nav class="nav-links" aria-label="系列产品导航">
+      {productLinks.map((p) => (
+        <a
+          href={p.href}
+          class:list={["nav-item", { active: p.key === current }]}
+        >
+          {p.label}
+        </a>
+      ))}
     </nav>
 
     <div class="nav-actions">
       <a
         class="icon-link"
-        href={GITHUB_REPO_URL}
+        href={githubUrl}
         target="_blank"
         rel="noopener"
-        aria-label="在 GitHub 查看"
+        aria-label="在 GitHub 查看项目源码"
+        title="在 GitHub 查看项目源码"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path
@@ -35,7 +91,11 @@ const links = [
           ></path>
         </svg>
       </a>
-      <a class="btn btn-primary btn-sm download-cta" href="#download">下载</a>
+      {downloadHref && (
+        <a class="btn btn-primary btn-sm download-cta" href={downloadHref}>
+          下载
+        </a>
+      )}
       <button
         class="nav-toggle"
         id="nav-toggle"
@@ -49,8 +109,32 @@ const links = [
   </div>
 
   <nav class="nav-mobile" id="nav-mobile" aria-label="移动导航" hidden>
-    {links.map((l) => <a href={l.href} class="nav-mobile-link">{l.label}</a>)}
-    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener" class="nav-mobile-link">GitHub</a>
+    <div class="nav-mobile-section">
+      <span class="nav-mobile-heading">安禾播放器系列</span>
+      <div class="nav-mobile-grid">
+        {productLinks.map((p) => (
+          <a
+            href={p.href}
+            class:list={["nav-mobile-product", { active: p.key === current }]}
+          >
+            {p.label}
+          </a>
+        ))}
+      </div>
+    </div>
+    {currentSections.length > 0 && (
+      <div class="nav-mobile-section">
+        <span class="nav-mobile-heading">本页快速直达</span>
+        <div class="nav-mobile-links">
+          {currentSections.map((s) => (
+            <a href={s.href} class="nav-mobile-link">{s.label}</a>
+          ))}
+        </div>
+      </div>
+    )}
+    <a href={githubUrl} target="_blank" rel="noopener" class="nav-mobile-link github-link">
+      在 GitHub 查看项目源码 →
+    </a>
   </nav>
 </header>
 
@@ -104,7 +188,7 @@ const links = [
 
   .nav.scrolled,
   .nav.menu-open {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
     border-bottom-color: var(--hairline);
@@ -124,38 +208,68 @@ const links = [
     align-items: center;
     gap: 10px;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     letter-spacing: -0.02em;
     color: var(--ink);
+    flex-shrink: 0;
   }
 
-  /* 图标自带圆角与透明角，外层不要再裁一次，否则弧线会被抹平 */
   .brand img {
     display: block;
+    border-radius: var(--radius-sm);
+  }
+
+  .brand-badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--block-lilac);
+    color: var(--ink);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .nav-links {
     display: flex;
-    gap: 32px;
+    align-items: center;
+    gap: 6px;
     margin-inline: auto;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 4px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline-soft);
   }
 
-  .nav-links a {
+  .nav-item {
     color: var(--ink);
-    opacity: 0.7;
-    font-size: 0.95rem;
+    opacity: 0.72;
+    font-size: 0.92rem;
     font-weight: 500;
-    transition: opacity 0.2s ease;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    transition: all 0.2s ease;
+    white-space: nowrap;
   }
 
-  .nav-links a:hover {
+  .nav-item:hover {
     opacity: 1;
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .nav-item.active {
+    opacity: 1;
+    font-weight: 600;
+    background: var(--canvas);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   .nav-actions {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
   }
 
   .icon-link {
@@ -163,6 +277,7 @@ const links = [
     color: var(--ink);
     opacity: 0.7;
     transition: opacity 0.2s ease, transform 0.2s ease;
+    padding: 6px;
   }
 
   .icon-link svg {
@@ -216,23 +331,70 @@ const links = [
     right: 0;
     display: none;
     flex-direction: column;
-    padding: 12px 24px 20px;
-    background: rgba(255, 255, 255, 0.96);
+    padding: 16px 20px 24px;
+    background: rgba(255, 255, 255, 0.98);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--hairline);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    gap: 18px;
   }
 
   .nav-mobile[hidden] {
     display: none;
   }
 
-  .nav-mobile-link {
-    padding: 13px 6px;
+  .nav-mobile-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .nav-mobile-heading {
+    font-size: 0.76rem;
+    font-weight: 600;
     color: var(--ink);
-    opacity: 0.7;
+    opacity: 0.45;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .nav-mobile-product {
+    padding: 10px 12px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid var(--hairline-soft);
+    transition: all 0.2s ease;
+  }
+
+  .nav-mobile-product.active {
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 600;
+    border-color: var(--primary);
+  }
+
+  .nav-mobile-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-mobile-link {
+    padding: 11px 6px;
+    color: var(--ink);
+    opacity: 0.75;
     border-bottom: 1px solid var(--hairline-soft);
+    font-size: 0.92rem;
     font-weight: 500;
   }
 
@@ -240,25 +402,28 @@ const links = [
     opacity: 1;
   }
 
-  .nav-mobile-link:last-child {
+  .github-link {
+    color: var(--ink);
+    font-weight: 600;
     border-bottom: none;
+    padding-top: 6px;
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 820px) {
     .nav-links {
       display: none;
     }
-  }
-
-  @media (max-width: 560px) {
     .nav-toggle {
       display: flex;
     }
-    .download-cta {
-      display: none;
-    }
     .nav-mobile:not([hidden]) {
       display: flex;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .download-cta {
+      display: none;
     }
   }
 </style>

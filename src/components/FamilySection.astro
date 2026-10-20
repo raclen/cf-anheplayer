@@ -1,0 +1,183 @@
+---
+// 安禾播放器系列家族互通导流模块
+---
+
+<section class="section family-section" id="family">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">全端生态</span>
+      <h2 class="section-title">
+        探索安禾播放器<span class="gradient-text">系列家族</span>
+      </h2>
+      <p class="section-desc">
+        除了强大的 PC 桌面客户端，安禾播放器系列还提供移动端随身播放器与轻量音乐下载器，全场景覆盖你的音乐生活。
+      </p>
+    </div>
+
+    <div class="family-grid">
+      <!-- 移动端卡片 -->
+      <a href="/mobile" class="family-card color-block-lilac reveal">
+        <div class="family-card-head">
+          <div class="family-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <span class="family-badge">Android · 掌上随享</span>
+        </div>
+        <h3>安禾播放器 移动端</h3>
+        <p>
+          遵循 Google Material 3 动态美学打造，内置 QuickJS 洛雪脚本沙箱，多源秒速切换，集成 10 档专业 AutoEQ 硬件级音效预设。
+        </p>
+        <div class="family-card-foot">
+          <span class="foot-tech">Kotlin · Compose · Media3</span>
+          <span class="foot-arrow">立即了解 →</span>
+        </div>
+      </a>
+
+      <!-- 下载器卡片 -->
+      <a href="/downloader" class="family-card color-block-coral reveal" style="transition-delay: 80ms">
+        <div class="family-card-head">
+          <div class="family-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+            </svg>
+          </div>
+          <span class="family-badge">Windows · 单文件 9.3MB</span>
+        </div>
+        <h3>风宝音乐下载器</h3>
+        <p>
+          Go + 原生 Edge WebView2 架构，免安装双击秒开。四源聚合检索，下载自动写入 ID3v2.3 规范，内嵌 500px 封面与滚动歌词。
+        </p>
+        <div class="family-card-foot">
+          <span class="foot-tech">Go 1.26 · WebView2 · ID3v2.3</span>
+          <span class="foot-arrow">立即了解 →</span>
+        </div>
+      </a>
+
+      <!-- 音源监测卡片 -->
+      <a href="/sources" class="family-card color-block-mint reveal" style="transition-delay: 160ms">
+        <div class="family-card-head">
+          <div class="family-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <span class="family-badge">自动化监测 · 每 4 小时</span>
+        </div>
+        <h3>洛雪音源可用性监测</h3>
+        <p>
+          由 GitHub Actions 每 4 小时模拟真实洛雪运行时，对各大平台测试歌曲发起拉流校验，保障播放器音源持久可用。
+        </p>
+        <div class="family-card-foot">
+          <span class="foot-tech">Actions · 自动化校验 · 实时流</span>
+          <span class="foot-arrow">查看状态 →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .family-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .family-card {
+    display: flex;
+    flex-direction: column;
+    padding: 36px 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--hairline);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .family-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary);
+  }
+
+  .family-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .family-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--canvas);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-sm);
+    color: var(--ink);
+  }
+
+  .family-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .family-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline);
+  }
+
+  .family-card h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .family-card p {
+    font-size: 0.95rem;
+    line-height: 1.64;
+    color: var(--ink);
+    opacity: 0.72;
+    margin-bottom: 28px;
+    flex: 1;
+    font-weight: 350;
+  }
+
+  .family-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .foot-tech {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .foot-arrow {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  @media (max-width: 960px) {
+    .family-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

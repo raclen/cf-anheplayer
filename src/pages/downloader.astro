@@ -1,0 +1,1000 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+import { Image } from "astro:assets";
+import {
+  DOWNLOADER_REPO_URL,
+  DOWNLOADER_RELEASES_URL,
+  DOWNLOADER_FALLBACK_VERSION,
+  DOWNLOADER_FALLBACK_URL,
+  DOWNLOADER_FEATURES,
+  DOWNLOADER_GUIDE_STEPS,
+} from "@/data/downloader";
+
+import homeScreenshot from "@/assets/screenshots/downloader/home.png";
+
+// 功能图标映射
+const featureIcons: Record<string, string> = {
+  lightweight:
+    '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
+  search:
+    '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8a3 3 0 0 0-3 3"/>',
+  tag:
+    '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+  sandbox:
+    '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+  shield:
+    '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  headless:
+    '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+};
+---
+
+<Layout
+  title="风宝音乐下载器 · 轻量 Windows 桌面音乐下载器 (AnHe Downloader)"
+  description="基于 Go 1.26 + Windows 原生 Edge WebView2 + React 18 构建的轻量级音乐下载器。单文件 exe 仅约 9.3MB，多源聚合检索与去重、单文件 MP3 自动内嵌 500×500 封面与 USLT/SYLT 滚动歌词，洛雪沙箱无跨域限制。"
+  favicon="/downloader-logo.png"
+>
+  <Nav current="downloader" downloadHref="#download" githubUrl={DOWNLOADER_REPO_URL} />
+
+  <main>
+    <!-- Hero 区域 -->
+    <section class="hero" id="top">
+      <div class="color-block color-block-coral">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Go 1.26 + 原生 WebView2 · 单文件 9.3MB · 免安装绿色版</span>
+            <h1 class="hero-title">
+              极致轻巧的<br /><span class="gradient-text">桌面音乐下载器</span>
+            </h1>
+            <p class="hero-desc">
+              彻底告别上百兆的 Electron 依赖。后端使用 Go 编译为单文件 exe，前端资源内嵌直连系统原生 WebView2，秒速启动内存极低。支持 QQ 音乐、网易云、酷我、酷狗多源聚合检索，下载自动生成标准 ID3v2.3 单文件 MP3，完美适配车载与便携播放器。
+            </p>
+
+            <div class="hero-actions">
+              <a
+                class="btn btn-primary"
+                id="downloader-hero-download-btn"
+                href={DOWNLOADER_FALLBACK_URL}
+                target="_blank"
+                rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                </svg>
+                <span>下载单文件 exe (v{DOWNLOADER_FALLBACK_VERSION})</span>
+              </a>
+              <a class="btn btn-secondary" href={DOWNLOADER_REPO_URL} target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.03 11.03 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/>
+                </svg>
+                在 GitHub 查看
+              </a>
+            </div>
+
+            <div class="hero-meta">
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                <span id="downloader-hero-version">v{DOWNLOADER_FALLBACK_VERSION}</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                </svg>
+                <span>体积仅 ~9.3 MB</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>内嵌 500px 封面 + 滚动歌词</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="hero-visual reveal">
+            <div class="window-mockup">
+              <div class="window-bar">
+                <div class="window-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="window-title">风宝音乐下载器 · AnHe Music Downloader</div>
+              </div>
+              <div class="window-content">
+                <Image
+                  src={homeScreenshot}
+                  alt="风宝音乐下载器主界面"
+                  loading="eager"
+                  quality={90}
+                />
+              </div>
+              <div class="floating-badge badge-top-right">
+                <span>⚡ 单 exe 免安装 9.3MB</span>
+              </div>
+              <div class="floating-badge badge-bottom-left">
+                <span>🎵 USLT + SYLT 滚动歌词</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 核心特性 -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">特性一览</span>
+          <h2 class="section-title">
+            小身材大能量 · <span class="gradient-text">专注于极致下载体验</span>
+          </h2>
+          <p class="section-desc">
+            从聚合检索、智能兜底、标签写入到后台无头守护，为你提供最省心、高保真的音乐下载解决方案。
+          </p>
+        </div>
+
+        <div class="features-grid">
+          {DOWNLOADER_FEATURES.map((f, i) => (
+            <article class="feature-card reveal" style={`transition-delay: ${i * 40}ms`}>
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={featureIcons[f.icon]} />
+              </div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 界面截图与亮点 -->
+    <section class="section screenshots-section" id="screenshots">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">软件界面</span>
+          <h2 class="section-title">
+            清晰高效的<span class="gradient-text">现代化操作台</span>
+          </h2>
+          <p class="section-desc">
+            多源检索切换、歌曲在线试听、歌单批量解析与多任务并发队列，尽在一屏掌控。
+          </p>
+        </div>
+
+        <div class="screenshot-showcase reveal">
+          <div class="showcase-window">
+            <div class="window-bar">
+              <div class="window-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="window-title">AnHe Downloader · 主界面多源检索与下载</div>
+            </div>
+            <div class="showcase-img">
+              <Image src={homeScreenshot} alt="风宝音乐下载器界面预览" loading="lazy" quality={90} />
+            </div>
+          </div>
+
+          <div class="showcase-highlights">
+            <div class="highlight-item">
+              <div class="hl-tag">聚合检索</div>
+              <h4>四源聚合 · 智能去重</h4>
+              <p>QQ 音乐、网易云、酷我、酷狗多源聚合检索，一键试听与批量添加下载</p>
+            </div>
+            <div class="highlight-item">
+              <div class="hl-tag">标准打标</div>
+              <h4>自研 ID3v2.3 规范写入</h4>
+              <p>单文件 MP3 自动内嵌 500×500 封面、USLT 歌词与 SYLT 滚动歌词，车载机头完美显示</p>
+            </div>
+            <div class="highlight-item">
+              <div class="hl-tag">洛雪沙箱</div>
+              <h4>脚本持久化与沙箱隔离</h4>
+              <p>本地后端模拟 globalThis.lx 环境，自由导入外部音源，彻底规避浏览器 CORS 跨域拦截</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section class="section download-section" id="download">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">立即下载</span>
+          <h2 class="section-title">
+            获取 Windows <span class="gradient-text">单文件安装包</span>
+          </h2>
+          <p class="section-desc">
+            单个可执行文件，无需安装、解压即用；Windows 10 / 11 已预装 WebView2 运行时。
+          </p>
+        </div>
+
+        <div class="download-card reveal">
+          <div class="download-card-header">
+            <div class="os-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M0 3.4 10 2v9H0V3.4ZM11 1.8l13-1.8v11H11V1.8ZM0 12.6V20l10 1.4V13H0Zm11 8.6L24 23V12H11v9.2Z"/>
+              </svg>
+            </div>
+            <div class="os-text-info">
+              <h3>Windows 10 / 11 桌面版 (.exe)</h3>
+              <span>Go 1.26 原生编译 · x64 架构 · 单文件免安装绿色版</span>
+            </div>
+          </div>
+
+          <div class="download-assets-list">
+            <a
+              class="asset-btn"
+              id="downloader-card-download-btn"
+              href={DOWNLOADER_FALLBACK_URL}
+              target="_blank"
+              rel="noopener"
+            >
+              <div class="asset-info">
+                <span class="asset-label">
+                  anhe-downloader.exe
+                  <span class="asset-badge">推荐 · 单文件免安装</span>
+                </span>
+                <span class="asset-note">双击直接运行 · 原生 WebView2 界面 · 自动内嵌歌词封面</span>
+              </div>
+              <div class="asset-meta">
+                <span class="asset-size" id="downloader-asset-size">约 9.3 MB</span>
+                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+              </div>
+            </a>
+          </div>
+
+          <div class="headless-box">
+            <div class="headless-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+              <span>高级技巧：Headless 无窗口 / 网页模式</span>
+            </div>
+            <p>
+              支持通过命令行参数以无头后台服务启动，供局域网设备或远程浏览器访问：
+            </p>
+            <code>anhe-downloader.exe -headless -port 45678</code>
+          </div>
+
+          <div class="download-footer">
+            <a class="footer-link" href={DOWNLOADER_RELEASES_URL} target="_blank" rel="noopener">
+              在 GitHub Releases 查看更新日志与源码资产 →
+            </a>
+            <p class="api-status" id="downloader-api-status">正在连接 GitHub Releases 获取最新产物…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 使用指南 -->
+    <section class="section guide-section" id="guide">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">快速上手</span>
+          <h2 class="section-title">
+            三步开启<br /><span class="gradient-text">音乐批量下载</span>
+          </h2>
+          <p class="section-desc">
+            免去复杂的环境配置，开箱即拥有标准 MP3 自动内嵌标签的极速下载能力。
+          </p>
+        </div>
+
+        <div class="guide-grid">
+          {DOWNLOADER_GUIDE_STEPS.map((s, idx) => (
+            <div class="guide-card reveal" style={`transition-delay: ${idx * 60}ms`}>
+              <div class="guide-step-badge">{s.step}</div>
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 系列矩阵呼应 -->
+    <section class="section series-section">
+      <div class="container">
+        <div class="series-box color-block color-block-lilac reveal">
+          <div class="series-content">
+            <span class="eyebrow">全端生态互联</span>
+            <h2>发现安禾播放器<br />系列家族</h2>
+            <p>
+              无论是在 Windows 电脑前沉浸听歌，还是在通勤路上掌中随享，安禾播放器系列为您打造全场景音乐解决方案。
+            </p>
+          </div>
+          <div class="series-cards">
+            <a href="/" class="series-mini-card">
+              <span class="mini-tag">PC 桌面端</span>
+              <h4>AnhePlayer 桌面版</h4>
+              <p>Tauri v2 原生引擎打造，支持网易云个性化雷达与主题市场</p>
+              <span class="mini-link">查看桌面版 →</span>
+            </a>
+            <a href="/mobile" class="series-mini-card">
+              <span class="mini-tag">移动端</span>
+              <h4>AnhePlayer 移动端</h4>
+              <p>Android Material 3 设计、QuickJS 洛雪内核与 10 档专业音效</p>
+              <span class="mini-link">查看移动端 →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <script>
+    import {
+      DOWNLOADER_LATEST_API,
+      DOWNLOADER_FALLBACK_VERSION,
+      DOWNLOADER_FALLBACK_URL,
+    } from "@/data/downloader";
+
+    async function checkDownloaderRelease() {
+      const statusEl = document.getElementById("downloader-api-status");
+      const versionEl = document.getElementById("downloader-hero-version");
+      const heroBtn = document.getElementById("downloader-hero-download-btn") as HTMLAnchorElement | null;
+      const cardBtn = document.getElementById("downloader-card-download-btn") as HTMLAnchorElement | null;
+      const sizeEl = document.getElementById("downloader-asset-size");
+
+      try {
+        const res = await fetch(DOWNLOADER_LATEST_API);
+        if (!res.ok) throw new Error("API rate-limited or unavailable");
+        const data = await res.json();
+        const tag = (data.tag_name || `v${DOWNLOADER_FALLBACK_VERSION}`).trim();
+        const exeAsset = Array.isArray(data.assets)
+          ? data.assets.find((a: any) => typeof a.name === "string" && a.name.endsWith(".exe"))
+          : null;
+
+        const downloadUrl = exeAsset?.browser_download_url || DOWNLOADER_FALLBACK_URL;
+        const sizeFormatted = exeAsset?.size
+          ? `${(exeAsset.size / (1024 * 1024)).toFixed(1)} MB`
+          : "约 9.3 MB";
+
+        if (versionEl) versionEl.textContent = tag;
+        if (sizeEl) sizeEl.textContent = sizeFormatted;
+        if (heroBtn) {
+          heroBtn.href = downloadUrl;
+          const textSpan = heroBtn.querySelector("span");
+          if (textSpan) textSpan.textContent = `下载单文件 exe (${tag})`;
+        }
+        if (cardBtn) {
+          cardBtn.href = downloadUrl;
+        }
+        if (statusEl) {
+          statusEl.textContent = `已同步最新正式版 ${tag}（${exeAsset?.name || "anhe-downloader.exe"}）`;
+        }
+      } catch {
+        if (statusEl) {
+          statusEl.textContent = `当前使用官方直链（v${DOWNLOADER_FALLBACK_VERSION}）`;
+        }
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", checkDownloaderRelease);
+    } else {
+      checkDownloaderRelease();
+    }
+  </script>
+</Layout>
+
+<style>
+  /* Hero 区域 */
+  .hero {
+    min-height: max(580px, 75vh);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+
+  .hero :global(.color-block) {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .hero .container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.3rem, 4.8vw, 3.8rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 22px;
+    color: var(--ink);
+  }
+
+  .hero-desc {
+    font-size: 1.08rem;
+    line-height: 1.68;
+    color: var(--ink);
+    opacity: 0.72;
+    margin-bottom: 32px;
+    font-weight: 350;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .meta-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* 桌面窗口展示框 */
+  .window-mockup {
+    position: relative;
+    border-radius: var(--radius-lg);
+    background: var(--canvas);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+  }
+
+  .window-bar {
+    height: 38px;
+    background: #f1f1f3;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    padding-inline: 14px;
+    position: relative;
+  }
+
+  .window-dots {
+    display: flex;
+    gap: 7px;
+  }
+
+  .window-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d1d1d6;
+  }
+
+  .window-dots span:nth-child(1) { background: #ff5f56; }
+  .window-dots span:nth-child(2) { background: #ffbd2e; }
+  .window-dots span:nth-child(3) { background: #27c93f; }
+
+  .window-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.78rem;
+    color: var(--ink);
+    opacity: 0.6;
+    font-weight: 500;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .window-content {
+    background: #fafafa;
+    line-height: 0;
+  }
+
+  .window-content img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .floating-badge {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    white-space: nowrap;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .badge-top-right {
+    top: 15%;
+    right: -20px;
+    animation-delay: 0s;
+  }
+
+  .badge-bottom-left {
+    bottom: 12%;
+    left: -20px;
+    animation-delay: -2s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* 特性网格 */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--hairline);
+  }
+
+  .feature-icon {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--block-coral);
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .feature-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .feature-card p {
+    color: var(--ink);
+    opacity: 0.68;
+    font-size: 0.95rem;
+    line-height: 1.64;
+    font-weight: 320;
+  }
+
+  /* 截图展示区 */
+  .showcase-window {
+    border-radius: var(--radius-lg);
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .showcase-img img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .showcase-highlights {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .highlight-item {
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    border: 1px solid var(--hairline-soft);
+  }
+
+  .hl-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: var(--canvas);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    display: inline-block;
+    color: var(--ink);
+    margin-bottom: 10px;
+    border: 1px solid var(--hairline);
+  }
+
+  .highlight-item h4 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .highlight-item p {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+    line-height: 1.55;
+  }
+
+  /* 下载卡片 */
+  .download-card {
+    max-width: 760px;
+    margin-inline: auto;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .download-card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--hairline-soft);
+  }
+
+  .os-icon-wrap {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: var(--block-coral);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .os-icon-wrap svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .os-text-info h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .os-text-info span {
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .download-assets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .asset-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    transition: all 0.2s ease;
+  }
+
+  .asset-btn:hover {
+    background: var(--canvas);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .asset-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .asset-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  .asset-note {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+  }
+
+  .asset-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .asset-size {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+
+  .download-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--ink);
+  }
+
+  .headless-box {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--hairline);
+  }
+
+  .headless-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .headless-title svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .headless-box p {
+    font-size: 0.85rem;
+    color: var(--ink);
+    opacity: 0.65;
+    margin-bottom: 8px;
+  }
+
+  .headless-box code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    background: var(--canvas);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--hairline-soft);
+    color: var(--ink);
+  }
+
+  .download-footer {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-link {
+    font-size: 0.9rem;
+    color: var(--ink);
+    font-weight: 500;
+    opacity: 0.75;
+    transition: opacity 0.2s ease;
+  }
+
+  .footer-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .api-status {
+    font-size: 0.84rem;
+    color: var(--ink);
+    opacity: 0.55;
+    font-family: var(--font-mono);
+  }
+
+  /* 上手指引 */
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .guide-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-lg);
+    padding: 36px 30px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .guide-step-badge {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0.25;
+    margin-bottom: 14px;
+  }
+
+  .guide-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .guide-card p {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--ink);
+    opacity: 0.68;
+    font-weight: 320;
+  }
+
+  /* 系列矩阵互联 */
+  .series-box {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .series-content h2 {
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .series-content p {
+    color: var(--ink);
+    opacity: 0.72;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .series-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .series-mini-card {
+    background: var(--canvas);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+  }
+
+  .series-mini-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+  }
+
+  .mini-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+
+  .series-mini-card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .series-mini-card p {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.65;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    flex: 1;
+  }
+
+  .mini-link {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* 响应式 */
+  @media (max-width: 960px) {
+    .hero .container {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .hero-content {
+      text-align: center;
+    }
+    .hero-actions, .hero-meta {
+      justify-content: center;
+    }
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .showcase-highlights {
+      grid-template-columns: 1fr;
+    }
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+    .series-box {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+    .series-cards {
+      grid-template-columns: 1fr;
+    }
+    .floating-badge {
+      display: none;
+    }
+    .download-card {
+      padding: 24px 18px;
+    }
+  }
+</style>

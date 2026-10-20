@@ -1,11 +1,17 @@
 # cf-anheplayer
 
-AnhePlayer 官方宣传与下载页，从 `zone` 主站拆分出来，独立部署在 Cloudflare Pages。
+AnhePlayer 全系列官方宣传与下载门户，从 `zone` 主站拆分出来，独立部署在 Cloudflare Pages。
 
 - 线上地址：`https://anhe-player.loc.cc`
 - 主站：`https://raclen.ee.cd`
 
-页面包含功能介绍、界面截图、安装包下载与插件主题说明。下载版本与文件大小在浏览器端从 GitHub Releases API 动态获取，API 不可用时回退到 `src/data/platforms.ts` 中的版本号直链。
+门户涵盖安禾播放器系列三大产品与音源可用性监测中心：
+1. **PC 桌面端**（`/`）：基于 Tauri v2 + React 的跨平台轻量无损音乐播放器。
+2. **移动端**（`/mobile`）：基于 Android Compose + Media3 的高颜值 Material 3 随身听，内置 QuickJS 洛雪音源沙箱与 10 档 AutoEQ。
+3. **风宝音乐下载器**（`/downloader`）：Go 1.26 + 原生 WebView2 单文件 9.3MB 极轻下载器，多源聚合检索，下载自动生成内嵌 500px 封面与滚动歌词的规范 MP3。
+4. **洛雪音源状态监测**（`/sources`）：GitHub Actions 每 4 小时自动化测试所有自定义音源拉流健康度。
+
+所有产品的下载版本与文件大小均在浏览器端实时从 GitHub Releases API 动态获取，API 限流时自动平滑回退到硬编码直链。
 
 ## 技术栈
 
@@ -96,12 +102,15 @@ cf-anheplayer/
 │   └── lib/lx-sandbox.mjs  洛雪运行环境模拟
 ├── sources/                洛雪自定义音源（优质 / 一般 / remote.json 在线清单）
 ├── src/
-│   ├── assets/screenshots/ 界面截图（构建时由 Astro 优化）
-│   ├── components/         页面区块组件
-│   ├── data/               功能列表、安装包元数据与检测结果
+│   ├── assets/screenshots/ 界面截图（PC / 移动端 / 下载器，构建时由 Astro 优化）
+│   ├── components/         页面区块组件（Nav, Hero, Features, FamilySection, Footer 等）
+│   ├── data/               功能列表、安装包元数据（platforms, mobile, downloader）与检测结果
 │   ├── layouts/            页面骨架与 meta 标签
-│   ├── pages/index.astro   宣传页
-│   ├── pages/sources.astro 音源状态页
+│   ├── pages/
+│   │   ├── index.astro      PC 桌面端宣传与下载页
+│   │   ├── mobile.astro     移动端宣传与下载页
+│   │   ├── downloader.astro 风宝音乐下载器宣传与下载页
+│   │   └── sources.astro    音源状态页
 │   └── styles/global.css   全局样式
 ├── astro.config.mjs
 └── package.json
@@ -109,8 +118,10 @@ cf-anheplayer/
 
 ## 维护提示
 
-- 新增或调整安装包：只改 `src/data/platforms.ts` 的 `PLATFORMS` 与 `FALLBACK_VERSION`。
-- 功能卡片文案：改 `src/data/features.ts`。
+- 新增或调整 PC 安装包：改 `src/data/platforms.ts` 的 `PLATFORMS` 与 `FALLBACK_VERSION`。
+- 新增或调整移动端配置：改 `src/data/mobile.ts` 的版本、特性与直链。
+- 新增或调整下载器配置：改 `src/data/downloader.ts` 的版本、特性与直链。
+- PC 功能卡片文案：改 `src/data/features.ts`。
 - 更新音源：把新文件放进 `sources/优质` 或 `sources/一般`，然后执行 `pnpm sources:check`；也可用 `scripts/sync-sources.mjs` 从本地目录整体同步。
 - 新增在线音源：在 `sources/remote.json` 里追加 `{ id, title, url, mirror }` 条目即可，无需下载脚本。
 - 调整测试歌曲：改 `scripts/check-sources.mjs` 顶部的 `TEST_SONGS`。

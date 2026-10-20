@@ -1,5 +1,7 @@
 ---
-import { GITHUB_REPO_URL, TAURI_URL } from "@/data/platforms";
+import { GITHUB_REPO_URL as PC_REPO, TAURI_URL } from "@/data/platforms";
+import { MOBILE_REPO_URL } from "@/data/mobile";
+import { DOWNLOADER_REPO_URL } from "@/data/downloader";
 
 const year = new Date().getFullYear();
 ---
@@ -8,30 +10,46 @@ const year = new Date().getFullYear();
   <div class="container">
     <div class="footer-inner">
       <div class="footer-brand">
-        <img src="/logo.png" alt="" width="40" height="40" />
-        <span class="footer-name">AnhePlayer</span>
-        <p class="footer-desc">支持洛雪插件 · 无广告的免费音乐播放器</p>
+        <div class="footer-logos">
+          <img src="/logo.png" alt="AnhePlayer PC" width="36" height="36" title="AnhePlayer PC" />
+          <img src="/mobile-logo.webp" alt="AnhePlayer Mobile" width="36" height="36" title="AnhePlayer Mobile" />
+          <img src="/downloader-logo.png" alt="风宝音乐下载器" width="36" height="36" title="风宝音乐下载器" />
+        </div>
+        <span class="footer-name">AnhePlayer 系列</span>
+        <p class="footer-desc">
+          涵盖 PC 桌面端、移动端与轻量下载器的开源音乐套件，支持洛雪自定义音源与本地高保真播放，纯净无广告。
+        </p>
       </div>
 
       <div class="footer-links">
         <div class="footer-col">
-          <h4>项目</h4>
-          <a href={GITHUB_REPO_URL} target="_blank" rel="noopener">GitHub 仓库</a>
-          <a href={`${GITHUB_REPO_URL}/releases`} target="_blank" rel="noopener">历史版本</a>
-          <a href={`${GITHUB_REPO_URL}/issues`} target="_blank" rel="noopener">反馈问题</a>
+          <h4>系列产品</h4>
+          <a href="/">PC 桌面端 (Tauri v2)</a>
+          <a href="/mobile">移动端 (Android)</a>
+          <a href="/downloader">风宝音乐下载器 (Windows)</a>
+          <a href="/sources">洛雪音源状态监测</a>
         </div>
+
         <div class="footer-col">
-          <h4>开源</h4>
-          <a href={`${GITHUB_REPO_URL}/blob/master/LICENSE`} target="_blank" rel="noopener"
-            >AGPL-3.0 许可证</a
-          >
-          <a href={TAURI_URL} target="_blank" rel="noopener">基于 Tauri v2</a>
+          <h4>开源仓库</h4>
+          <a href={PC_REPO} target="_blank" rel="noopener">AnhePlayer (PC)</a>
+          <a href={MOBILE_REPO_URL} target="_blank" rel="noopener">AnhePlayer-Mobile</a>
+          <a href={DOWNLOADER_REPO_URL} target="_blank" rel="noopener">anhe-downloader</a>
+          <a href="https://github.com/raclen/cf-anheplayer" target="_blank" rel="noopener">cf-anheplayer (本站)</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>技术与生态</h4>
+          <a href={TAURI_URL} target="_blank" rel="noopener">Tauri v2 原生引擎</a>
+          <a href="https://developer.android.com/jetpack/compose" target="_blank" rel="noopener">Jetpack Compose & Media3</a>
+          <a href="https://go.dev/" target="_blank" rel="noopener">Go + 原生 WebView2</a>
+          <a href="/sources-status.json" target="_blank" rel="noopener">音源实时可用性 API</a>
         </div>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <p>&copy; {year} AnhePlayer. 采用 AGPL-3.0 协议开源。</p>
+      <p>&copy; {year} AnhePlayer 系列 · 本项目所有代码均基于开源协议提供 · 仅供个人学习与音频技术交流</p>
     </div>
   </div>
 </footer>
@@ -51,17 +69,24 @@ const year = new Date().getFullYear();
   }
 
   .footer-brand {
-    max-width: 280px;
+    max-width: 320px;
   }
 
-  .footer-brand img {
-    display: block;
-    margin-bottom: 12px;
+  .footer-logos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .footer-logos img {
+    border-radius: var(--radius-sm);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   .footer-name {
     display: block;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 8px;
     color: var(--ink);
@@ -69,18 +94,19 @@ const year = new Date().getFullYear();
 
   .footer-desc {
     color: var(--ink);
-    opacity: 0.6;
+    opacity: 0.65;
     font-size: 0.92rem;
     line-height: 1.6;
   }
 
   .footer-links {
     display: flex;
-    gap: 56px;
+    flex-wrap: wrap;
+    gap: 48px;
   }
 
   .footer-col h4 {
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -91,19 +117,20 @@ const year = new Date().getFullYear();
 
   .footer-col a {
     display: block;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: var(--ink);
-    opacity: 0.7;
+    opacity: 0.72;
     margin-bottom: 10px;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
   .footer-col a:hover {
     opacity: 1;
+    transform: translateX(2px);
   }
 
   .footer-bottom {
-    padding-top: 32px;
+    padding-top: 28px;
     border-top: 1px solid var(--hairline);
     text-align: center;
   }
@@ -111,23 +138,18 @@ const year = new Date().getFullYear();
   .footer-bottom p {
     color: var(--ink);
     opacity: 0.5;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 840px) {
     .footer-inner {
       flex-direction: column;
       gap: 36px;
     }
-    .footer-links {
-      gap: 36px;
-    }
-  }
 
-  @media (max-width: 480px) {
     .footer-links {
-      flex-direction: column;
-      gap: 24px;
+      gap: 32px 48px;
     }
   }
 </style>

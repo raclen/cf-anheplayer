@@ -2,6 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import Layout from "@/layouts/Layout.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
 
 const statusFile = path.resolve(process.cwd(), "src/data/sources-status.json");
 let status: any = null;
@@ -94,19 +96,7 @@ const resolveCopyUrl = (src: any) => {
   title="洛雪音源状态监测 · AnhePlayer"
   description="每 4 小时自动检测洛雪音乐自定义音源的可用性，展示每个音源在网易云、QQ 音乐、酷我、酷狗、咪咕等平台的实时取流状态。"
 >
-  <header class="status-nav">
-    <div class="container status-nav-inner">
-      <a class="brand" href="/" aria-label="返回 AnhePlayer 首页">
-        <img src="/logo.png" alt="" width="30" height="30" />
-        <span>AnhePlayer</span>
-      </a>
-      <nav class="status-nav-links" aria-label="导航">
-        <a href="/">首页</a>
-        <a href="/sources-status.json" target="_blank" rel="noopener">JSON 数据</a>
-        <a href="https://github.com/raclen/cf-anheplayer" target="_blank" rel="noopener">GitHub</a>
-      </nav>
-    </div>
-  </header>
+  <Nav current="sources" downloadHref="" githubUrl="https://github.com/raclen/cf-anheplayer" />
 
   <main>
     <section class="status-hero">
@@ -324,12 +314,7 @@ const resolveCopyUrl = (src: any) => {
     </section>
   </main>
 
-  <footer class="status-footer">
-    <div class="container status-footer-inner">
-      <span>© {new Date().getFullYear()} AnhePlayer</span>
-      <a href="/">返回首页</a>
-    </div>
-  </footer>
+  <Footer />
 
   <script>
     const state = { status: "all", category: "all", query: "" };
