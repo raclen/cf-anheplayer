@@ -1,0 +1,114 @@
+---
+// 洛雪插件 & 主题包安装说明。简洁引导，不堆砌细节。
+---
+
+<section class="section" id="plugins">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">扩展生态</span>
+      <h2 class="section-title">插件 & 主题</h2>
+      <p class="section-desc">
+        通过插件扩展在线音源，在主题市场中挑一套喜欢的界面风格。
+      </p>
+    </div>
+
+    <div class="plugins-grid">
+      <article class="plugin-card glass reveal">
+        <div class="plugin-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 2v5M15 2v5"/><path d="M6 7h12v3.2a6 6 0 0 1-12 0V7Z"/><path d="M12 17v4.5"/>
+          </svg>
+        </div>
+        <h3>洛雪插件系统</h3>
+        <p>
+          AnhePlayer 默认不内置音源，需安装洛雪插件扩展。<br />
+          在插件管理中导入本地 <code>.js</code> 文件，或添加以 <code>.js</code> 结尾的 https 链接并订阅更新。<br />
+          插件声明的 source 将作为播放解析源，支持多音质切换、音源重定向与播放失败自动换源。
+        </p>
+      </article>
+
+      <article class="plugin-card glass reveal">
+        <div class="plugin-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 2.5a9.5 9.5 0 1 0 0 19c.83 0 1.5-.67 1.5-1.5 0-.4-.16-.76-.42-1.03a1.5 1.5 0 0 1 1.06-2.55H16a5 5 0 0 0 5-5C21 6.7 16.97 2.5 12 2.5Z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/>
+          </svg>
+        </div>
+        <h3>主题市场</h3>
+        <p>
+          内置浅色与纯黑主题，主题市场提供「柔雾白昼」「极夜流光」「Silk Motion」「Pulse Grid」「Hype Wave」等多套策展主题。<br />
+          支持导入本地或远程 <code>.mftheme</code> 主题包，自定义颜色、背景、字体与界面布局。<br />
+          完整主题开发文档请参阅 GitHub 仓库。
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .plugins-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .plugin-card {
+    padding: 40px 36px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .plugin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .plugin-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    color: var(--ink);
+    background: var(--block-lilac);
+  }
+
+  .plugin-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .plugin-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .plugin-card p {
+    color: var(--ink);
+    opacity: 0.7;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    font-weight: 320;
+  }
+
+  .plugin-card code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: var(--block-cream);
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  @media (max-width: 840px) {
+    .plugins-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,76 @@
+---
+import "../styles/global.css";
+
+export interface Props {
+  title?: string;
+  description?: string;
+  /** 站点图标路径；AnhePlayer 宣传页传入播放器图标 */
+  favicon?: string;
+}
+
+const {
+  title = "AnhePlayer · 支持洛雪插件的免费音乐播放器",
+  description = "AnhePlayer 是一款基于 Tauri v2 打造的轻量 Windows 桌面音乐播放器。支持洛雪插件、本地曲库、网易云私人推荐与主题定制，无广告、不上传个人数据。",
+  favicon = "/favicon.svg",
+} = Astro.props;
+
+const faviconType = favicon.endsWith(".svg") ? "image/svg+xml" : "image/png";
+
+const canonical = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site).href
+  : Astro.url.href;
+const ogImage = Astro.site
+  ? new URL("/og-image.png", Astro.site).href
+  : "/og-image.png";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type={faviconType} href={favicon} />
+    <meta name="theme-color" content="#070b16" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="AnhePlayer" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body>
+    <slot />
+
+    <!-- 滚动淡入：为 .reveal 元素添加 is-visible -->
+    <script>
+      const els = document.querySelectorAll<HTMLElement>(".reveal");
+      if (els.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add("is-visible");
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+        );
+        els.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>

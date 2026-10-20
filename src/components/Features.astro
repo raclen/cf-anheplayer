@@ -1,0 +1,123 @@
+---
+import { FEATURES } from "@/data/features";
+
+// 图标 SVG（统一 24x24 描边风格），按 feature.icon 取用。
+const icons: Record<string, string> = {
+  engine:
+    '<path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z"/>',
+  puzzle:
+    '<path d="M9 2.5v5M15 2.5v5"/><path d="M6 7.5h12v3.2a6 6 0 0 1-12 0V7.5Z"/><path d="M12 17v4.5"/>',
+  radar:
+    '<circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>',
+  folder:
+    '<path d="M3 7a2 2 0 0 1 2-2h3.6a2 2 0 0 1 1.4.6L11.4 7H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>',
+  queue:
+    '<path d="M4 6h16M4 12h11M4 18h7"/><path d="m16.5 13.5 5 3.5-5 3.5v-7Z"/>',
+  palette:
+    '<path d="M12 2.5a9.5 9.5 0 1 0 0 19c.83 0 1.5-.67 1.5-1.5 0-.4-.16-.76-.42-1.03a1.5 1.5 0 0 1 1.06-2.55H16a5 5 0 0 0 5-5C21 6.7 16.97 2.5 12 2.5Z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/>',
+  download:
+    '<path d="M12 3.5v11m0 0 4-4m-4 4-4-4"/><path d="M4 16.5v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+  backup:
+    '<path d="M7 17.5h9.5a3.5 3.5 0 0 0 .5-6.96A5.5 5.5 0 0 0 6.6 10 3.75 3.75 0 0 0 7 17.5Z"/><path d="M12 10.5v6m0 0 2.2-2.2M12 16.5l-2.2-2.2"/>',
+};
+
+// 为每个功能分配一个彩色背景
+const colorBlocks = ['lilac', 'pink', 'cream', 'coral', 'lime', 'mint', 'lilac', 'pink'];
+---
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">核心功能</span>
+      <h2 class="section-title">一个播放器，<span class="gradient-text">该有的都有</span></h2>
+      <p class="section-desc">
+        Tauri v2 原生内核搭配插件音源与个性化推荐 —— 纯净、自由、属于你自己的音乐空间。
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      {
+        FEATURES.map((f, i) => (
+          <article class={`feature-card color-block color-block-${colorBlocks[i]} reveal`}>
+            <div class="feature-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                set:html={icons[f.icon]}
+              />
+            </div>
+            <h3>{f.title}</h3>
+            <p>{f.desc}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 32px 28px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    color: var(--ink);
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .feature-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .feature-card p {
+    color: var(--ink);
+    opacity: 0.7;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-weight: 320;
+  }
+
+  @media (max-width: 1024px) {
+    .feature-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,322 @@
+---
+import { PLATFORMS, OS_GROUP, RELEASES_LATEST_URL, type IconKey } from "@/data/platforms";
+
+// 平台图标（当前仅 Windows）
+const osIcons: Record<IconKey, string> = {
+  windows:
+    '<path d="M0 3.4 10 2v9H0V3.4ZM11 1.8l13-1.8v11H11V1.8ZM0 12.6V20l10 1.4V13H0Zm11 8.6L24 23V12H11v9.2Z"/>',
+};
+---
+
+<section class="section download-section" id="download">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">立即下载</span>
+      <h2 class="section-title">
+        选择适合你的<span class="gradient-text">安装包</span>
+      </h2>
+      <p class="section-desc">
+        当前版本专为 Windows 10 / 11 打造，提供一键安装版与 MSI 安装包。
+      </p>
+    </div>
+
+    <div class="os-group reveal">
+      <div class="os-group-header">
+        <div class="os-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" set:html={osIcons[OS_GROUP.icon]} />
+        </div>
+        <div class="os-group-title">
+          <h3>{OS_GROUP.label}</h3>
+          <span>x64 架构 · Tauri v2 原生应用</span>
+        </div>
+      </div>
+
+      <div class="os-assets">
+        {
+          PLATFORMS.map((p) => (
+            <a
+              class="asset-btn"
+              data-asset-id={p.id}
+              href={RELEASES_LATEST_URL}
+              target="_blank"
+              rel="noopener"
+            >
+              <div class="asset-info">
+                <span class="asset-label">
+                  {p.label}
+                  {p.recommended && <span class="asset-badge">推荐</span>}
+                </span>
+                <span class="asset-note">{p.note}</span>
+              </div>
+              <div class="asset-meta">
+                <span class="asset-size" data-size="">—</span>
+                <svg
+                  class="download-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="download-footer reveal">
+      <a class="footer-link" href={RELEASES_LATEST_URL} target="_blank" rel="noopener">
+        查看全部历史版本 →
+      </a>
+      <p class="api-status" id="api-status">正在从 GitHub 获取最新版本…</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import {
+    PLATFORMS,
+    LATEST_API,
+    fallbackUrl,
+    FALLBACK_VERSION,
+  } from "@/data/platforms";
+
+  // 格式化文件大小
+  function fmtSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  // 填充下载链接与文件大小
+  async function fillDownloads() {
+    const status = document.getElementById("api-status");
+    const heroVersion = document.getElementById("hero-version");
+    const heroDownloads = document.getElementById("hero-downloads");
+    const heroBtn = document.getElementById("hero-download-btn") as HTMLButtonElement | null;
+    const heroBtnText = document.getElementById("hero-btn-text");
+
+    try {
+      const res = await fetch(LATEST_API, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error(`API ${res.status}`);
+      const data = await res.json();
+
+      const version = data.tag_name || FALLBACK_VERSION;
+      const assets = data.assets || [];
+      let totalDownloads = 0;
+
+      // 匹配并填充每个安装包
+      for (const p of PLATFORMS) {
+        const asset = assets.find((a: any) => a.name?.includes(p.match));
+        const btn = document.querySelector<HTMLAnchorElement>(`[data-asset-id="${p.id}"]`);
+        const sizeSpan = btn?.querySelector<HTMLElement>("[data-size]");
+
+        if (asset && btn) {
+          btn.href = asset.browser_download_url;
+          if (sizeSpan) sizeSpan.textContent = fmtSize(asset.size || 0);
+          totalDownloads += asset.download_count || 0;
+        } else if (btn) {
+          // 兜底：使用静态直链
+          btn.href = fallbackUrl(p, version.replace(/^v/, ""));
+        }
+      }
+
+      // 更新 Hero 元信息
+      if (heroVersion) heroVersion.textContent = version;
+      if (heroDownloads)
+        heroDownloads.textContent = `${totalDownloads.toLocaleString()} 次下载`;
+
+      // Hero 主按钮：指向推荐安装包
+      const recommended = PLATFORMS.find((p) => p.recommended);
+      if (recommended && heroBtn) {
+        const asset = assets.find((a: any) => a.name?.includes(recommended.match));
+        heroBtn.disabled = false;
+        heroBtn.onclick = (e) => {
+          e.preventDefault();
+          window.open(
+            asset?.browser_download_url || fallbackUrl(recommended, version.replace(/^v/, "")),
+            "_blank",
+          );
+        };
+        if (heroBtnText) heroBtnText.textContent = `下载 ${recommended.label}`;
+      }
+
+      if (status) status.textContent = `已加载最新版本 ${version}`;
+    } catch (err) {
+      console.warn("GitHub API 请求失败，使用兜底链接：", err);
+      // 兜底：填充静态直链
+      for (const p of PLATFORMS) {
+        const btn = document.querySelector<HTMLAnchorElement>(`[data-asset-id="${p.id}"]`);
+        if (btn) btn.href = fallbackUrl(p);
+      }
+      if (heroVersion) heroVersion.textContent = `v${FALLBACK_VERSION}`;
+      if (heroDownloads) heroDownloads.textContent = "—";
+      if (status) status.textContent = "API 不可用，已显示兜底下载链接";
+
+      const recommended = PLATFORMS.find((p) => p.recommended);
+      if (recommended && heroBtn) {
+        heroBtn.disabled = false;
+        heroBtn.onclick = (e) => {
+          e.preventDefault();
+          window.open(fallbackUrl(recommended), "_blank");
+        };
+        if (heroBtnText) heroBtnText.textContent = `下载 ${recommended.label}`;
+      }
+    }
+  }
+
+  fillDownloads();
+</script>
+
+<style>
+  .download-section {
+    background: var(--surface-soft);
+  }
+
+  .os-group {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  .os-group-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .os-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--ink);
+  }
+
+  .os-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--canvas);
+  }
+
+  .os-group-title h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .os-group-title span {
+    font-size: 0.85rem;
+    color: var(--ink);
+    opacity: 0.55;
+  }
+
+  .os-assets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .asset-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+    border-radius: var(--radius-md);
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .asset-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .asset-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .asset-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .asset-badge {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--block-lime);
+  }
+
+  .asset-note {
+    font-size: 0.85rem;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .asset-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .asset-size {
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .download-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .download-footer {
+    margin-top: 56px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer-link {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    transition: opacity 0.2s ease;
+  }
+
+  .footer-link:hover {
+    opacity: 0.7;
+  }
+
+  .api-status {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 680px) {
+    .os-assets {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,263 @@
+---
+import { GITHUB_REPO_URL } from "@/data/platforms";
+
+const links = [
+  { href: "#features", label: "功能" },
+  { href: "#screenshots", label: "界面" },
+  { href: "#download", label: "下载" },
+  { href: "#plugins", label: "插件 & 主题" },
+];
+---
+
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top" aria-label="AnhePlayer 首页">
+      <img src="/logo.png" alt="" width="34" height="34" />
+      <span>AnhePlayer</span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="nav-actions">
+      <a
+        class="icon-link"
+        href={GITHUB_REPO_URL}
+        target="_blank"
+        rel="noopener"
+        aria-label="在 GitHub 查看"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.03 11.03 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"
+          ></path>
+        </svg>
+      </a>
+      <a class="btn btn-primary btn-sm download-cta" href="#download">下载</a>
+      <button
+        class="nav-toggle"
+        id="nav-toggle"
+        aria-label="打开菜单"
+        aria-expanded="false"
+        aria-controls="nav-mobile"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="nav-mobile" id="nav-mobile" aria-label="移动导航" hidden>
+    {links.map((l) => <a href={l.href} class="nav-mobile-link">{l.label}</a>)}
+    <a href={GITHUB_REPO_URL} target="_blank" rel="noopener" class="nav-mobile-link">GitHub</a>
+  </nav>
+</header>
+
+<script>
+  const nav = document.getElementById("nav");
+  const toggle = document.getElementById("nav-toggle");
+  const mobile = document.getElementById("nav-mobile");
+
+  const onScroll = () => {
+    if (!nav) return;
+    nav.classList.toggle("scrolled", window.scrollY > 8);
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const closeMenu = () => {
+    if (!toggle || !mobile) return;
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "打开菜单");
+    mobile.hidden = true;
+    nav?.classList.remove("menu-open");
+  };
+
+  toggle?.addEventListener("click", () => {
+    if (!mobile) return;
+    const open = toggle.getAttribute("aria-expanded") === "true";
+    if (open) {
+      closeMenu();
+    } else {
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "关闭菜单");
+      mobile.hidden = false;
+      nav?.classList.add("menu-open");
+    }
+  });
+
+  mobile?.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    border-bottom: 1px solid transparent;
+  }
+
+  .nav.scrolled,
+  .nav.menu-open {
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom-color: var(--hairline);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  /* 图标自带圆角与透明角，外层不要再裁一次，否则弧线会被抹平 */
+  .brand img {
+    display: block;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    margin-inline: auto;
+  }
+
+  .nav-links a {
+    color: var(--ink);
+    opacity: 0.7;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    opacity: 1;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .icon-link {
+    display: inline-flex;
+    color: var(--ink);
+    opacity: 0.7;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .icon-link svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .icon-link:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    margin-inline: auto;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: 0.2s ease;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .nav-mobile {
+    position: absolute;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    padding: 12px 24px 20px;
+    background: rgba(255, 255, 255, 0.96);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+    box-shadow: var(--shadow-md);
+  }
+
+  .nav-mobile[hidden] {
+    display: none;
+  }
+
+  .nav-mobile-link {
+    padding: 13px 6px;
+    color: var(--ink);
+    opacity: 0.7;
+    border-bottom: 1px solid var(--hairline-soft);
+    font-weight: 500;
+  }
+
+  .nav-mobile-link:hover {
+    opacity: 1;
+  }
+
+  .nav-mobile-link:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 860px) {
+    .nav-links {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .nav-toggle {
+      display: flex;
+    }
+    .download-cta {
+      display: none;
+    }
+    .nav-mobile:not([hidden]) {
+      display: flex;
+    }
+  }
+</style>

@@ -1,0 +1,184 @@
+---
+import { GITHUB_REPO_URL } from "@/data/platforms";
+import { Image } from "astro:assets";
+import mainImg from "@/assets/screenshots/main.webp";
+---
+
+<section class="hero" id="top">
+  <div class="color-block color-block-mint">
+    <div class="container">
+      <div class="hero-content">
+        <span class="eyebrow">开源 · Windows · 轻量原生</span>
+        <h1 class="hero-title">
+          属于你自己的<br /><span class="gradient-text">桌面音乐播放器</span>
+        </h1>
+        <p class="hero-desc">
+          基于 Tauri v2 原生引擎打造，秒级冷启动、极低资源占用。<br
+          />支持洛雪插件音源、本地曲库、网易云私人推荐与主题定制，没有广告，也不上传你的个人数据。
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="hero-download-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+              <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
+            <span id="hero-btn-text">载入中…</span>
+          </button>
+          <a class="btn btn-secondary" href={GITHUB_REPO_URL} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.03 11.03 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/>
+            </svg>
+            在 GitHub 查看
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2 17 6.5l-2-2L10 9.5l3 3-4 4 2 2 4.5-5 3 3L23.5 8l-2-2Z"/><path d="M3 21.5h18"/>
+            </svg>
+            <span id="hero-version">—</span>
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
+            <span id="hero-downloads">—</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <div class="hero-screenshot">
+          <Image
+            src={mainImg}
+            alt="AnhePlayer 主界面"
+            loading="eager"
+            quality={90}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: max(580px, 75vh);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+
+  .hero :global(.color-block) {
+    width: 100%;
+    border-radius: 0px;
+  }
+
+  .hero .container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    align-items: center;
+    gap: 64px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: var(--ink);
+    opacity: 0.7;
+    margin-bottom: 36px;
+    max-width: 50ch;
+    font-weight: 320;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0.6;
+    font-weight: 480;
+  }
+
+  .meta-item svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+  }
+
+  .hero-visual {
+    position: relative;
+  }
+
+  .hero-screenshot {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--canvas);
+  }
+
+  .hero-screenshot:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .hero-screenshot img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 920px) {
+    .hero .container {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .hero-content {
+      text-align: center;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+    .hero-desc {
+      margin-inline: auto;
+    }
+    .hero-actions {
+      justify-content: center;
+    }
+    .hero-meta {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero {
+      min-height: auto;
+    }
+  }
+</style>

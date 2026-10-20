@@ -1,0 +1,300 @@
+/* ============================================================
+   AnhePlayer 宣传页 · 全局样式
+   Figma 风格：黑白编辑框 + 彩色色块 + 轻盈排版
+   ============================================================ */
+
+:root {
+  /* 主色 - 黑白系统 */
+  --primary: #000000;
+  --on-primary: #ffffff;
+  --ink: #000000;
+  --canvas: #ffffff;
+  --inverse-canvas: #000000;
+  --inverse-ink: #ffffff;
+
+  /* 边框 / 分隔线 */
+  --hairline: #e6e6e6;
+  --hairline-soft: #f1f1f1;
+
+  /* 表面 */
+  --surface-soft: #f7f7f5;
+
+  /* 彩色色块 - 小清新配色 */
+  --block-lime: #dceeb1;
+  --block-lilac: #c5b0f4;
+  --block-cream: #f4ecd6;
+  --block-pink: #efd4d4;
+  --block-mint: #c8e6cd;
+  --block-coral: #f3c9b6;
+  --block-navy: #1f1d3d;
+
+  /* 强调色 */
+  --accent-magenta: #ff3d8b;
+  --semantic-success: #1ea64a;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
+
+  /* 尺寸 */
+  --maxw: 1180px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 50px;
+  --nav-h: 68px;
+
+  /* 字体 */
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
+    Consolas, "Courier New", monospace;
+}
+
+/* --------- reset --------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+::selection {
+  background: var(--block-lilac);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --------- 布局工具 --------- */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.section {
+  padding-block: clamp(64px, 9vw, 120px);
+  position: relative;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.10;
+  color: var(--ink);
+}
+
+.section-desc {
+  margin-top: 18px;
+  max-width: 52ch;
+  color: var(--ink);
+  opacity: 0.65;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 320;
+}
+
+.section-head {
+  margin-bottom: clamp(40px, 5vw, 64px);
+}
+
+.section-head.center {
+  text-align: center;
+}
+.section-head.center .section-desc {
+  margin-inline: auto;
+}
+
+/* --------- 文字渐变（保留但用新色） --------- */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-magenta) 0%, var(--block-lilac) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --------- 按钮 - Figma 药丸风格 --------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 480;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn svg {
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--canvas);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.btn-sm {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+}
+
+/* --------- 卡片 --------- */
+.card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--hairline);
+}
+
+/* --------- 彩色色块区域 --------- */
+.color-block {
+  border-radius: var(--radius-lg);
+  padding: clamp(48px, 8vw, 96px) clamp(24px, 5vw, 48px);
+  position: relative;
+}
+
+.color-block-lime { background: var(--block-lime); }
+.color-block-lilac { background: var(--block-lilac); }
+.color-block-cream { background: var(--block-cream); }
+.color-block-pink { background: var(--block-pink); }
+.color-block-mint { background: var(--block-mint); }
+.color-block-coral { background: var(--block-coral); }
+.color-block-navy {
+  background: var(--block-navy);
+  color: var(--on-primary);
+}
+
+/* --------- 通用淡入动画 --------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------- 响应式 --------- */
+@media (max-width: 768px) {
+  .section {
+    padding-block: clamp(48px, 8vw, 80px);
+  }
+
+  .btn {
+    padding: 11px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
