@@ -94,6 +94,7 @@ cf-anheplayer/
 ├── public/
 │   ├── logo.png            站点图标
 │   ├── og-image.png        社交分享图
+│   ├── promo/              社区推广文的固定外链截图与正文（勿改文件名）
 │   ├── robots.txt
 │   └── sources-status.json 音源检测结果（供外部读取）
 ├── scripts/
@@ -126,3 +127,4 @@ cf-anheplayer/
 - 新增在线音源：在 `sources/remote.json` 里追加 `{ id, title, url, mirror }` 条目即可，无需下载脚本。
 - 调整测试歌曲：改 `scripts/check-sources.mjs` 顶部的 `TEST_SONGS`。
 - 站点域名变化时，同步修改 `astro.config.mjs` 的 `site` 与 `public/robots.txt` 的 Sitemap 地址。
+- 社区推广文在 `public/promo/article.md`，配图在同目录。文件名就是外链路径（`https://anhe-player.cc.cd/promo/文件名`），改名会让已发出的帖子裂图。
