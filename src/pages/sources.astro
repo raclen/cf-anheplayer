@@ -1,0 +1,1147 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import Layout from "@/layouts/Layout.astro";
+
+const statusFile = path.resolve(process.cwd(), "src/data/sources-status.json");
+let status: any = null;
+try {
+  status = JSON.parse(fs.readFileSync(statusFile, "utf8"));
+} catch {
+  status = null;
+}
+
+const statusMeta: Record<string, { label: string; tone: string }> = {
+  available: { label: "可用", tone: "ok" },
+  partial: { label: "部分可用", tone: "warn" },
+  unavailable: { label: "不可用", tone: "bad" },
+  untested: { label: "未检测", tone: "idle" },
+};
+
+const statusRank: Record<string, number> = { unavailable: 0, partial: 1, untested: 2, available: 3 };
+const categoryRank: Record<string, number> = { 优质: 0, 一般: 1, 在线: 2 };
+
+const sources: any[] = Array.isArray(status?.sources)
+  ? [...status.sources].sort(
+      (a, b) =>
+        (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9) ||
+        (categoryRank[a.category] ?? 9) - (categoryRank[b.category] ?? 9) ||
+        String(a.title).localeCompare(String(b.title), "zh-CN"),
+    )
+  : [];
+
+const summary = status?.summary ?? {
+  total: 0,
+  available: 0,
+  partial: 0,
+  unavailable: 0,
+  untested: 0,
+  platformsOk: 0,
+  platformsTested: 0,
+};
+
+const categories = [...new Set(sources.map((s) => s.category).filter(Boolean))].sort(
+  (a, b) => (categoryRank[a] ?? 9) - (categoryRank[b] ?? 9),
+);
+const passRate = summary.platformsTested
+  ? Math.round((summary.platformsOk / summary.platformsTested) * 100)
+  : 0;
+
+const fmt = (iso?: string | null) => {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+};
+
+const fmtFull = (iso?: string | null) => {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    dateStyle: "medium",
+    timeStyle: "short",
+    hour12: false,
+  }).format(date);
+};
+
+const fmtMs = (ms?: number | null) => {
+  if (ms == null) return "—";
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
+};
+
+const runnerLabel = status?.runner === "github-actions" ? "GitHub Actions" : "本地脚本";
+
+// 复制按钮使用的音源地址：在线音源用清单里的原始链接，本地音源用仓库 raw 链接
+const REPO_RAW_BASE = "https://raw.githubusercontent.com/raclen/cf-anheplayer/main";
+const encodeRepoPath = (file: string) => file.split("/").map(encodeURIComponent).join("/");
+const resolveCopyUrl = (src: any) => {
+  if (src.remote) return src.originUrl || src.sourceUrl || "";
+  if (!src.file) return "";
+  return `${REPO_RAW_BASE}/sources/${encodeRepoPath(src.file)}`;
+};
+---
+
+<Layout
+  title="洛雪音源状态监测 · AnhePlayer"
+  description="每 4 小时自动检测洛雪音乐自定义音源的可用性，展示每个音源在网易云、QQ 音乐、酷我、酷狗、咪咕等平台的实时取流状态。"
+>
+  <header class="status-nav">
+    <div class="container status-nav-inner">
+      <a class="brand" href="/" aria-label="返回 AnhePlayer 首页">
+        <img src="/logo.png" alt="" width="30" height="30" />
+        <span>AnhePlayer</span>
+      </a>
+      <nav class="status-nav-links" aria-label="导航">
+        <a href="/">首页</a>
+        <a href="/sources-status.json" target="_blank" rel="noopener">JSON 数据</a>
+        <a href="https://github.com/raclen/cf-anheplayer" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="status-hero">
+      <div class="container">
+        <span class="eyebrow">LX MUSIC · SOURCE MONITOR</span>
+        <h1>洛雪音源<br />状态监测</h1>
+        <p class="hero-desc">
+          每 4 小时自动加载每一条洛雪自定义音源（本地脚本 + 在线链接），完成初始化后依次请求测试歌曲，并校验返回的播放地址能否真实拉流。
+        </p>
+        <div class="hero-meta">
+          <span class="pulse" aria-hidden="true"></span>
+          <span>最后检测 <b>{fmtFull(status?.generatedAt)}</b></span>
+          <span class="meta-sep">/</span>
+          <span>下次预计 <b>{fmtFull(status?.nextCheckAt)}</b></span>
+          <button class="refresh-btn" id="refresh-btn" type="button">重新加载</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="container status-overview" aria-label="检测概览">
+      <article class="stat stat-total">
+        <span class="stat-value">{summary.total}</span>
+        <span class="stat-label">音源总数</span>
+      </article>
+      <article class="stat stat-ok">
+        <span class="stat-value">{summary.available}</span>
+        <span class="stat-label">完全可用</span>
+      </article>
+      <article class="stat stat-warn">
+        <span class="stat-value">{summary.partial}</span>
+        <span class="stat-label">部分可用</span>
+      </article>
+      <article class="stat stat-bad">
+        <span class="stat-value">{summary.unavailable}</span>
+        <span class="stat-label">不可用</span>
+      </article>
+      <article class="stat stat-rate">
+        <span class="stat-value">{passRate}<small>%</small></span>
+        <span class="stat-label">平台通过率 · {summary.platformsOk}/{summary.platformsTested}</span>
+      </article>
+    </section>
+
+    <section class="container status-meta-row" aria-label="检测信息">
+      <div><span>检测耗时</span><b>{fmtMs(status?.durationMs)}</b></div>
+      <div><span>执行环境</span><b>{runnerLabel}</b></div>
+      <div><span>检测间隔</span><b>{status?.intervalHours ?? 4} 小时</b></div>
+      <div class="meta-note">
+        <span>判定规则</span>
+        <b>初始化成功 + 至少一个平台能拉到音频</b>
+      </div>
+    </section>
+
+    <section class="container status-toolbar" aria-label="筛选">
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.5-3.5"></path>
+        </svg>
+        <input id="search-input" type="search" placeholder="搜索音源名称、作者或平台…" autocomplete="off" />
+      </label>
+
+      <div class="filter-group" role="group" aria-label="按状态筛选">
+        <button class="filter-chip is-active" data-filter-status="all" type="button">全部</button>
+        <button class="filter-chip" data-filter-status="available" type="button">可用</button>
+        <button class="filter-chip" data-filter-status="partial" type="button">部分可用</button>
+        <button class="filter-chip" data-filter-status="unavailable" type="button">不可用</button>
+        <button class="filter-chip" data-filter-status="untested" type="button">未检测</button>
+      </div>
+
+      <div class="filter-group" role="group" aria-label="按分类筛选">
+        <button class="filter-chip is-active" data-filter-category="all" type="button">全部分类</button>
+        {categories.map((category) => (
+          <button class="filter-chip" data-filter-category={category} type="button">{category}</button>
+        ))}
+      </div>
+
+      <span class="result-count">显示 <b id="result-count">{sources.length}</b> 条</span>
+    </section>
+
+    <section class="container status-list" id="source-list" aria-live="polite">
+      {sources.length === 0 && (
+        <div class="empty-state">
+          <h2>还没有检测数据</h2>
+          <p>运行 <code>node scripts/check-sources.mjs</code> 生成首份结果，或等待 GitHub Actions 完成第一次定时检测。</p>
+        </div>
+      )}
+
+      {sources.map((src) => {
+        const meta = statusMeta[src.status] ?? statusMeta.untested;
+        const failed = (src.platforms || []).filter((p: any) => p.tested && !p.ok);
+        const searchText = [
+          src.title,
+          src.name,
+          src.author,
+          src.description,
+          src.category,
+          ...(src.platforms || []).map((p: any) => `${p.name} ${p.key}`),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return (
+          <article
+            class={`src-card tone-${meta.tone}`}
+            data-status={src.status}
+            data-category={src.category}
+            data-search={searchText}
+          >
+            <div class="src-head">
+              <span class="src-dot" aria-hidden="true"></span>
+              <div class="src-title-wrap">
+                <h2 class="src-title">{src.title}</h2>
+                <div class="src-tags">
+                  <span class={`tag tag-${meta.tone}`}>{meta.label}</span>
+                  <span class="tag tag-category">{src.category}</span>
+                  {src.version && <span class="tag tag-version">v{String(src.version).replace(/^v/i, "")}</span>}
+                  {src.author && <span class="src-author">by {src.author}</span>}
+                  {src.remote && src.sourceUrl && (
+                    <a class="src-link" href={src.sourceUrl} target="_blank" rel="noopener">源脚本 ↗</a>
+                  )}
+                </div>
+              </div>
+              <div class="src-actions">
+                <button
+                  class="copy-btn"
+                  type="button"
+                  data-copy-url={resolveCopyUrl(src)}
+                  aria-label="复制音源链接"
+                  title="复制音源链接"
+                >
+                  <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                    <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+                  </svg>
+                  <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="m5 12 5 5L20 7"></path>
+                  </svg>
+                </button>
+                <div class="src-score" title="通过平台数 / 已测平台数">
+                  <b>{src.stats?.ok ?? 0}</b><span>/{src.stats?.tested ?? 0}</span>
+                </div>
+              </div>
+            </div>
+
+            {src.description && <p class="src-desc">{src.description}</p>}
+
+            <div class="platform-pills">
+              {(src.platforms || []).map((p: any) => (
+                <span
+                  class={`pill ${p.ok ? "is-ok" : p.tested ? "is-fail" : "is-idle"}`}
+                  title={
+                    p.ok
+                      ? `${p.name} · ${p.quality || "128k"} · ${fmtMs(p.ms)}${p.urlHost ? ` · ${p.urlHost}` : ""}`
+                      : p.tested
+                        ? `${p.name} · ${p.error || "请求失败"}`
+                        : `${p.name} · 未纳入自动检测`
+                  }
+                >
+                  <i aria-hidden="true"></i>
+                  {p.name}
+                  <em>{p.tested ? (p.ok ? fmtMs(p.ms) : "失败") : "未测"}</em>
+                </span>
+              ))}
+            </div>
+
+            <div class="src-foot">
+              <div class="history" aria-label="最近检测记录">
+                {(src.history || []).slice(-42).map((h: any) => (
+                  <span
+                    class={`hist-cell is-${h.status}`}
+                    title={`${fmtFull(h.at)} · ${statusMeta[h.status]?.label ?? h.status} · ${h.ok}/${h.tested} 平台`}
+                  />
+                ))}
+              </div>
+              <span class="history-label">
+                最近 {Math.min((src.history || []).length, 42)} 次 · {src.stats?.ok ?? 0}/{src.stats?.tested ?? 0} 平台
+              </span>
+            </div>
+
+            {src.initError && (
+              <p class="src-error"><b>初始化失败</b>{src.initError}</p>
+            )}
+
+            {failed.length > 0 && (
+              <details class="src-details">
+                <summary>查看 {failed.length} 个平台的失败原因</summary>
+                <ul>
+                  {failed.map((p: any) => (
+                    <li><b>{p.name}</b><span>{p.error || "请求失败"}</span></li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </article>
+        );
+      })}
+
+      <div class="empty-state" id="empty-state" hidden>
+        <h2>没有匹配的音源</h2>
+        <p>换一个关键词，或调整上方的筛选条件。</p>
+      </div>
+    </section>
+
+    <section class="container status-notes">
+      <h2>检测是怎么做的？</h2>
+      <ol>
+        <li><b>加载音源</b>：本地脚本直接读取；在线音源先从链接下载最新版本，直连失败时自动改走镜像。</li>
+        <li><b>请求取流</b>：对每个支持的平台，用固定测试歌曲调用音源的 <code>musicUrl</code> 接口。</li>
+        <li><b>校验地址</b>：对返回的播放地址发起 Range 请求，确认能拿到音频数据而非错误页。</li>
+        <li><b>定时执行</b>：GitHub Actions 每 4 小时运行一次，结果自动提交并触发本站重新构建。</li>
+      </ol>
+      <p class="notes-foot">
+        检测结果受音源上游接口、歌曲版权与网络环境影响，单次失败不代表音源永久不可用；建议结合最近多次记录判断。
+      </p>
+    </section>
+  </main>
+
+  <footer class="status-footer">
+    <div class="container status-footer-inner">
+      <span>© {new Date().getFullYear()} AnhePlayer</span>
+      <a href="/">返回首页</a>
+    </div>
+  </footer>
+
+  <script>
+    const state = { status: "all", category: "all", query: "" };
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".src-card"));
+    const resultCount = document.getElementById("result-count");
+    const emptyState = document.getElementById("empty-state");
+
+    const applyFilters = () => {
+      let visible = 0;
+      for (const card of cards) {
+        const matchStatus = state.status === "all" || card.dataset.status === state.status;
+        const matchCategory = state.category === "all" || card.dataset.category === state.category;
+        const matchQuery = !state.query || (card.dataset.search || "").includes(state.query);
+        const show = matchStatus && matchCategory && matchQuery;
+        card.hidden = !show;
+        if (show) visible += 1;
+      }
+      if (resultCount) resultCount.textContent = String(visible);
+      if (emptyState) emptyState.hidden = visible > 0;
+    };
+
+    document.querySelectorAll<HTMLButtonElement>("[data-filter-status]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter-status]").forEach((el) => el.classList.remove("is-active"));
+        button.classList.add("is-active");
+        state.status = button.dataset.filterStatus || "all";
+        applyFilters();
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-filter-category]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter-category]").forEach((el) => el.classList.remove("is-active"));
+        button.classList.add("is-active");
+        state.category = button.dataset.filterCategory || "all";
+        applyFilters();
+      });
+    });
+
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    let searchTimer: number | undefined;
+    searchInput?.addEventListener("input", () => {
+      window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(() => {
+        state.query = searchInput.value.trim().toLowerCase();
+        applyFilters();
+      }, 120);
+    });
+
+    const copyText = async (text: string) => {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    };
+
+    document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const url = button.dataset.copyUrl || "";
+        try {
+          await copyText(url);
+          button.classList.add("is-copied");
+          button.title = "已复制";
+          window.setTimeout(() => {
+            button.classList.remove("is-copied");
+            button.title = "复制音源链接";
+          }, 1500);
+        } catch {
+          button.title = "复制失败，请手动复制";
+        }
+      });
+    });
+
+    document.getElementById("refresh-btn")?.addEventListener("click", () => window.location.reload());
+  </script>
+
+  <style>
+    .status-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--canvas) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .status-nav-inner {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .brand img {
+      border-radius: 8px;
+    }
+
+    .status-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: 0.9rem;
+      color: color-mix(in srgb, var(--ink) 68%, transparent);
+    }
+
+    .status-nav-links a:hover {
+      color: var(--ink);
+    }
+
+    .status-hero {
+      padding: clamp(48px, 7vw, 92px) 0 clamp(28px, 4vw, 44px);
+      border-bottom: 1px solid var(--hairline-soft);
+    }
+
+    .status-hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.3rem);
+      line-height: 1.06;
+      letter-spacing: -0.045em;
+      font-weight: 600;
+      margin: 10px 0 18px;
+    }
+
+    .hero-desc {
+      max-width: 620px;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+      font-size: 1rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 24px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: color-mix(in srgb, var(--ink) 58%, transparent);
+    }
+
+    .hero-meta b {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .meta-sep {
+      opacity: 0.35;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--semantic-success);
+      box-shadow: 0 0 0 0 rgba(30, 166, 74, 0.5);
+      animation: pulse 2.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(30, 166, 74, 0.45); }
+      70% { box-shadow: 0 0 0 9px rgba(30, 166, 74, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(30, 166, 74, 0); }
+    }
+
+    .refresh-btn {
+      margin-left: 2px;
+      padding: 5px 12px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: var(--canvas);
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .refresh-btn:hover {
+      background: var(--surface-soft);
+      border-color: #d5d5d5;
+    }
+
+    .status-overview {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      padding-top: 28px;
+    }
+
+    .stat {
+      border-radius: var(--radius-lg);
+      padding: 20px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 116px;
+      justify-content: space-between;
+      border: 1px solid transparent;
+    }
+
+    .stat-value {
+      font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-value small {
+      font-size: 0.4em;
+      font-weight: 500;
+      margin-left: 2px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      color: color-mix(in srgb, var(--ink) 58%, transparent);
+    }
+
+    .stat-total { background: var(--block-navy); color: #fff; }
+    .stat-total .stat-label { color: rgba(255, 255, 255, 0.62); }
+    .stat-ok { background: var(--block-mint); }
+    .stat-warn { background: var(--block-cream); }
+    .stat-bad { background: var(--block-pink); }
+    .stat-rate { background: var(--block-lilac); }
+
+    .status-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 34px;
+      padding-block: 22px 0;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+    }
+
+    .status-meta-row > div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .status-meta-row span {
+      color: color-mix(in srgb, var(--ink) 48%, transparent);
+    }
+
+    .status-meta-row b {
+      font-weight: 500;
+    }
+
+    .status-meta-row .meta-note {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .status-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      padding-block: 26px 18px;
+      position: sticky;
+      top: 64px;
+      z-index: 10;
+      background: color-mix(in srgb, var(--canvas) 94%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--hairline-soft);
+      margin-bottom: 20px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      min-width: 260px;
+      flex: 1 1 260px;
+      max-width: 380px;
+      background: var(--canvas);
+    }
+
+    .search-box svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.45;
+      flex: none;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      font: inherit;
+      font-size: 0.86rem;
+      width: 100%;
+      background: transparent;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      padding: 7px 14px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      color: color-mix(in srgb, var(--ink) 66%, transparent);
+      background: var(--canvas);
+      transition: all 0.16s ease;
+    }
+
+    .filter-chip:hover {
+      border-color: #cfcfcf;
+      color: var(--ink);
+    }
+
+    .filter-chip.is-active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--inverse-ink);
+    }
+
+    .result-count {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: color-mix(in srgb, var(--ink) 50%, transparent);
+    }
+
+    .result-count b {
+      color: var(--ink);
+    }
+
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 60px;
+    }
+
+    .src-card {
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px 16px;
+      background: var(--canvas);
+      position: relative;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+      border-left-width: 4px;
+    }
+
+    .src-card:hover {
+      border-color: #d8d8d8;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .src-card.tone-ok { border-left-color: var(--semantic-success); }
+    .src-card.tone-warn { border-left-color: #d9a441; }
+    .src-card.tone-bad { border-left-color: #d9455f; }
+    .src-card.tone-idle { border-left-color: #c9c9c9; }
+
+    .src-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .src-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-top: 9px;
+      flex: none;
+      background: #c9c9c9;
+    }
+
+    .tone-ok .src-dot { background: var(--semantic-success); }
+    .tone-warn .src-dot { background: #d9a441; }
+    .tone-bad .src-dot { background: #d9455f; }
+
+    .src-title-wrap {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .src-title {
+      font-size: 1.08rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .src-tags {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .tag-ok { background: var(--block-mint); }
+    .tag-warn { background: var(--block-cream); }
+    .tag-bad { background: var(--block-pink); }
+    .tag-idle { background: var(--surface-soft); color: #777; }
+    .tag-category { background: var(--block-lilac); }
+    .tag-version { background: var(--surface-soft); color: #666; }
+
+    .src-author {
+      font-size: 0.72rem;
+      color: color-mix(in srgb, var(--ink) 46%, transparent);
+    }
+
+    .src-link {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: color-mix(in srgb, var(--ink) 52%, transparent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .src-link:hover {
+      color: var(--ink);
+    }
+
+    .src-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+      padding-top: 1px;
+    }
+
+    .copy-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--hairline);
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: color-mix(in srgb, var(--ink) 42%, transparent);
+      background: var(--canvas);
+      transition: all 0.16s ease;
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .copy-btn .icon-check {
+      display: none;
+    }
+
+    .copy-btn:hover {
+      border-color: #cfcfcf;
+      color: var(--ink);
+      background: var(--surface-soft);
+    }
+
+    .copy-btn.is-copied {
+      border-color: var(--semantic-success);
+      color: var(--semantic-success);
+      background: color-mix(in srgb, var(--block-mint) 55%, var(--canvas));
+    }
+
+    .copy-btn.is-copied .icon-copy {
+      display: none;
+    }
+
+    .copy-btn.is-copied .icon-check {
+      display: block;
+    }
+
+    .src-score {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: color-mix(in srgb, var(--ink) 40%, transparent);
+      flex: none;
+      padding-top: 2px;
+    }
+
+    .src-score b {
+      font-size: 1.15rem;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .src-desc {
+      margin: 12px 0 0 21px;
+      font-size: 0.84rem;
+      color: color-mix(in srgb, var(--ink) 56%, transparent);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    .platform-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 14px 0 0 21px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--hairline);
+      background: var(--canvas);
+      white-space: nowrap;
+    }
+
+    .pill i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c9c9c9;
+      flex: none;
+    }
+
+    .pill em {
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: color-mix(in srgb, var(--ink) 44%, transparent);
+    }
+
+    .pill.is-ok {
+      background: color-mix(in srgb, var(--block-mint) 55%, var(--canvas));
+      border-color: transparent;
+    }
+
+    .pill.is-ok i { background: var(--semantic-success); }
+
+    .pill.is-fail {
+      background: color-mix(in srgb, var(--block-pink) 62%, var(--canvas));
+      border-color: transparent;
+    }
+
+    .pill.is-fail i { background: #d9455f; }
+
+    .pill.is-idle {
+      background: var(--surface-soft);
+      color: #8a8a8a;
+    }
+
+    .src-foot {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 16px 0 0 21px;
+      flex-wrap: wrap;
+    }
+
+    .history {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .hist-cell {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      display: inline-block;
+      background: #e4e4e4;
+    }
+
+    .hist-cell.is-available { background: var(--semantic-success); }
+    .hist-cell.is-partial { background: #d9a441; }
+    .hist-cell.is-unavailable { background: #d9455f; }
+    .hist-cell.is-untested { background: #d5d5d5; }
+
+    .history-label {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: color-mix(in srgb, var(--ink) 42%, transparent);
+    }
+
+    .src-error {
+      margin: 12px 0 0 21px;
+      padding: 9px 12px;
+      background: color-mix(in srgb, var(--block-pink) 45%, var(--canvas));
+      border-radius: var(--radius-sm);
+      font-size: 0.76rem;
+      color: #8c2436;
+      word-break: break-word;
+    }
+
+    .src-error b {
+      margin-right: 8px;
+    }
+
+    .src-details {
+      margin: 10px 0 0 21px;
+      font-size: 0.78rem;
+    }
+
+    .src-details summary {
+      cursor: pointer;
+      color: color-mix(in srgb, var(--ink) 56%, transparent);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .src-details summary::before {
+      content: "＋";
+      font-size: 0.7rem;
+    }
+
+    .src-details[open] summary::before {
+      content: "－";
+    }
+
+    .src-details summary:hover {
+      color: var(--ink);
+    }
+
+    .src-details ul {
+      list-style: none;
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .src-details li {
+      display: flex;
+      gap: 10px;
+      padding: 7px 10px;
+      background: var(--surface-soft);
+      border-radius: var(--radius-sm);
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+      word-break: break-word;
+    }
+
+    .src-details li b {
+      color: var(--ink);
+      flex: none;
+      font-weight: 500;
+      min-width: 62px;
+    }
+
+    .empty-state {
+      padding: 64px 24px;
+      text-align: center;
+      border: 1px dashed var(--hairline);
+      border-radius: var(--radius-lg);
+      color: color-mix(in srgb, var(--ink) 58%, transparent);
+    }
+
+    .empty-state h2 {
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .empty-state code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--surface-soft);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .status-notes {
+      border-top: 1px solid var(--hairline);
+      padding-block: 44px 60px;
+      max-width: var(--maxw);
+    }
+
+    .status-notes h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+
+    .status-notes ol {
+      display: grid;
+      gap: 8px;
+      padding-left: 20px;
+      font-size: 0.86rem;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+    }
+
+    .status-notes li b {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .status-notes code {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background: var(--surface-soft);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .notes-foot {
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: color-mix(in srgb, var(--ink) 46%, transparent);
+      max-width: 720px;
+    }
+
+    .status-footer {
+      border-top: 1px solid var(--hairline);
+      background: var(--surface-soft);
+    }
+
+    .status-footer-inner {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: color-mix(in srgb, var(--ink) 50%, transparent);
+    }
+
+    .status-footer-inner a:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      .status-overview {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .stat-rate {
+        grid-column: span 3;
+      }
+      .status-meta-row .meta-note {
+        margin-left: 0;
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .status-nav-links {
+        gap: 14px;
+        font-size: 0.82rem;
+      }
+      .status-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .stat-rate {
+        grid-column: span 2;
+      }
+      .status-toolbar {
+        position: static;
+      }
+      .search-box {
+        max-width: none;
+      }
+      .result-count {
+        margin-left: 0;
+      }
+      .src-card {
+        padding: 16px 16px 14px;
+      }
+      .src-desc,
+      .platform-pills,
+      .src-foot,
+      .src-error,
+      .src-details {
+        margin-left: 0;
+      }
+      .src-title {
+        font-size: 1rem;
+      }
+      .status-nav-inner {
+        height: 58px;
+      }
+    }
+  </style>
+</Layout>

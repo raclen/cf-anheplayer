@@ -1,0 +1,70 @@
+name: 洛雪音源状态检测
+
+on:
+  schedule:
+    # 每 4 小时执行一次；避开整点，减少 GitHub Actions 排队高峰
+    - cron: "17 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lx-source-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: 检测音源
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+        with:
+          # 检测阶段不保留凭据：音源脚本在沙箱中执行，避免其拿到可推送的 token
+          persist-credentials: false
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 检测全部音源
+        run: node scripts/check-sources.mjs
+
+      - name: 上传检测结果
+        uses: actions/upload-artifact@v4
+        with:
+          name: sources-status
+          path: |
+            public/sources-status.json
+            src/data/sources-status.json
+          retention-days: 1
+
+  publish:
+    name: 提交检测结果
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 下载检测结果
+        uses: actions/download-artifact@v4
+        with:
+          name: sources-status
+
+      - name: 提交检测结果
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/sources-status.json src/data/sources-status.json
+          if git diff --cached --quiet; then
+            echo "检测结果无变化，跳过提交"
+          else
+            git commit -m "chore: 更新洛雪音源可用性状态"
+            git push
+          fi
