@@ -50,6 +50,14 @@ const ogImage = Astro.site
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+    <!-- Cloudflare Web Analytics：域名未托管在 CF，需手动挂载 beacon -->
+    <script
+      is:inline
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "79296de368e04cd38a199ff0f0ba7533"}'
+    ></script>
   </head>
   <body>
     <slot />
