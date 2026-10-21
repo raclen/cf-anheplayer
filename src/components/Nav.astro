@@ -55,6 +55,8 @@ const pageSections: Record<string, { href: string; label: string }[]> = {
 const currentSections = pageSections[current] || [];
 const logoSrc = current === "mobile" ? "/mobile-logo.webp" : current === "downloader" ? "/downloader-logo.png" : "/logo.png";
 const badgeText = current === "mobile" ? "Mobile" : current === "downloader" ? "Downloader" : current === "sources" ? "Status" : "";
+
+const QQ_GROUP = "5128608";
 ---
 
 <header class="nav" id="nav">
@@ -74,6 +76,18 @@ const badgeText = current === "mobile" ? "Mobile" : current === "downloader" ? "
           {p.label}
         </a>
       ))}
+      <span class="qq-group">
+        <button
+          class="qq-trigger"
+          type="button"
+          aria-describedby="qq-tooltip-pc"
+        >
+          群友交流
+        </button>
+        <span class="qq-tooltip" id="qq-tooltip-pc" role="tooltip">
+          QQ 群：<strong class="qq-number">{QQ_GROUP}</strong>
+        </span>
+      </span>
     </nav>
 
     <div class="nav-actions">
@@ -132,6 +146,12 @@ const badgeText = current === "mobile" ? "Mobile" : current === "downloader" ? "
         </div>
       </div>
     )}
+    <div class="nav-mobile-section">
+      <span class="nav-mobile-heading">群友交流</span>
+      <div class="nav-mobile-qq">
+        QQ 群：<strong class="qq-number">{QQ_GROUP}</strong>
+      </div>
+    </div>
     <a href={githubUrl} target="_blank" rel="noopener" class="nav-mobile-link github-link">
       在 GitHub 查看项目源码 →
     </a>
@@ -175,6 +195,82 @@ const badgeText = current === "mobile" ? "Mobile" : current === "downloader" ? "
 </script>
 
 <style>
+  .qq-number {
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+
+  /* 导航栏「群友交流」按钮 + 悬停群号气泡 */
+  .qq-group {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .qq-trigger {
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+    opacity: 0.72;
+    background: transparent;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .qq-trigger:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .qq-tooltip {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    z-index: 60;
+    padding: 8px 14px;
+    background: var(--ink);
+    color: var(--on-primary);
+    font-size: 0.82rem;
+    white-space: nowrap;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  }
+
+  .qq-tooltip::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: var(--ink);
+  }
+
+  .qq-group:hover .qq-tooltip,
+  .qq-group:focus-within .qq-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+
+  .nav-mobile-qq {
+    padding: 10px 12px;
+    background: var(--surface-soft);
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
   .nav {
     position: sticky;
     top: 0;
