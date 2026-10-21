@@ -8,7 +8,7 @@ export const DOWNLOADER_RELEASES_LATEST_URL = `${DOWNLOADER_RELEASES_URL}/latest
 export const DOWNLOADER_LATEST_API = `https://api.github.com/repos/${DOWNLOADER_OWNER}/${DOWNLOADER_REPO}/releases/latest`;
 
 /** API 不可用时的兜底版本与下载直链 */
-export const DOWNLOADER_FALLBACK_VERSION = "1.3.2";
+export const DOWNLOADER_FALLBACK_VERSION = "1.4.0";
 export const DOWNLOADER_FALLBACK_FILE = "anhe-downloader.exe";
 export const DOWNLOADER_FALLBACK_URL = `${DOWNLOADER_REPO_URL}/releases/download/v${DOWNLOADER_FALLBACK_VERSION}/${DOWNLOADER_FALLBACK_FILE}`;
 

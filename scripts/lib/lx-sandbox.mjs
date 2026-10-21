@@ -22,6 +22,26 @@ export const EVENT_NAMES = {
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 
+/**
+ * 从音源头部注释解析 @name / @version 等元信息。
+ * 洛雪会把解析结果放在 lx.currentScriptInfo 中，部分音源初始化时会直接读取（如 .version、.rawScript）。
+ */
+function parseScriptInfo(code) {
+  const head = code.slice(0, 8000)
+  const get = (key) => {
+    const match = head.match(new RegExp(`@${key}[ \\t]+([^\\r\\n*]+)`))
+    return match ? match[1].trim() : null
+  }
+  return {
+    name: get('name'),
+    version: get('version'),
+    author: get('author'),
+    description: get('description'),
+    homepage: get('homepage'),
+    rawScript: code,
+  }
+}
+
 /** 兼容洛雪回调签名 (err, resp, body) 的 HTTP 请求实现 */
 function createRequest() {
   return function request(url, options = {}, callback) {
@@ -166,6 +186,7 @@ export async function loadLxSourceCode(code, filename = 'remote-source.js', opti
     on,
     send,
     utils,
+    currentScriptInfo: parseScriptInfo(code),
   }
 
   const noop = () => {}
