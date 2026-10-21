@@ -80,12 +80,14 @@ const QQ_GROUP = "5128608";
         <button
           class="qq-trigger"
           type="button"
+          data-qq={QQ_GROUP}
           aria-describedby="qq-tooltip-pc"
         >
-          群友交流
+          问题反馈
         </button>
         <span class="qq-tooltip" id="qq-tooltip-pc" role="tooltip">
-          QQ 群：<strong class="qq-number">{QQ_GROUP}</strong>
+          <span class="qq-tip-default">QQ 群：<strong class="qq-number">{QQ_GROUP}</strong>（点击复制）</span>
+          <span class="qq-tip-copied" hidden aria-live="polite">已复制群号 {QQ_GROUP} ✓</span>
         </span>
       </span>
     </nav>
@@ -147,7 +149,7 @@ const QQ_GROUP = "5128608";
       </div>
     )}
     <div class="nav-mobile-section">
-      <span class="nav-mobile-heading">群友交流</span>
+      <span class="nav-mobile-heading">问题反馈</span>
       <div class="nav-mobile-qq">
         QQ 群：<strong class="qq-number">{QQ_GROUP}</strong>
       </div>
@@ -192,6 +194,40 @@ const QQ_GROUP = "5128608";
   });
 
   mobile?.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
+
+  // PC 端：点击「问题反馈」复制群号（移动端不绑定该交互）
+  const qqTrigger = document.querySelector<HTMLButtonElement>(".qq-trigger");
+  const qqTipDefault = document.querySelector<HTMLElement>(".qq-tip-default");
+  const qqTipCopied = document.querySelector<HTMLElement>(".qq-tip-copied");
+  let copyTimer: ReturnType<typeof setTimeout> | undefined;
+
+  qqTrigger?.addEventListener("click", async () => {
+    const group = qqTrigger.dataset.qq ?? "";
+    if (!group) return;
+
+    try {
+      await navigator.clipboard.writeText(group);
+    } catch {
+      // 非安全上下文（如局域网 http）下的兜底复制
+      const ta = document.createElement("textarea");
+      ta.value = group;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+
+    if (qqTipDefault) qqTipDefault.hidden = true;
+    if (qqTipCopied) qqTipCopied.hidden = false;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      if (qqTipDefault) qqTipDefault.hidden = false;
+      if (qqTipCopied) qqTipCopied.hidden = true;
+    }, 2000);
+  });
 </script>
 
 <style>
@@ -260,6 +296,11 @@ const QQ_GROUP = "5128608";
     opacity: 1;
     visibility: visible;
     transform: translate(-50%, 0);
+  }
+
+  .qq-tip-copied {
+    color: var(--block-lime);
+    font-weight: 600;
   }
 
   .nav-mobile-qq {
