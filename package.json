@@ -10,11 +10,15 @@
     "preview": "astro preview",
     "astro": "astro",
     "sources:check": "node scripts/check-sources.mjs",
-    "sources:sync": "node scripts/sync-sources.mjs"
+    "sources:sync": "node scripts/sync-sources.mjs",
+    "sources:convert": "node scripts/convert-subscription.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^6.4.8",
     "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }
