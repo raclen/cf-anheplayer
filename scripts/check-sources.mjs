@@ -123,6 +123,23 @@ function cleanMusicInfo(song) {
   )
 }
 
+/**
+ * 判断响应类型是否明显不是音频。
+ * 网关在资源缺失时常返回 200 + JSON 错误体（如 {"code":401,"msg":"..."}），
+ * 只排除 text/html 会把这类响应误判为可用。
+ */
+function isNonAudioContentType(contentType) {
+  const type = (contentType || '').toLowerCase()
+  if (!type) return false
+  return (
+    type.startsWith('text/') ||
+    type.startsWith('image/') ||
+    type.includes('json') ||
+    type.includes('xml') ||
+    type.includes('html')
+  )
+}
+
 async function verifyAudioUrl(url) {
   if (!/^https?:\/\//i.test(url)) return false
   try {
@@ -137,11 +154,12 @@ async function verifyAudioUrl(url) {
     } catch {
       /* 忽略取消流的异常 */
     }
-    return (res.status === 200 || res.status === 206) && !contentType.includes('text/html')
+    return (res.status === 200 || res.status === 206) && !isNonAudioContentType(contentType)
   } catch {
     return false
   }
 }
+
 
 function urlHost(url) {
   try {
