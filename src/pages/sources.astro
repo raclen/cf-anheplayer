@@ -20,7 +20,10 @@ const statusMeta: Record<string, { label: string; tone: string }> = {
   untested: { label: "未检测", tone: "idle" },
 };
 
-const statusRank: Record<string, number> = { unavailable: 0, partial: 1, untested: 2, available: 3 };
+// 部分可用与可用合并展示，组内顺序：完全可用 → 部分可用
+const statusRank: Record<string, number> = { unavailable: 0, untested: 1, partial: 2, available: 3 };
+// 页面默认按「可用」筛选，部分可用也计入可用
+const isAvailableLike = (s: string) => s === "available" || s === "partial";
 const categoryRank: Record<string, number> = { 优质: 0, 一般: 1, 在线: 2 };
 
 const sources: any[] = Array.isArray(status?.sources)
@@ -42,9 +45,6 @@ const summary = status?.summary ?? {
   platformsTested: 0,
 };
 
-const categories = [...new Set(sources.map((s) => s.category).filter(Boolean))].sort(
-  (a, b) => (categoryRank[a] ?? 9) - (categoryRank[b] ?? 9),
-);
 const passRate = summary.platformsTested
   ? Math.round((summary.platformsOk / summary.platformsTested) * 100)
   : 0;
@@ -159,21 +159,11 @@ const resolveCopyUrl = (src: any) => {
       </label>
 
       <div class="filter-group" role="group" aria-label="按状态筛选">
-        <button class="filter-chip is-active" data-filter-status="all" type="button">全部</button>
-        <button class="filter-chip" data-filter-status="available" type="button">可用</button>
-        <button class="filter-chip" data-filter-status="partial" type="button">部分可用</button>
+        <button class="filter-chip is-active" data-filter-status="available" type="button">可用</button>
         <button class="filter-chip" data-filter-status="unavailable" type="button">不可用</button>
-        <button class="filter-chip" data-filter-status="untested" type="button">未检测</button>
       </div>
 
-      <div class="filter-group" role="group" aria-label="按分类筛选">
-        <button class="filter-chip is-active" data-filter-category="all" type="button">全部分类</button>
-        {categories.map((category) => (
-          <button class="filter-chip" data-filter-category={category} type="button">{category}</button>
-        ))}
-      </div>
-
-      <span class="result-count">显示 <b id="result-count">{sources.length}</b> 条</span>
+      <span class="result-count">显示 <b id="result-count">{sources.filter((s) => isAvailableLike(s.status)).length}</b> 条</span>
     </section>
 
     <section class="container status-list" id="source-list" aria-live="polite">
@@ -202,8 +192,8 @@ const resolveCopyUrl = (src: any) => {
           <article
             class={`src-card tone-${meta.tone}`}
             data-status={src.status}
-            data-category={src.category}
             data-search={searchText}
+            hidden={!isAvailableLike(src.status)}
           >
             <div class="src-head">
               <span class="src-dot" aria-hidden="true"></span>
@@ -211,7 +201,6 @@ const resolveCopyUrl = (src: any) => {
                 <h2 class="src-title">{src.title}</h2>
                 <div class="src-tags">
                   <span class={`tag tag-${meta.tone}`}>{meta.label}</span>
-                  <span class="tag tag-category">{src.category}</span>
                   {src.version && <span class="tag tag-version">v{String(src.version).replace(/^v/i, "")}</span>}
                   {src.author && <span class="src-author">by {src.author}</span>}
                   {src.remote && src.sourceUrl && (
@@ -317,7 +306,7 @@ const resolveCopyUrl = (src: any) => {
   <Footer />
 
   <script>
-    const state = { status: "all", category: "all", query: "" };
+    const state = { status: "available", query: "" };
     const cards = Array.from(document.querySelectorAll<HTMLElement>(".src-card"));
     const resultCount = document.getElementById("result-count");
     const emptyState = document.getElementById("empty-state");
@@ -325,10 +314,14 @@ const resolveCopyUrl = (src: any) => {
     const applyFilters = () => {
       let visible = 0;
       for (const card of cards) {
-        const matchStatus = state.status === "all" || card.dataset.status === state.status;
-        const matchCategory = state.category === "all" || card.dataset.category === state.category;
+        const cardStatus = card.dataset.status || "";
+        // 「部分可用」合并进「可用」筛选
+        const matchStatus =
+          state.status === "all" ||
+          cardStatus === state.status ||
+          (state.status === "available" && cardStatus === "partial");
         const matchQuery = !state.query || (card.dataset.search || "").includes(state.query);
-        const show = matchStatus && matchCategory && matchQuery;
+        const show = matchStatus && matchQuery;
         card.hidden = !show;
         if (show) visible += 1;
       }
@@ -341,15 +334,6 @@ const resolveCopyUrl = (src: any) => {
         document.querySelectorAll("[data-filter-status]").forEach((el) => el.classList.remove("is-active"));
         button.classList.add("is-active");
         state.status = button.dataset.filterStatus || "all";
-        applyFilters();
-      });
-    });
-
-    document.querySelectorAll<HTMLButtonElement>("[data-filter-category]").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll("[data-filter-category]").forEach((el) => el.classList.remove("is-active"));
-        button.classList.add("is-active");
-        state.category = button.dataset.filterCategory || "all";
         applyFilters();
       });
     });
@@ -397,6 +381,8 @@ const resolveCopyUrl = (src: any) => {
     });
 
     document.getElementById("refresh-btn")?.addEventListener("click", () => window.location.reload());
+
+    applyFilters();
   </script>
 
   <style>
@@ -748,7 +734,6 @@ const resolveCopyUrl = (src: any) => {
     .tag-warn { background: var(--block-cream); }
     .tag-bad { background: var(--block-pink); }
     .tag-idle { background: var(--surface-soft); color: #777; }
-    .tag-category { background: var(--block-lilac); }
     .tag-version { background: var(--surface-soft); color: #666; }
 
     .src-author {
