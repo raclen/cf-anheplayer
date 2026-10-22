@@ -175,6 +175,20 @@ const resolveDownloadName = (src: any) => {
       </div>
     </section>
 
+    <!-- 机制说明与版权免责提示 -->
+    <section class="container status-notice" aria-label="检测参考说明">
+      <div class="notice-card">
+        <svg class="notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <p class="notice-text">
+          <b>检测说明：</b>本站采用固定歌曲探针测试接口连通性。因各大平台版权、VIP 权限及加密流（如 <code>.mgg</code>）差异，结果仅供存活度参考，请以客户端实际试听为准。
+        </p>
+      </div>
+    </section>
+
     <section class="container status-toolbar" aria-label="筛选">
       <label class="search-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -634,6 +648,47 @@ const resolveDownloadName = (src: any) => {
     .status-meta-row .meta-note {
       margin-left: auto;
       text-align: right;
+    }
+
+    .status-notice {
+      padding-top: 14px;
+    }
+
+    .notice-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--hairline);
+      background: var(--surface-soft);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: color-mix(in srgb, var(--ink) 72%, transparent);
+    }
+
+    .notice-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: #b37400;
+    }
+
+    .notice-text {
+      margin: 0;
+    }
+
+    .notice-text b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .notice-text code {
+      font-family: var(--font-mono);
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+      padding: 1px 4px;
+      border-radius: var(--radius-xs);
+      font-size: 0.88em;
     }
 
     .status-toolbar {

@@ -100,5 +100,7 @@ export const prepareSources = async (root) => {
   await fs.mkdir(destRoot, { recursive: true });
 
   await copyLocalSources(srcRoot, destRoot);
-  await downloadRemoteSources(srcRoot, path.join(destRoot, "remote"));
+  if (process.env.SKIP_REMOTE_SOURCES !== "1") {
+    await downloadRemoteSources(srcRoot, path.join(destRoot, "remote"));
+  }
 };
