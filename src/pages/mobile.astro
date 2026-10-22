@@ -9,9 +9,14 @@ import {
   MOBILE_RELEASES_LATEST_URL,
   MOBILE_FALLBACK_VERSION,
   MOBILE_FALLBACK_URL,
+  MOBILE_FALLBACK_FILE,
   MOBILE_FEATURES,
   MOBILE_GUIDE_STEPS,
 } from "@/data/mobile";
+import { getMobileRelease, getMirrorUrl, fmtSize } from "@/data/releases";
+
+const mobile = getMobileRelease();
+const apkAsset = mobile.apkAsset;
 
 import songImg from "@/assets/screenshots/mobile/歌曲页.jpg";
 import searchImg from "@/assets/screenshots/mobile/搜索页.jpg";
@@ -60,15 +65,28 @@ const featureIcons: Record<string, string> = {
               <a
                 class="btn btn-primary"
                 id="mobile-hero-download-btn"
-                href={MOBILE_FALLBACK_URL}
+                href={apkAsset?.mirrorUrl || MOBILE_FALLBACK_URL}
                 target="_blank"
                 rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                </svg>
+                <span>国内高速下载 (v{mobile.version})</span>
+              </a>
+              <a
+                class="btn btn-secondary"
+                id="mobile-hero-official-btn"
+                href={apkAsset?.downloadUrl || MOBILE_FALLBACK_URL}
+                target="_blank"
+                rel="noopener"
+                title="GitHub 官方原链下载"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
                   <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
                 </svg>
-                <span>下载 APK (v{MOBILE_FALLBACK_VERSION})</span>
+                <span>GitHub 官方下载</span>
               </a>
               <a class="btn btn-secondary" href={MOBILE_REPO_URL} target="_blank" rel="noopener">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -83,13 +101,19 @@ const featureIcons: Record<string, string> = {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-                <span id="mobile-hero-version">v{MOBILE_FALLBACK_VERSION}</span>
+                <span id="mobile-hero-version">v{mobile.version}</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                </svg>
+                <span id="mobile-hero-downloads">{mobile.totalDownloads.toLocaleString()} 次下载</span>
               </span>
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
                 </svg>
-                <span>ARM64 · 约 6.8 MB</span>
+                <span>ARM64 · {apkAsset?.formattedSize || "约 6.8 MB"}</span>
               </span>
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -233,35 +257,57 @@ const featureIcons: Record<string, string> = {
           </div>
 
           <div class="download-assets-list">
-            <a
-              class="asset-btn"
-              id="mobile-card-download-btn"
-              href={MOBILE_FALLBACK_URL}
-              target="_blank"
-              rel="noopener"
-            >
+            <div class="asset-card-row">
               <div class="asset-info">
-                <span class="asset-label">
-                  AnhePlayer Release APK
-                  <span class="asset-badge">推荐</span>
-                </span>
-                <span class="asset-note">核心完整版 · 支持本地与在线播放 · 内置音源测试版</span>
+                <div class="asset-label-row">
+                  <span class="asset-label">
+                    AnhePlayer Release APK
+                    <span class="asset-badge">推荐</span>
+                  </span>
+                  <span class="asset-size" id="mobile-asset-size">{apkAsset?.formattedSize || "约 6.8 MB"}</span>
+                </div>
+                <span class="asset-note">核心完整版 · 支持本地与在线播放 · 内置洛雪音源与 QuickJS 原生内核</span>
+                <span class="asset-filename" id="mobile-asset-filename">{apkAsset?.name || MOBILE_FALLBACK_FILE}</span>
               </div>
-              <div class="asset-meta">
-                <span class="asset-size" id="mobile-asset-size">约 6.8 MB</span>
-                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
-                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                </svg>
+              <div class="asset-actions">
+                <a
+                  class="btn btn-primary btn-sm btn-mirror"
+                  id="mobile-card-mirror-btn"
+                  href={apkAsset?.mirrorUrl || MOBILE_FALLBACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="通过国内高速镜像加速下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                  </svg>
+                  <span>国内高速下载</span>
+                </a>
+                <a
+                  class="btn btn-secondary btn-sm btn-official"
+                  id="mobile-card-official-btn"
+                  href={apkAsset?.downloadUrl || MOBILE_FALLBACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="GitHub 官方原链下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                  </svg>
+                  <span>官方直链</span>
+                </a>
               </div>
-            </a>
+            </div>
           </div>
 
           <div class="download-footer">
             <a class="footer-link" href={MOBILE_RELEASES_URL} target="_blank" rel="noopener">
               在 GitHub Releases 查看所有更新日志与历史包 →
             </a>
-            <p class="api-status" id="mobile-api-status">正在连接 GitHub Releases 校验最新版本…</p>
+            <p class="api-status" id="mobile-api-status">
+              已就绪最新正式版 v{mobile.version}（全网累计 {mobile.totalDownloads.toLocaleString()} 次下载）
+            </p>
           </div>
         </div>
       </div>
@@ -327,55 +373,66 @@ const featureIcons: Record<string, string> = {
   <script>
     import {
       MOBILE_LATEST_API,
-      MOBILE_FALLBACK_VERSION,
-      MOBILE_FALLBACK_URL,
     } from "@/data/mobile";
+    import { getMirrorUrl, fmtSize } from "@/data/releases";
 
-    async function checkMobileRelease() {
+    async function checkMobileReleaseQuietly() {
       const statusEl = document.getElementById("mobile-api-status");
       const versionEl = document.getElementById("mobile-hero-version");
-      const heroBtn = document.getElementById("mobile-hero-download-btn") as HTMLAnchorElement | null;
-      const cardBtn = document.getElementById("mobile-card-download-btn") as HTMLAnchorElement | null;
+      const heroMirrorBtn = document.getElementById("mobile-hero-download-btn") as HTMLAnchorElement | null;
+      const heroOfficialBtn = document.getElementById("mobile-hero-official-btn") as HTMLAnchorElement | null;
+      const cardMirrorBtn = document.getElementById("mobile-card-mirror-btn") as HTMLAnchorElement | null;
+      const cardOfficialBtn = document.getElementById("mobile-card-official-btn") as HTMLAnchorElement | null;
       const sizeEl = document.getElementById("mobile-asset-size");
+      const filenameEl = document.getElementById("mobile-asset-filename");
 
       try {
-        const res = await fetch(MOBILE_LATEST_API);
-        if (!res.ok) throw new Error("API rate-limited or unavailable");
+        const res = await fetch(MOBILE_LATEST_API, { signal: AbortSignal.timeout(6000) });
+        if (!res.ok) return;
         const data = await res.json();
-        const tag = (data.tag_name || `v${MOBILE_FALLBACK_VERSION}`).trim();
+        const tag = (data.tag_name || "").trim();
+        if (!tag) return;
+
         const apkAsset = Array.isArray(data.assets)
           ? data.assets.find((a: any) => typeof a.name === "string" && a.name.endsWith(".apk"))
           : null;
 
-        const downloadUrl = apkAsset?.browser_download_url || MOBILE_FALLBACK_URL;
-        const sizeFormatted = apkAsset?.size
-          ? `${(apkAsset.size / (1024 * 1024)).toFixed(1)} MB`
-          : "约 6.8 MB";
+        if (!apkAsset) return;
+
+        const downloadUrl = apkAsset.browser_download_url;
+        const mirrorUrl = getMirrorUrl(downloadUrl);
+        const sizeFormatted = fmtSize(apkAsset.size);
 
         if (versionEl) versionEl.textContent = tag;
         if (sizeEl) sizeEl.textContent = sizeFormatted;
-        if (heroBtn) {
-          heroBtn.href = downloadUrl;
-          const textSpan = heroBtn.querySelector("span");
-          if (textSpan) textSpan.textContent = `下载 APK (${tag})`;
+        if (filenameEl) filenameEl.textContent = apkAsset.name;
+
+        if (heroMirrorBtn) {
+          heroMirrorBtn.href = mirrorUrl;
+          const textSpan = heroMirrorBtn.querySelector("span");
+          if (textSpan) textSpan.textContent = `国内高速下载 (${tag})`;
         }
-        if (cardBtn) {
-          cardBtn.href = downloadUrl;
+        if (heroOfficialBtn) {
+          heroOfficialBtn.href = downloadUrl;
+        }
+        if (cardMirrorBtn) {
+          cardMirrorBtn.href = mirrorUrl;
+        }
+        if (cardOfficialBtn) {
+          cardOfficialBtn.href = downloadUrl;
         }
         if (statusEl) {
-          statusEl.textContent = `已同步最新正式版 ${tag}（${apkAsset?.name || "Release APK"}）`;
+          statusEl.textContent = `已连接 GitHub 同步最新正式版 ${tag}（${apkAsset.name}）`;
         }
       } catch {
-        if (statusEl) {
-          statusEl.textContent = `当前使用官方直链（v${MOBILE_FALLBACK_VERSION}）`;
-        }
+        // 静默保留静态预渲染内容
       }
     }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", checkMobileRelease);
+      document.addEventListener("DOMContentLoaded", checkMobileReleaseQuietly);
     } else {
-      checkMobileRelease();
+      checkMobileReleaseQuietly();
     }
   </script>
 </Layout>
@@ -664,22 +721,36 @@ const featureIcons: Record<string, string> = {
     gap: 14px;
   }
 
-  .asset-btn {
+  .asset-card-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
+    gap: 20px;
+    padding: 22px 24px;
     background: var(--surface-soft);
     border-radius: var(--radius-md);
     border: 1px solid var(--hairline);
     transition: all 0.2s ease;
   }
 
-  .asset-btn:hover {
+  .asset-card-row:hover {
     background: var(--canvas);
     border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .asset-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .asset-label-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .asset-label {
@@ -689,7 +760,6 @@ const featureIcons: Record<string, string> = {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--ink);
-    margin-bottom: 4px;
   }
 
   .asset-badge {
@@ -704,20 +774,36 @@ const featureIcons: Record<string, string> = {
   .asset-note {
     font-size: 0.88rem;
     color: var(--ink);
-    opacity: 0.65;
+    opacity: 0.7;
   }
 
-  .asset-meta {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  .asset-filename {
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    opacity: 0.5;
+    word-break: break-all;
   }
 
   .asset-size {
     font-family: var(--font-mono);
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--ink);
     opacity: 0.7;
+  }
+
+  .asset-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .asset-actions .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm);
+    min-width: 120px;
   }
 
   .download-icon {
@@ -917,6 +1003,17 @@ const featureIcons: Record<string, string> = {
     }
     .download-card {
       padding: 24px 18px;
+    }
+    .asset-card-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+    .asset-actions {
+      flex-direction: column;
+    }
+    .asset-actions .btn {
+      width: 100%;
     }
   }
 </style>

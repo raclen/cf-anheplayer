@@ -4,16 +4,20 @@ import sitemap from "@astrojs/sitemap";
 import path from "path";
 import { fileURLToPath } from "url";
 import { prepareSources } from "./scripts/lib/prepare-sources.mjs";
+import { prepareReleases } from "./scripts/lib/prepare-releases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// 构建/开发前把音源脚本落到 public/sources/，让复制与下载链接走本站域名
-const prepareSourcesIntegration = {
-  name: "prepare-public-sources",
+// 构建/开发前准备公共音源与 GitHub Release 最新元数据
+const prepareBuildDataIntegration = {
+  name: "prepare-build-data",
   hooks: {
     "astro:config:setup": async ({ command }) => {
       if (command !== "dev" && command !== "build") return;
-      await prepareSources(__dirname);
+      await Promise.all([
+        prepareSources(__dirname),
+        prepareReleases(__dirname),
+      ]);
     },
   },
 };
@@ -25,7 +29,7 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
-  integrations: [prepareSourcesIntegration, sitemap()],
+  integrations: [prepareBuildDataIntegration, sitemap()],
   i18n: {
     locales: ["zh-CN"],
     defaultLocale: "zh-CN",

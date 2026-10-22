@@ -8,9 +8,14 @@ import {
   DOWNLOADER_RELEASES_URL,
   DOWNLOADER_FALLBACK_VERSION,
   DOWNLOADER_FALLBACK_URL,
+  DOWNLOADER_FALLBACK_FILE,
   DOWNLOADER_FEATURES,
   DOWNLOADER_GUIDE_STEPS,
 } from "@/data/downloader";
+import { getDownloaderRelease, getMirrorUrl, fmtSize } from "@/data/releases";
+
+const downloader = getDownloaderRelease();
+const exeAsset = downloader.exeAsset;
 
 import homeScreenshot from "@/assets/screenshots/downloader/home.png";
 
@@ -56,15 +61,28 @@ const featureIcons: Record<string, string> = {
               <a
                 class="btn btn-primary"
                 id="downloader-hero-download-btn"
-                href={DOWNLOADER_FALLBACK_URL}
+                href={exeAsset?.mirrorUrl || DOWNLOADER_FALLBACK_URL}
                 target="_blank"
                 rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                </svg>
+                <span>国内高速下载 (v{downloader.version})</span>
+              </a>
+              <a
+                class="btn btn-secondary"
+                id="downloader-hero-official-btn"
+                href={exeAsset?.downloadUrl || DOWNLOADER_FALLBACK_URL}
+                target="_blank"
+                rel="noopener"
+                title="GitHub 官方原链下载"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
                   <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
                 </svg>
-                <span>下载单文件 exe (v{DOWNLOADER_FALLBACK_VERSION})</span>
+                <span>GitHub 官方下载</span>
               </a>
               <a class="btn btn-secondary" href={DOWNLOADER_REPO_URL} target="_blank" rel="noopener">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -79,13 +97,19 @@ const featureIcons: Record<string, string> = {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-                <span id="downloader-hero-version">v{DOWNLOADER_FALLBACK_VERSION}</span>
+                <span id="downloader-hero-version">v{downloader.version}</span>
+              </span>
+              <span class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v11m0 0 4-4m-4 4-4-4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                </svg>
+                <span id="downloader-hero-downloads">{downloader.totalDownloads.toLocaleString()} 次下载</span>
               </span>
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
                 </svg>
-                <span>体积仅 ~9.3 MB</span>
+                <span>体积约 {exeAsset?.formattedSize || "9.3 MB"}</span>
               </span>
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -225,28 +249,48 @@ const featureIcons: Record<string, string> = {
           </div>
 
           <div class="download-assets-list">
-            <a
-              class="asset-btn"
-              id="downloader-card-download-btn"
-              href={DOWNLOADER_FALLBACK_URL}
-              target="_blank"
-              rel="noopener"
-            >
+            <div class="asset-card-row">
               <div class="asset-info">
-                <span class="asset-label">
-                  anhe-downloader.exe
-                  <span class="asset-badge">推荐 · 单文件免安装</span>
-                </span>
-                <span class="asset-note">双击直接运行 · 原生 WebView2 界面 · 自动内嵌歌词封面</span>
+                <div class="asset-label-row">
+                  <span class="asset-label">
+                    anhe-downloader.exe
+                    <span class="asset-badge">推荐 · 单文件免安装</span>
+                  </span>
+                  <span class="asset-size" id="downloader-asset-size">{exeAsset?.formattedSize || "约 9.3 MB"}</span>
+                </div>
+                <span class="asset-note">双击直接运行 · 原生 WebView2 界面 · 自动内嵌歌词与 500px 高清封面</span>
+                <span class="asset-filename" id="downloader-asset-filename">{exeAsset?.name || DOWNLOADER_FALLBACK_FILE}</span>
               </div>
-              <div class="asset-meta">
-                <span class="asset-size" id="downloader-asset-size">约 9.3 MB</span>
-                <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
-                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                </svg>
+              <div class="asset-actions">
+                <a
+                  class="btn btn-primary btn-sm btn-mirror"
+                  id="downloader-card-mirror-btn"
+                  href={exeAsset?.mirrorUrl || DOWNLOADER_FALLBACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="通过国内高速镜像加速下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                  </svg>
+                  <span>国内高速下载</span>
+                </a>
+                <a
+                  class="btn btn-secondary btn-sm btn-official"
+                  id="downloader-card-official-btn"
+                  href={exeAsset?.downloadUrl || DOWNLOADER_FALLBACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="GitHub 官方原链下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                  </svg>
+                  <span>官方直链</span>
+                </a>
               </div>
-            </a>
+            </div>
           </div>
 
           <div class="headless-box">
@@ -266,7 +310,9 @@ const featureIcons: Record<string, string> = {
             <a class="footer-link" href={DOWNLOADER_RELEASES_URL} target="_blank" rel="noopener">
               在 GitHub Releases 查看更新日志与源码资产 →
             </a>
-            <p class="api-status" id="downloader-api-status">正在连接 GitHub Releases 获取最新产物…</p>
+            <p class="api-status" id="downloader-api-status">
+              已就绪最新正式版 v{downloader.version}（全网累计 {downloader.totalDownloads.toLocaleString()} 次下载）
+            </p>
           </div>
         </div>
       </div>
@@ -332,55 +378,66 @@ const featureIcons: Record<string, string> = {
   <script>
     import {
       DOWNLOADER_LATEST_API,
-      DOWNLOADER_FALLBACK_VERSION,
-      DOWNLOADER_FALLBACK_URL,
     } from "@/data/downloader";
+    import { getMirrorUrl, fmtSize } from "@/data/releases";
 
-    async function checkDownloaderRelease() {
+    async function checkDownloaderReleaseQuietly() {
       const statusEl = document.getElementById("downloader-api-status");
       const versionEl = document.getElementById("downloader-hero-version");
-      const heroBtn = document.getElementById("downloader-hero-download-btn") as HTMLAnchorElement | null;
-      const cardBtn = document.getElementById("downloader-card-download-btn") as HTMLAnchorElement | null;
+      const heroMirrorBtn = document.getElementById("downloader-hero-download-btn") as HTMLAnchorElement | null;
+      const heroOfficialBtn = document.getElementById("downloader-hero-official-btn") as HTMLAnchorElement | null;
+      const cardMirrorBtn = document.getElementById("downloader-card-mirror-btn") as HTMLAnchorElement | null;
+      const cardOfficialBtn = document.getElementById("downloader-card-official-btn") as HTMLAnchorElement | null;
       const sizeEl = document.getElementById("downloader-asset-size");
+      const filenameEl = document.getElementById("downloader-asset-filename");
 
       try {
-        const res = await fetch(DOWNLOADER_LATEST_API);
-        if (!res.ok) throw new Error("API rate-limited or unavailable");
+        const res = await fetch(DOWNLOADER_LATEST_API, { signal: AbortSignal.timeout(6000) });
+        if (!res.ok) return;
         const data = await res.json();
-        const tag = (data.tag_name || `v${DOWNLOADER_FALLBACK_VERSION}`).trim();
+        const tag = (data.tag_name || "").trim();
+        if (!tag) return;
+
         const exeAsset = Array.isArray(data.assets)
           ? data.assets.find((a: any) => typeof a.name === "string" && a.name.endsWith(".exe"))
           : null;
 
-        const downloadUrl = exeAsset?.browser_download_url || DOWNLOADER_FALLBACK_URL;
-        const sizeFormatted = exeAsset?.size
-          ? `${(exeAsset.size / (1024 * 1024)).toFixed(1)} MB`
-          : "约 9.3 MB";
+        if (!exeAsset) return;
+
+        const downloadUrl = exeAsset.browser_download_url;
+        const mirrorUrl = getMirrorUrl(downloadUrl);
+        const sizeFormatted = fmtSize(exeAsset.size);
 
         if (versionEl) versionEl.textContent = tag;
         if (sizeEl) sizeEl.textContent = sizeFormatted;
-        if (heroBtn) {
-          heroBtn.href = downloadUrl;
-          const textSpan = heroBtn.querySelector("span");
-          if (textSpan) textSpan.textContent = `下载单文件 exe (${tag})`;
+        if (filenameEl) filenameEl.textContent = exeAsset.name;
+
+        if (heroMirrorBtn) {
+          heroMirrorBtn.href = mirrorUrl;
+          const textSpan = heroMirrorBtn.querySelector("span");
+          if (textSpan) textSpan.textContent = `国内高速下载 (${tag})`;
         }
-        if (cardBtn) {
-          cardBtn.href = downloadUrl;
+        if (heroOfficialBtn) {
+          heroOfficialBtn.href = downloadUrl;
+        }
+        if (cardMirrorBtn) {
+          cardMirrorBtn.href = mirrorUrl;
+        }
+        if (cardOfficialBtn) {
+          cardOfficialBtn.href = downloadUrl;
         }
         if (statusEl) {
-          statusEl.textContent = `已同步最新正式版 ${tag}（${exeAsset?.name || "anhe-downloader.exe"}）`;
+          statusEl.textContent = `已连接 GitHub 同步最新正式版 ${tag}（${exeAsset.name}）`;
         }
       } catch {
-        if (statusEl) {
-          statusEl.textContent = `当前使用官方直链（v${DOWNLOADER_FALLBACK_VERSION}）`;
-        }
+        // 静默保留静态预渲染内容
       }
     }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", checkDownloaderRelease);
+      document.addEventListener("DOMContentLoaded", checkDownloaderReleaseQuietly);
     } else {
-      checkDownloaderRelease();
+      checkDownloaderReleaseQuietly();
     }
   </script>
 </Layout>
@@ -707,22 +764,36 @@ const featureIcons: Record<string, string> = {
     gap: 14px;
   }
 
-  .asset-btn {
+  .asset-card-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
+    gap: 20px;
+    padding: 22px 24px;
     background: var(--surface-soft);
     border-radius: var(--radius-md);
     border: 1px solid var(--hairline);
     transition: all 0.2s ease;
   }
 
-  .asset-btn:hover {
+  .asset-card-row:hover {
     background: var(--canvas);
     border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .asset-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .asset-label-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .asset-label {
@@ -732,7 +803,6 @@ const featureIcons: Record<string, string> = {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--ink);
-    margin-bottom: 4px;
   }
 
   .asset-badge {
@@ -747,26 +817,36 @@ const featureIcons: Record<string, string> = {
   .asset-note {
     font-size: 0.88rem;
     color: var(--ink);
-    opacity: 0.65;
+    opacity: 0.7;
   }
 
-  .asset-meta {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  .asset-filename {
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    opacity: 0.5;
+    word-break: break-all;
   }
 
   .asset-size {
     font-family: var(--font-mono);
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--ink);
     opacity: 0.7;
   }
 
-  .download-icon {
-    width: 22px;
-    height: 22px;
-    color: var(--ink);
+  .asset-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .asset-actions .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm);
+    min-width: 120px;
   }
 
   .headless-box {
@@ -995,6 +1075,17 @@ const featureIcons: Record<string, string> = {
     }
     .download-card {
       padding: 24px 18px;
+    }
+    .asset-card-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+    .asset-actions {
+      flex-direction: column;
+    }
+    .asset-actions .btn {
+      width: 100%;
     }
   }
 </style>

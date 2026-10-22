@@ -8,8 +8,8 @@ export const MOBILE_RELEASES_LATEST_URL = `${MOBILE_RELEASES_URL}/latest`;
 export const MOBILE_LATEST_API = `https://api.github.com/repos/${MOBILE_OWNER}/${MOBILE_REPO}/releases/latest`;
 
 /** API 不可用时的兜底版本与下载直链 */
-export const MOBILE_FALLBACK_VERSION = "2.0.3";
-export const MOBILE_FALLBACK_FILE = `AnhePlayer-${MOBILE_FALLBACK_VERSION}-core-arm64-v8a-release-203.apk`;
+export const MOBILE_FALLBACK_VERSION = "2.0.4";
+export const MOBILE_FALLBACK_FILE = `AnhePlayer-${MOBILE_FALLBACK_VERSION}-core-arm64-v8a-release-204.apk`;
 export const MOBILE_FALLBACK_URL = `${MOBILE_REPO_URL}/releases/download/v${MOBILE_FALLBACK_VERSION}/${MOBILE_FALLBACK_FILE}`;
 
 export interface MobileFeature {

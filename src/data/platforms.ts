@@ -12,7 +12,7 @@ export const LATEST_API = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB
 export const TAURI_URL = "https://v2.tauri.app/";
 
 /** API 不可用（限流/断网）时的兜底版本与直链所基于的版本号。 */
-export const FALLBACK_VERSION = "1.0.27";
+export const FALLBACK_VERSION = "1.0.30";
 
 export type IconKey = "windows";
 

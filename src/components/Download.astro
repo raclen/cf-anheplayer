@@ -1,11 +1,35 @@
 ---
 import { PLATFORMS, OS_GROUP, RELEASES_LATEST_URL, type IconKey } from "@/data/platforms";
+import { getPcRelease, getMirrorUrl, fmtSize } from "@/data/releases";
+
+const pc = getPcRelease();
 
 // 平台图标（当前仅 Windows）
 const osIcons: Record<IconKey, string> = {
   windows:
     '<path d="M0 3.4 10 2v9H0V3.4ZM11 1.8l13-1.8v11H11V1.8ZM0 12.6V20l10 1.4V13H0Zm11 8.6L24 23V12H11v9.2Z"/>',
 };
+
+// 预先匹配好各个 platform 的静态数据
+const platformData = PLATFORMS.map((p) => {
+  const asset = pc.assets.find((a) => a.name.includes(p.match));
+  const downloadUrl =
+    asset?.downloadUrl ||
+    `https://github.com/raclen/AnhePlayer/releases/download/v${pc.version}/AnhePlayer_${pc.version}_${p.file}`;
+  const mirrorUrl = getMirrorUrl(downloadUrl);
+  const size = asset?.size
+    ? fmtSize(asset.size)
+    : p.id === "win-setup"
+      ? "约 5.0 MB"
+      : "约 7.0 MB";
+  return {
+    ...p,
+    downloadUrl,
+    mirrorUrl,
+    size,
+    filename: asset?.name || `AnhePlayer_${pc.version}_${p.file}`,
+  };
+});
 ---
 
 <section class="section download-section" id="download">
@@ -16,7 +40,7 @@ const osIcons: Record<IconKey, string> = {
         选择适合你的<span class="gradient-text">安装包</span>
       </h2>
       <p class="section-desc">
-        当前版本专为 Windows 10 / 11 打造，提供一键安装版与 MSI 安装包。
+        当前版本专为 Windows 10 / 11 打造，提供一键安装版与 MSI 安装包。国内用户推荐使用「国内高速下载」。
       </p>
     </div>
 
@@ -27,41 +51,55 @@ const osIcons: Record<IconKey, string> = {
         </div>
         <div class="os-group-title">
           <h3>{OS_GROUP.label}</h3>
-          <span>x64 架构 · Tauri v2 原生应用</span>
+          <span>x64 架构 · Tauri v2 原生应用 · 正式版 v{pc.version}</span>
         </div>
       </div>
 
       <div class="os-assets">
         {
-          PLATFORMS.map((p) => (
-            <a
-              class="asset-btn"
-              data-asset-id={p.id}
-              href={RELEASES_LATEST_URL}
-              target="_blank"
-              rel="noopener"
-            >
+          platformData.map((p) => (
+            <div class="asset-card" data-asset-id={p.id}>
               <div class="asset-info">
-                <span class="asset-label">
-                  {p.label}
-                  {p.recommended && <span class="asset-badge">推荐</span>}
-                </span>
+                <div class="asset-label-row">
+                  <span class="asset-label">
+                    {p.label}
+                    {p.recommended && <span class="asset-badge">推荐</span>}
+                  </span>
+                  <span class="asset-size" data-size>{p.size}</span>
+                </div>
                 <span class="asset-note">{p.note}</span>
+                <span class="asset-filename" data-filename>{p.filename}</span>
               </div>
-              <div class="asset-meta">
-                <span class="asset-size" data-size="">—</span>
-                <svg
-                  class="download-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+              <div class="asset-actions">
+                <a
+                  class="btn btn-primary btn-sm btn-mirror"
+                  data-mirror-btn
+                  href={p.mirrorUrl}
+                  target="_blank"
+                  rel="noopener"
+                  title="通过国内高速镜像通道下载"
                 >
-                  <path d="M12 3v11m0 0 4-4m-4 4-4-4" />
-                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                </svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                  </svg>
+                  <span>国内高速下载</span>
+                </a>
+                <a
+                  class="btn btn-secondary btn-sm btn-official"
+                  data-official-btn
+                  href={p.downloadUrl}
+                  target="_blank"
+                  rel="noopener"
+                  title="GitHub 官方原链下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                  </svg>
+                  <span>官方直链</span>
+                </a>
               </div>
-            </a>
+            </div>
           ))
         }
       </div>
@@ -71,104 +109,75 @@ const osIcons: Record<IconKey, string> = {
       <a class="footer-link" href={RELEASES_LATEST_URL} target="_blank" rel="noopener">
         查看全部历史版本 →
       </a>
-      <p class="api-status" id="api-status">正在从 GitHub 获取最新版本…</p>
+      <p class="api-status" id="api-status">
+        已就绪最新正式版 v{pc.version}（全网累计 {pc.totalDownloads.toLocaleString()} 次下载）
+      </p>
     </div>
   </div>
 </section>
 
 <script>
-  import {
-    PLATFORMS,
-    LATEST_API,
-    fallbackUrl,
-    FALLBACK_VERSION,
-  } from "@/data/platforms";
+  import { PLATFORMS, LATEST_API } from "@/data/platforms";
+  import { getMirrorUrl, fmtSize } from "@/data/releases";
 
-  // 格式化文件大小
-  function fmtSize(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-
-  // 填充下载链接与文件大小
-  async function fillDownloads() {
+  // 后台尝试静默检测 GitHub API 是否有更新的 Release
+  async function checkLatestReleasesQuietly() {
     const status = document.getElementById("api-status");
     const heroVersion = document.getElementById("hero-version");
-    const heroDownloads = document.getElementById("hero-downloads");
-    const heroBtn = document.getElementById("hero-download-btn") as HTMLButtonElement | null;
-    const heroBtnText = document.getElementById("hero-btn-text");
+    const heroBtn = document.getElementById("hero-download-btn") as HTMLAnchorElement | null;
+    const heroOfficialBtn = document.getElementById("hero-official-btn") as HTMLAnchorElement | null;
 
     try {
-      const res = await fetch(LATEST_API, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) throw new Error(`API ${res.status}`);
+      const res = await fetch(LATEST_API, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) return; // 限流或失败时直接保留静态预渲染内容
       const data = await res.json();
+      const version = data.tag_name;
+      if (!version) return;
 
-      const version = data.tag_name || FALLBACK_VERSION;
       const assets = data.assets || [];
-      let totalDownloads = 0;
 
-      // 匹配并填充每个安装包
       for (const p of PLATFORMS) {
         const asset = assets.find((a: any) => a.name?.includes(p.match));
-        const btn = document.querySelector<HTMLAnchorElement>(`[data-asset-id="${p.id}"]`);
-        const sizeSpan = btn?.querySelector<HTMLElement>("[data-size]");
+        const card = document.querySelector<HTMLElement>(`[data-asset-id="${p.id}"]`);
+        if (asset && card) {
+          const mirrorBtn = card.querySelector<HTMLAnchorElement>("[data-mirror-btn]");
+          const officialBtn = card.querySelector<HTMLAnchorElement>("[data-official-btn]");
+          const sizeSpan = card.querySelector<HTMLElement>("[data-size]");
+          const filenameSpan = card.querySelector<HTMLElement>("[data-filename]");
 
-        if (asset && btn) {
-          btn.href = asset.browser_download_url;
+          if (mirrorBtn) mirrorBtn.href = getMirrorUrl(asset.browser_download_url);
+          if (officialBtn) officialBtn.href = asset.browser_download_url;
           if (sizeSpan) sizeSpan.textContent = fmtSize(asset.size || 0);
-          totalDownloads += asset.download_count || 0;
-        } else if (btn) {
-          // 兜底：使用静态直链
-          btn.href = fallbackUrl(p, version.replace(/^v/, ""));
+          if (filenameSpan && asset.name) filenameSpan.textContent = asset.name;
         }
       }
 
-      // 更新 Hero 元信息
+      // 如果有推荐包，刷新 Hero 按钮
+      const recommended = PLATFORMS.find((p) => p.recommended);
+      const recommendedAsset = assets.find((a: any) => a.name?.includes(recommended?.match || ""));
+      if (recommendedAsset) {
+        if (heroBtn) {
+          heroBtn.href = getMirrorUrl(recommendedAsset.browser_download_url);
+          const btnSpan = heroBtn.querySelector("span");
+          if (btnSpan) btnSpan.textContent = `国内高速下载 (${version})`;
+        }
+        if (heroOfficialBtn) {
+          heroOfficialBtn.href = recommendedAsset.browser_download_url;
+        }
+      }
+
       if (heroVersion) heroVersion.textContent = version;
-      if (heroDownloads)
-        heroDownloads.textContent = `${totalDownloads.toLocaleString()} 次下载`;
-
-      // Hero 主按钮：指向推荐安装包
-      const recommended = PLATFORMS.find((p) => p.recommended);
-      if (recommended && heroBtn) {
-        const asset = assets.find((a: any) => a.name?.includes(recommended.match));
-        heroBtn.disabled = false;
-        heroBtn.onclick = (e) => {
-          e.preventDefault();
-          window.open(
-            asset?.browser_download_url || fallbackUrl(recommended, version.replace(/^v/, "")),
-            "_blank",
-          );
-        };
-        if (heroBtnText) heroBtnText.textContent = `下载 ${recommended.label}`;
-      }
-
-      if (status) status.textContent = `已加载最新版本 ${version}`;
-    } catch (err) {
-      console.warn("GitHub API 请求失败，使用兜底链接：", err);
-      // 兜底：填充静态直链
-      for (const p of PLATFORMS) {
-        const btn = document.querySelector<HTMLAnchorElement>(`[data-asset-id="${p.id}"]`);
-        if (btn) btn.href = fallbackUrl(p);
-      }
-      if (heroVersion) heroVersion.textContent = `v${FALLBACK_VERSION}`;
-      if (heroDownloads) heroDownloads.textContent = "—";
-      if (status) status.textContent = "API 不可用，已显示兜底下载链接";
-
-      const recommended = PLATFORMS.find((p) => p.recommended);
-      if (recommended && heroBtn) {
-        heroBtn.disabled = false;
-        heroBtn.onclick = (e) => {
-          e.preventDefault();
-          window.open(fallbackUrl(recommended), "_blank");
-        };
-        if (heroBtnText) heroBtnText.textContent = `下载 ${recommended.label}`;
-      }
+      if (status) status.textContent = `已连接 GitHub 同步最新版本 ${version}`;
+    } catch {
+      // 静默处理，静态预渲染的内容已经是正确的最新版
     }
   }
 
-  fillDownloads();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkLatestReleasesQuietly);
+  } else {
+    checkLatestReleasesQuietly();
+  }
 </script>
 
 <style>
@@ -221,10 +230,11 @@ const osIcons: Record<IconKey, string> = {
     gap: 16px;
   }
 
-  .asset-btn {
+  .asset-card {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
+    gap: 16px;
     padding: 22px 24px;
     border-radius: var(--radius-md);
     background: var(--canvas);
@@ -233,7 +243,7 @@ const osIcons: Record<IconKey, string> = {
     box-shadow: var(--shadow-sm);
   }
 
-  .asset-btn:hover {
+  .asset-card:hover {
     transform: translateY(-2px);
     border-color: var(--primary);
     box-shadow: var(--shadow-md);
@@ -242,7 +252,14 @@ const osIcons: Record<IconKey, string> = {
   .asset-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+  }
+
+  .asset-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .asset-label {
@@ -266,27 +283,39 @@ const osIcons: Record<IconKey, string> = {
   .asset-note {
     font-size: 0.85rem;
     color: var(--ink);
-    opacity: 0.6;
+    opacity: 0.65;
   }
 
-  .asset-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .asset-filename {
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    color: var(--ink);
+    opacity: 0.5;
+    word-break: break-all;
   }
 
   .asset-size {
     font-size: 0.85rem;
     font-family: var(--font-mono);
     color: var(--ink);
-    opacity: 0.6;
+    opacity: 0.65;
+    white-space: nowrap;
   }
 
-  .download-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--ink);
-    flex-shrink: 0;
+  .asset-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .asset-actions .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm);
   }
 
   .download-footer {
@@ -317,6 +346,14 @@ const osIcons: Record<IconKey, string> = {
   @media (max-width: 680px) {
     .os-assets {
       grid-template-columns: 1fr;
+    }
+
+    .asset-actions {
+      flex-direction: column;
+    }
+
+    .asset-actions .btn {
+      width: 100%;
     }
   }
 </style>
