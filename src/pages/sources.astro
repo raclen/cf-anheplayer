@@ -90,6 +90,13 @@ const resolveCopyUrl = (src: any) => {
   if (!src.file) return "";
   return `${REPO_RAW_BASE}/sources/${encodeRepoPath(src.file)}`;
 };
+
+// 下载按钮使用的文件名：本地音源用原文件名，在线音源用音源标题（原始链接多为 latest.js，不可读）
+const resolveDownloadName = (src: any) => {
+  if (src.file) return src.file.split("/").pop() || "source.js";
+  const safeTitle = String(src.title || src.name || "音源").replace(/[\\/:*?"<>|]/g, "_").trim();
+  return `${safeTitle || "source"}.js`;
+};
 ---
 
 <Layout
@@ -210,13 +217,13 @@ const resolveCopyUrl = (src: any) => {
               </div>
               <div class="src-actions">
                 <button
-                  class="copy-btn"
+                  class="icon-btn copy-btn"
                   type="button"
                   data-copy-url={resolveCopyUrl(src)}
                   aria-label="复制音源链接"
                   title="复制音源链接"
                 >
-                  <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <svg class="icon-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                     <rect x="9" y="9" width="11" height="11" rx="2"></rect>
                     <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
                   </svg>
@@ -224,6 +231,25 @@ const resolveCopyUrl = (src: any) => {
                     <path d="m5 12 5 5L20 7"></path>
                   </svg>
                 </button>
+                <a
+                  class="icon-btn download-btn"
+                  href={resolveCopyUrl(src)}
+                  data-download-name={resolveDownloadName(src)}
+                  download={resolveDownloadName(src)}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="下载音源脚本"
+                  title="下载音源脚本"
+                >
+                  <svg class="icon-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M12 4v10"></path>
+                    <path d="m7.5 10 4.5 4.5L16.5 10"></path>
+                    <path d="M4.5 19.5h15"></path>
+                  </svg>
+                  <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="m5 12 5 5L20 7"></path>
+                  </svg>
+                </a>
                 <div class="src-score" title="通过平台数 / 已测平台数">
                   <b>{src.stats?.ok ?? 0}</b><span>/{src.stats?.tested ?? 0}</span>
                 </div>
@@ -376,6 +402,38 @@ const resolveCopyUrl = (src: any) => {
           }, 1500);
         } catch {
           button.title = "复制失败，请手动复制";
+        }
+      });
+    });
+
+    // 下载按钮：先 fetch 成 blob 再触发保存，绕开跨域下 download 属性失效的问题；
+    // 拉取失败（无 CORS 或网络异常）时退回浏览器原生打开，用户可长按保存
+    document.querySelectorAll<HTMLAnchorElement>(".download-btn").forEach((link) => {
+      link.addEventListener("click", async (event) => {
+        const url = link.getAttribute("href") || "";
+        if (!url) return;
+        event.preventDefault();
+        const filename = link.dataset.downloadName || "source.js";
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error(String(res.status));
+          const blob = await res.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          const saver = document.createElement("a");
+          saver.href = objectUrl;
+          saver.download = filename;
+          document.body.appendChild(saver);
+          saver.click();
+          saver.remove();
+          window.setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+          link.classList.add("is-copied");
+          link.title = "已开始下载";
+          window.setTimeout(() => {
+            link.classList.remove("is-copied");
+            link.title = "下载音源脚本";
+          }, 1500);
+        } catch {
+          window.open(url, "_blank", "noopener");
         }
       });
     });
@@ -761,7 +819,7 @@ const resolveCopyUrl = (src: any) => {
       padding-top: 1px;
     }
 
-    .copy-btn {
+    .icon-btn {
       width: 28px;
       height: 28px;
       border: 1px solid var(--hairline);
@@ -772,34 +830,35 @@ const resolveCopyUrl = (src: any) => {
       color: color-mix(in srgb, var(--ink) 42%, transparent);
       background: var(--canvas);
       transition: all 0.16s ease;
+      flex: none;
     }
 
-    .copy-btn svg {
+    .icon-btn svg {
       width: 14px;
       height: 14px;
     }
 
-    .copy-btn .icon-check {
+    .icon-btn .icon-check {
       display: none;
     }
 
-    .copy-btn:hover {
+    .icon-btn:hover {
       border-color: #cfcfcf;
       color: var(--ink);
       background: var(--surface-soft);
     }
 
-    .copy-btn.is-copied {
+    .icon-btn.is-copied {
       border-color: var(--semantic-success);
       color: var(--semantic-success);
       background: color-mix(in srgb, var(--block-mint) 55%, var(--canvas));
     }
 
-    .copy-btn.is-copied .icon-copy {
+    .icon-btn.is-copied .icon-default {
       display: none;
     }
 
-    .copy-btn.is-copied .icon-check {
+    .icon-btn.is-copied .icon-check {
       display: block;
     }
 
