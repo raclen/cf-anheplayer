@@ -82,18 +82,41 @@ const fmtMs = (ms?: number | null) => {
 
 const runnerLabel = status?.runner === "github-actions" ? "GitHub Actions" : "本地脚本";
 
-// 复制按钮使用的音源地址：在线音源用清单里的原始链接，本地音源用仓库 raw 链接
+// 复制/下载使用的音源地址：统一走本站域名。
+// 构建前由 scripts/lib/prepare-sources.mjs 把本地音源与在线音源落到 public/sources/，
+// 避免 raw.githubusercontent.com 在部分地区无法直连。
 const REPO_RAW_BASE = "https://raw.githubusercontent.com/raclen/cf-anheplayer/main";
 const encodeRepoPath = (file: string) => file.split("/").map(encodeURIComponent).join("/");
-const resolveCopyUrl = (src: any) => {
-  if (src.remote) return src.originUrl || src.sourceUrl || "";
-  if (!src.file) return "";
-  return `${REPO_RAW_BASE}/sources/${encodeRepoPath(src.file)}`;
+const publicExists = (rel: string) => fs.existsSync(path.resolve(process.cwd(), "public", ...rel.split("/")));
+
+// 在线音源清单：构建时下载失败时用于回退到镜像地址
+let remoteList: any[] = [];
+try {
+  remoteList = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "sources/remote.json"), "utf8"));
+} catch {
+  remoteList = [];
+}
+const remoteById = new Map<string, any>((Array.isArray(remoteList) ? remoteList : []).map((r: any) => [r.id, r]));
+
+const resolveSourceUrl = (src: any) => {
+  if (!src.remote) {
+    if (!src.file) return "";
+    // 对外文件名用 ASCII id（sha1 前 10 位），规避中文/空格/括号路径的编码兼容问题
+    if (src.id && publicExists(`sources/${src.id}.js`)) return `/sources/${encodeURIComponent(src.id)}.js`;
+    // 兜底：构建产物里没有时仍指向仓库原文
+    return `${REPO_RAW_BASE}/sources/${encodeRepoPath(src.file)}`;
+  }
+  const remoteId = String(src.id || "").replace(/^remote-/, "");
+  if (remoteId && publicExists(`sources/remote/${remoteId}.js`)) {
+    return `/sources/remote/${encodeURIComponent(remoteId)}.js`;
+  }
+  const meta = remoteById.get(remoteId);
+  return meta?.mirror || meta?.url || src.originUrl || src.sourceUrl || "";
 };
 
 // 下载按钮使用的文件名：本地音源用原文件名，在线音源用音源标题（原始链接多为 latest.js，不可读）
 const resolveDownloadName = (src: any) => {
-  if (src.file) return src.file.split("/").pop() || "source.js";
+  if (!src.remote && src.file) return src.file.split("/").pop() || "source.js";
   const safeTitle = String(src.title || src.name || "音源").replace(/[\\/:*?"<>|]/g, "_").trim();
   return `${safeTitle || "source"}.js`;
 };
@@ -219,7 +242,7 @@ const resolveDownloadName = (src: any) => {
                 <button
                   class="icon-btn copy-btn"
                   type="button"
-                  data-copy-url={resolveCopyUrl(src)}
+                  data-source-path={resolveSourceUrl(src)}
                   aria-label="复制音源链接"
                   title="复制音源链接"
                 >
@@ -233,7 +256,7 @@ const resolveDownloadName = (src: any) => {
                 </button>
                 <a
                   class="icon-btn download-btn"
-                  href={resolveCopyUrl(src)}
+                  href={resolveSourceUrl(src)}
                   data-download-name={resolveDownloadName(src)}
                   download={resolveDownloadName(src)}
                   target="_blank"
@@ -391,7 +414,13 @@ const resolveDownloadName = (src: any) => {
 
     document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((button) => {
       button.addEventListener("click", async () => {
-        const url = button.dataset.copyUrl || "";
+        const sourcePath = button.dataset.sourcePath || "";
+        if (!sourcePath) {
+          button.title = "暂无可用链接";
+          return;
+        }
+        // 相对路径补成完整地址，方便直接粘贴到音乐 App
+        const url = new URL(sourcePath, window.location.origin).toString();
         try {
           await copyText(url);
           button.classList.add("is-copied");
