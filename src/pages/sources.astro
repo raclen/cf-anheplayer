@@ -80,8 +80,6 @@ const fmtMs = (ms?: number | null) => {
   return ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${Math.round(ms)}ms`;
 };
 
-const runnerLabel = status?.runner === "github-actions" ? "GitHub Actions" : "本地脚本";
-
 // 复制/下载使用的音源地址：统一走本站域名。
 // 构建前由 scripts/lib/prepare-sources.mjs 把本地音源与在线音源落到 public/sources/，
 // 避免 raw.githubusercontent.com 在部分地区无法直连。
@@ -141,7 +139,6 @@ const resolveDownloadName = (src: any) => {
           <span>最后检测 <b>{fmtFull(status?.generatedAt)}</b></span>
           <span class="meta-sep">/</span>
           <span>下次预计 <b>{fmtFull(status?.nextCheckAt)}</b></span>
-          <button class="refresh-btn" id="refresh-btn" type="button">重新加载</button>
         </div>
       </div>
     </section>
@@ -171,7 +168,6 @@ const resolveDownloadName = (src: any) => {
 
     <section class="container status-meta-row" aria-label="检测信息">
       <div><span>检测耗时</span><b>{fmtMs(status?.durationMs)}</b></div>
-      <div><span>执行环境</span><b>{runnerLabel}</b></div>
       <div><span>检测间隔</span><b>{status?.intervalHours ?? 4} 小时</b></div>
       <div class="meta-note">
         <span>判定规则</span>
@@ -467,8 +463,6 @@ const resolveDownloadName = (src: any) => {
       });
     });
 
-    document.getElementById("refresh-btn")?.addEventListener("click", () => window.location.reload());
-
     applyFilters();
   </script>
 
@@ -566,22 +560,6 @@ const resolveDownloadName = (src: any) => {
       0% { box-shadow: 0 0 0 0 rgba(30, 166, 74, 0.45); }
       70% { box-shadow: 0 0 0 9px rgba(30, 166, 74, 0); }
       100% { box-shadow: 0 0 0 0 rgba(30, 166, 74, 0); }
-    }
-
-    .refresh-btn {
-      margin-left: 2px;
-      padding: 5px 12px;
-      border: 1px solid var(--hairline);
-      border-radius: var(--radius-pill);
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      background: var(--canvas);
-      transition: background 0.18s ease, border-color 0.18s ease;
-    }
-
-    .refresh-btn:hover {
-      background: var(--surface-soft);
-      border-color: #d5d5d5;
     }
 
     .status-overview {
