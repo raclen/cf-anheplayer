@@ -6,12 +6,15 @@ export interface Props {
   description?: string;
   /** 站点图标路径；AnhePlayer 宣传页传入播放器图标 */
   favicon?: string;
+  /** 手机访问时自动跳转到 /mobile（仅 PC 首页使用） */
+  redirectMobile?: boolean;
 }
 
 const {
   title = "AnhePlayer · 支持洛雪插件的免费音乐播放器",
   description = "AnhePlayer 是一款基于 Tauri v2 打造的轻量 Windows 桌面音乐播放器。支持洛雪插件、本地曲库、网易云私人推荐与主题定制，无广告、不上传个人数据。",
   favicon = "/favicon.svg",
+  redirectMobile = false,
 } = Astro.props;
 
 const faviconType = favicon.endsWith(".svg") ? "image/svg+xml" : "image/png";
@@ -29,6 +32,40 @@ const ogImage = Astro.site
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {redirectMobile && (
+      <script is:inline>
+        // 手机访问 PC 首页时引导到移动端页面；放在 head 中尽早执行，避免先闪一下桌面版
+        (function () {
+          try {
+            var KEY = "anhe-view";
+            var params = new URLSearchParams(window.location.search);
+
+            // 手动切换：?desktop=1 强制看桌面版，?mobile=1 恢复自动跳转
+            if (params.has("desktop")) localStorage.setItem(KEY, "desktop");
+            else if (params.has("mobile")) localStorage.removeItem(KEY);
+            if (localStorage.getItem(KEY) === "desktop") return;
+
+            var ua = navigator.userAgent || "";
+            // 搜索引擎爬虫不跳转，避免移动优先索引把首页收录成移动版
+            if (/bot|crawler|spider|crawling|googlebot|bingbot|baiduspider|yandex/i.test(ua)) return;
+
+            var isPhone = /Android|iPhone|iPod|Mobile|HarmonyOS|Windows Phone|BlackBerry|Kindle|Silk/i.test(ua);
+            // iPadOS 13+ 的 UA 与 macOS 相同，用触点数区分
+            var isIPad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+            // 触屏且窄屏（平板竖屏、折叠屏内屏）也归入移动端
+            var isTouchNarrow =
+              window.matchMedia("(pointer: coarse)").matches &&
+              window.matchMedia("(max-width: 820px)").matches;
+
+            if (isPhone || isIPad || isTouchNarrow) {
+              window.location.replace("/mobile");
+            }
+          } catch (e) {
+            // localStorage 在隐私模式下可能抛错，按桌面版正常展示即可
+          }
+        })();
+      </script>
+    )}
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

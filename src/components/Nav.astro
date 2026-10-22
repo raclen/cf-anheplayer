@@ -19,8 +19,11 @@ const {
       : PC_GITHUB_URL,
 } = Astro.props;
 
+// 移动端页面回桌面版需要带上 ?desktop=1，否则首页会把手机用户又送回 /mobile
+const pcHomeHref = current === "mobile" ? "/?desktop=1" : "/";
+
 const productLinks = [
-  { href: "/", key: "pc", label: "PC 桌面端" },
+  { href: pcHomeHref, key: "pc", label: "PC 桌面端" },
   { href: "/mobile", key: "mobile", label: "移动端" },
   { href: "/downloader", key: "downloader", label: "音乐下载器" },
   { href: "/sources", key: "sources", label: "音源状态" },
@@ -61,7 +64,7 @@ const QQ_GROUP = "5128608";
 
 <header class="nav" id="nav">
   <div class="container nav-inner">
-    <a class="brand" href={current === "pc" ? "#top" : "/"} aria-label="AnhePlayer 首页">
+    <a class="brand" href={current === "pc" ? "#top" : pcHomeHref} aria-label="AnhePlayer 首页">
       <img src={logoSrc} alt="Logo" width="34" height="34" />
       <span>AnhePlayer</span>
       {badgeText && <span class="brand-badge">{badgeText}</span>}
