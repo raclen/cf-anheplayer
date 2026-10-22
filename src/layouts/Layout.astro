@@ -36,32 +36,53 @@ const ogImage = Astro.site
       <script is:inline>
         // 手机访问 PC 首页时引导到移动端页面；放在 head 中尽早执行，避免先闪一下桌面版
         (function () {
+          // 1. 彻底清除旧版本遗留在 localStorage 的持久化状态（防止此前点过桌面版的用户手机被永久锁死在 PC 首页）
           try {
-            var KEY = "anhe-view";
-            var params = new URLSearchParams(window.location.search);
+            localStorage.removeItem("anhe-view");
+          } catch (_) {}
 
-            // 手动切换：?desktop=1 强制看桌面版，?mobile=1 恢复自动跳转
-            if (params.has("desktop")) localStorage.setItem(KEY, "desktop");
-            else if (params.has("mobile")) localStorage.removeItem(KEY);
-            if (localStorage.getItem(KEY) === "desktop") return;
+          // 2. 检查本次会话是否由用户主动指定查看桌面版
+          var search = window.location.search || "";
+          var hasDesktopParam = /[?&]desktop(=|&|$)/i.test(search);
+          var hasMobileParam = /[?&]mobile(=|&|$)/i.test(search);
 
-            var ua = navigator.userAgent || "";
-            // 搜索引擎爬虫不跳转，避免移动优先索引把首页收录成移动版
-            if (/bot|crawler|spider|crawling|googlebot|bingbot|baiduspider|yandex/i.test(ua)) return;
+          if (hasDesktopParam) {
+            try { sessionStorage.setItem("anhe-view-desktop", "1"); } catch (_) {}
+            return;
+          }
+          if (hasMobileParam) {
+            try { sessionStorage.removeItem("anhe-view-desktop"); } catch (_) {}
+          } else {
+            try {
+              if (sessionStorage.getItem("anhe-view-desktop") === "1") return;
+            } catch (_) {}
+          }
 
-            var isPhone = /Android|iPhone|iPod|Mobile|HarmonyOS|Windows Phone|BlackBerry|Kindle|Silk/i.test(ua);
-            // iPadOS 13+ 的 UA 与 macOS 相同，用触点数区分
-            var isIPad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
-            // 触屏且窄屏（平板竖屏、折叠屏内屏）也归入移动端
-            var isTouchNarrow =
-              window.matchMedia("(pointer: coarse)").matches &&
-              window.matchMedia("(max-width: 820px)").matches;
+          // 3. 搜索引擎爬虫/机器人豁免跳转，避免移动优先索引把首页收录成移动版
+          var ua = (navigator.userAgent || "") + " " + (navigator.appVersion || "");
+          if (/bot|crawler|spider|crawling|googlebot|bingbot|baiduspider|yandex/i.test(ua)) return;
 
-            if (isPhone || isIPad || isTouchNarrow) {
-              window.location.replace("/mobile");
-            }
-          } catch (e) {
-            // localStorage 在隐私模式下可能抛错，按桌面版正常展示即可
+          // 4. 多重移动端特征识别
+          // A. 常见移动系统/设备 UA 关键词（含 Android、iOS、HarmonyOS、纯血鸿蒙 OpenHarmony、独立 Phone 标识等）
+          var isMobileUA = /(?:Android|iPhone|iPod|Mobile|HarmonyOS|OpenHarmony|\bPhone\b|Windows Phone|BlackBerry|Kindle|Silk|webOS|Opera Mini)/i.test(ua);
+
+          // B. 现代 Chromium Client Hints (Android Chrome, Edge, 夸克等)
+          var isMobileData = !!(navigator.userAgentData && navigator.userAgentData.mobile);
+
+          // C. iPadOS 13+ (macOS UA + 触控点 > 1)
+          var isIPad = /Macintosh/.test(ua) && (navigator.maxTouchPoints > 1);
+
+          // D. 触屏设备且属于移动端屏幕尺寸（折叠屏、竖屏平板、各品牌手机 Webview）
+          var screenDim = (window.screen && Math.min(window.screen.width, window.screen.height)) || 0;
+          var isTouchScreen = (navigator.maxTouchPoints > 0) || (window.matchMedia && (window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(any-pointer: coarse)").matches));
+          var isTouchNarrow = isTouchScreen && (screenDim > 0 ? screenDim <= 820 : (window.innerWidth && window.innerWidth <= 820));
+
+          if (isMobileUA || isMobileData || isIPad || isTouchNarrow) {
+            var searchParams = new URLSearchParams(search);
+            searchParams.delete("desktop");
+            var qs = searchParams.toString();
+            var target = "/mobile/" + (qs ? "?" + qs : "") + (window.location.hash || "");
+            window.location.replace(target);
           }
         })();
       </script>

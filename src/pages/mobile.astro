@@ -45,6 +45,13 @@ const featureIcons: Record<string, string> = {
   description="AnhePlayer 移动端专为 Android 打造，遵循 Material 3 设计规范。支持 QuickJS 洛雪音源插件、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，纯净无广告。"
   favicon="/mobile-logo.webp"
 >
+  <script is:inline>
+    // 进入移动端页面时，清除会话中的强制桌面版标记与旧版持久缓存
+    try {
+      sessionStorage.removeItem("anhe-view-desktop");
+      localStorage.removeItem("anhe-view");
+    } catch (_) {}
+  </script>
   <Nav current="mobile" downloadHref="#download" githubUrl={MOBILE_REPO_URL} />
 
   <main>
