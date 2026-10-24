@@ -77,17 +77,23 @@ export function getPcRelease() {
 
 export function getMobileRelease() {
   const item = releasesData.mobile;
-  const apkAsset = item.assets.find((a) => a.name.endsWith(".apk")) || item.assets[0];
+  const apkAssets = item.assets.filter((a) => a.name.endsWith(".apk"));
+  const apkAsset = apkAssets.find((a) => a.name.includes("arm64-v8a")) || apkAssets[0] || item.assets[0];
+  const legacyAsset = apkAssets.find((a) => a.name.includes("armeabi-v7a")) || null;
+
+  const withMirror = (asset: ReleaseAsset | null | undefined) =>
+    asset
+      ? {
+          ...asset,
+          mirrorUrl: getMirrorUrl(asset.downloadUrl),
+          formattedSize: fmtSize(asset.size),
+        }
+      : null;
 
   return {
     ...item,
-    apkAsset: apkAsset
-      ? {
-          ...apkAsset,
-          mirrorUrl: getMirrorUrl(apkAsset.downloadUrl),
-          formattedSize: fmtSize(apkAsset.size),
-        }
-      : null,
+    apkAsset: withMirror(apkAsset),
+    legacyAsset: withMirror(legacyAsset),
   };
 }
 

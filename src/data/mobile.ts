@@ -8,9 +8,11 @@ export const MOBILE_RELEASES_LATEST_URL = `${MOBILE_RELEASES_URL}/latest`;
 export const MOBILE_LATEST_API = `https://api.github.com/repos/${MOBILE_OWNER}/${MOBILE_REPO}/releases/latest`;
 
 /** API 不可用时的兜底版本与下载直链 */
-export const MOBILE_FALLBACK_VERSION = "2.0.4";
-export const MOBILE_FALLBACK_FILE = `AnhePlayer-${MOBILE_FALLBACK_VERSION}-core-arm64-v8a-release-204.apk`;
+export const MOBILE_FALLBACK_VERSION = "2.0.10";
+export const MOBILE_FALLBACK_FILE = `AnhePlayer-${MOBILE_FALLBACK_VERSION}-core-arm64-v8a-release-210.apk`;
 export const MOBILE_FALLBACK_URL = `${MOBILE_REPO_URL}/releases/download/v${MOBILE_FALLBACK_VERSION}/${MOBILE_FALLBACK_FILE}`;
+export const MOBILE_FALLBACK_LEGACY_FILE = `AnhePlayer-${MOBILE_FALLBACK_VERSION}-core-armeabi-v7a-release-210.apk`;
+export const MOBILE_FALLBACK_LEGACY_URL = `${MOBILE_REPO_URL}/releases/download/v${MOBILE_FALLBACK_VERSION}/${MOBILE_FALLBACK_LEGACY_FILE}`;
 
 export interface MobileFeature {
   icon: string;
@@ -27,7 +29,7 @@ export const MOBILE_FEATURES: MobileFeature[] = [
   {
     icon: "quickjs",
     title: "洛雪 QuickJS 音源内核",
-    desc: "内置 QuickJS 原生脚本引擎与移动端兼容层，开箱即用内置音源，亦可一键导入任意 .js 洛雪自定义音源脚本。",
+    desc: "内置 QuickJS 原生脚本引擎与移动端兼容层，支持从本地 .js 文件或在线链接导入洛雪音源，自行掌控在线曲库。",
   },
   {
     icon: "search",
@@ -54,8 +56,8 @@ export const MOBILE_FEATURES: MobileFeature[] = [
 export const MOBILE_GUIDE_STEPS = [
   {
     step: "01",
-    title: "导入或使用内置洛雪音源",
-    desc: "应用已内置优质测试音源，打开即可听歌；如需使用自定义脚本，点击搜索页右上角音源图标或进入「设置 → 洛雪音源」，选择任意 .js 音源文件导入。",
+    title: "导入洛雪音源",
+    desc: "应用不再内置音源。进入「设置 → 洛雪音源」，选择本地 .js 文件或粘贴在线链接导入，音源仅保存在本机，导入后即可在线搜索与播放。",
   },
   {
     step: "02",

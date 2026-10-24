@@ -6,17 +6,18 @@ import { Image } from "astro:assets";
 import {
   MOBILE_REPO_URL,
   MOBILE_RELEASES_URL,
-  MOBILE_RELEASES_LATEST_URL,
-  MOBILE_FALLBACK_VERSION,
   MOBILE_FALLBACK_URL,
   MOBILE_FALLBACK_FILE,
+  MOBILE_FALLBACK_LEGACY_URL,
+  MOBILE_FALLBACK_LEGACY_FILE,
   MOBILE_FEATURES,
   MOBILE_GUIDE_STEPS,
 } from "@/data/mobile";
-import { getMobileRelease, getMirrorUrl, fmtSize } from "@/data/releases";
+import { getMobileRelease } from "@/data/releases";
 
 const mobile = getMobileRelease();
 const apkAsset = mobile.apkAsset;
+const legacyAsset = mobile.legacyAsset;
 
 import songImg from "@/assets/screenshots/mobile/歌曲页.jpg";
 import searchImg from "@/assets/screenshots/mobile/搜索页.jpg";
@@ -41,8 +42,8 @@ const featureIcons: Record<string, string> = {
 ---
 
 <Layout
-  title="AnhePlayer 移动端 · Android 本地与洛雪在线音乐播放器"
-  description="AnhePlayer 移动端专为 Android 打造，遵循 Material 3 设计规范。支持 QuickJS 洛雪音源插件、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，纯净无广告。"
+  title="AnhePlayer 移动端 · Android 7.0+ 本地与洛雪在线音乐播放器"
+  description="AnhePlayer 移动端为 Android 7.0 及以上打造，提供 64 位与 32 位双安装包。支持导入洛雪音源、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，纯净无广告。"
   favicon="/mobile-logo.webp"
 >
   <script is:inline>
@@ -60,12 +61,12 @@ const featureIcons: Record<string, string> = {
       <div class="color-block color-block-lilac">
         <div class="container">
           <div class="hero-content">
-            <span class="eyebrow">Android 8.0+ · Material 3 · 开源无广告</span>
+            <span class="eyebrow">Android 7.0+ · 64/32 位双包 · Material 3</span>
             <h1 class="hero-title">
               随身掌心随享<br /><span class="gradient-text">纯净自由音乐</span>
             </h1>
             <p class="hero-desc">
-              基于 Jetpack Compose 与 Media3 播放内核打造。原生内置 QuickJS 洛雪音源引擎，集成酷狗、网易云、QQ 音乐、酷我四平台聚合搜索，提供 10 组硬件级 AutoEQ 音效预设与高音质独立下载，彻底告别开屏广告与会员限制。
+              基于 Jetpack Compose 与 Media3 播放内核打造。内置 QuickJS 洛雪音源引擎，自行导入音源脚本后即可聚合酷狗、网易云、QQ 音乐、酷我四平台搜索，搭配 10 组硬件级 AutoEQ 音效预设与高音质独立下载，彻底告别开屏广告与会员限制。
             </p>
 
             <div class="hero-actions">
@@ -103,6 +104,18 @@ const featureIcons: Record<string, string> = {
               </a>
             </div>
 
+            <p class="legacy-hint">
+              低版本 Android 或 32 位老设备？
+              <a
+                id="mobile-hero-legacy-btn"
+                href={legacyAsset?.mirrorUrl || MOBILE_FALLBACK_LEGACY_URL}
+                target="_blank"
+                rel="noopener"
+              >
+                下载低版本兼容包 (armeabi-v7a) →
+              </a>
+            </p>
+
             <div class="hero-meta">
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -120,7 +133,7 @@ const featureIcons: Record<string, string> = {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
                 </svg>
-                <span>ARM64 · {apkAsset?.formattedSize || "约 6.8 MB"}</span>
+                <span id="mobile-hero-size">ARM64 {apkAsset?.formattedSize || "约 6.8 MB"} · ARMv7 {legacyAsset?.formattedSize || "约 6.0 MB"}</span>
               </span>
               <span class="meta-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -246,7 +259,7 @@ const featureIcons: Record<string, string> = {
             获取 Android <span class="gradient-text">最新正式版</span>
           </h2>
           <p class="section-desc">
-            单 APK 安装包即装即用，无任何捆绑软件，权限仅用于本地媒体播放与网络取流。
+            提供 64 位与 32 位双安装包，按设备架构选择即可；无任何捆绑软件，权限仅用于本地媒体播放与网络取流。
           </p>
         </div>
 
@@ -259,7 +272,7 @@ const featureIcons: Record<string, string> = {
             </div>
             <div class="os-text-info">
               <h3>Android 安装包 (.apk)</h3>
-              <span>适配 Android 8.0 及以上 · 兼容主流 64 位芯片 (ARM64-v8a)</span>
+              <span>适配 Android 7.0 及以上 · 64 位 (ARM64-v8a) 与 32 位 (armeabi-v7a) 双包可选</span>
             </div>
           </div>
 
@@ -269,11 +282,11 @@ const featureIcons: Record<string, string> = {
                 <div class="asset-label-row">
                   <span class="asset-label">
                     AnhePlayer Release APK
-                    <span class="asset-badge">推荐</span>
+                    <span class="asset-badge">64 位推荐</span>
                   </span>
                   <span class="asset-size" id="mobile-asset-size">{apkAsset?.formattedSize || "约 6.8 MB"}</span>
                 </div>
-                <span class="asset-note">核心完整版 · 支持本地与在线播放 · 内置洛雪音源与 QuickJS 原生内核</span>
+                <span class="asset-note">主流 64 位机型 · 支持本地与在线播放 · 内置 QuickJS 引擎，在线音源需自行导入</span>
                 <span class="asset-filename" id="mobile-asset-filename">{apkAsset?.name || MOBILE_FALLBACK_FILE}</span>
               </div>
               <div class="asset-actions">
@@ -294,6 +307,49 @@ const featureIcons: Record<string, string> = {
                   class="btn btn-secondary btn-sm btn-official"
                   id="mobile-card-official-btn"
                   href={apkAsset?.downloadUrl || MOBILE_FALLBACK_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="GitHub 官方原链下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v11m0 0 4-4m-4 4-4-4"/>
+                    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                  </svg>
+                  <span>官方直链</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="asset-card-row asset-card-legacy" id="legacy-download">
+              <div class="asset-info">
+                <div class="asset-label-row">
+                  <span class="asset-label">
+                    AnhePlayer 低版本兼容 APK
+                    <span class="asset-badge asset-badge-legacy">32 位</span>
+                  </span>
+                  <span class="asset-size" id="mobile-legacy-size">{legacyAsset?.formattedSize || "约 6.0 MB"}</span>
+                </div>
+                <span class="asset-note">面向低版本 Android 与 32 位老设备 · 兼容 armeabi-v7a 芯片 · 功能与主包一致</span>
+                <span class="asset-filename" id="mobile-legacy-filename">{legacyAsset?.name || MOBILE_FALLBACK_LEGACY_FILE}</span>
+              </div>
+              <div class="asset-actions">
+                <a
+                  class="btn btn-primary btn-sm btn-mirror"
+                  id="mobile-legacy-mirror-btn"
+                  href={legacyAsset?.mirrorUrl || MOBILE_FALLBACK_LEGACY_URL}
+                  target="_blank"
+                  rel="noopener"
+                  title="通过国内高速镜像加速下载"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+                  </svg>
+                  <span>国内高速下载</span>
+                </a>
+                <a
+                  class="btn btn-secondary btn-sm btn-official"
+                  id="mobile-legacy-official-btn"
+                  href={legacyAsset?.downloadUrl || MOBILE_FALLBACK_LEGACY_URL}
                   target="_blank"
                   rel="noopener"
                   title="GitHub 官方原链下载"
@@ -329,7 +385,7 @@ const featureIcons: Record<string, string> = {
             三步快速体验<br /><span class="gradient-text">洛雪移动听歌</span>
           </h2>
           <p class="section-desc">
-            开箱即用内置音源，简单几步即可配置高品质音效与自定义外部脚本。
+            本地播放开箱即用；在线听歌前只需导入一次洛雪音源脚本，即可配置高品质音效与自定义外部脚本。
           </p>
         </div>
 
@@ -386,12 +442,18 @@ const featureIcons: Record<string, string> = {
     async function checkMobileReleaseQuietly() {
       const statusEl = document.getElementById("mobile-api-status");
       const versionEl = document.getElementById("mobile-hero-version");
+      const heroSizeEl = document.getElementById("mobile-hero-size");
       const heroMirrorBtn = document.getElementById("mobile-hero-download-btn") as HTMLAnchorElement | null;
       const heroOfficialBtn = document.getElementById("mobile-hero-official-btn") as HTMLAnchorElement | null;
+      const heroLegacyBtn = document.getElementById("mobile-hero-legacy-btn") as HTMLAnchorElement | null;
       const cardMirrorBtn = document.getElementById("mobile-card-mirror-btn") as HTMLAnchorElement | null;
       const cardOfficialBtn = document.getElementById("mobile-card-official-btn") as HTMLAnchorElement | null;
       const sizeEl = document.getElementById("mobile-asset-size");
       const filenameEl = document.getElementById("mobile-asset-filename");
+      const legacySizeEl = document.getElementById("mobile-legacy-size");
+      const legacyFilenameEl = document.getElementById("mobile-legacy-filename");
+      const legacyMirrorBtn = document.getElementById("mobile-legacy-mirror-btn") as HTMLAnchorElement | null;
+      const legacyOfficialBtn = document.getElementById("mobile-legacy-official-btn") as HTMLAnchorElement | null;
 
       try {
         const res = await fetch(MOBILE_LATEST_API, { signal: AbortSignal.timeout(6000) });
@@ -400,9 +462,12 @@ const featureIcons: Record<string, string> = {
         const tag = (data.tag_name || "").trim();
         if (!tag) return;
 
-        const apkAsset = Array.isArray(data.assets)
-          ? data.assets.find((a: any) => typeof a.name === "string" && a.name.endsWith(".apk"))
-          : null;
+        const apkAssets = Array.isArray(data.assets)
+          ? data.assets.filter((a: any) => typeof a.name === "string" && a.name.endsWith(".apk"))
+          : [];
+        const apkAsset =
+          apkAssets.find((a: any) => a.name.includes("arm64-v8a")) || apkAssets[0];
+        const legacyApkAsset = apkAssets.find((a: any) => a.name.includes("armeabi-v7a"));
 
         if (!apkAsset) return;
 
@@ -427,6 +492,22 @@ const featureIcons: Record<string, string> = {
         }
         if (cardOfficialBtn) {
           cardOfficialBtn.href = downloadUrl;
+        }
+
+        if (legacyApkAsset) {
+          const legacyDownloadUrl = legacyApkAsset.browser_download_url;
+          const legacyMirrorUrl = getMirrorUrl(legacyDownloadUrl);
+          if (legacySizeEl) legacySizeEl.textContent = fmtSize(legacyApkAsset.size);
+          if (legacyFilenameEl) legacyFilenameEl.textContent = legacyApkAsset.name;
+          if (heroLegacyBtn) heroLegacyBtn.href = legacyMirrorUrl;
+          if (legacyMirrorBtn) legacyMirrorBtn.href = legacyMirrorUrl;
+          if (legacyOfficialBtn) legacyOfficialBtn.href = legacyDownloadUrl;
+        }
+
+        if (heroSizeEl) {
+          heroSizeEl.textContent = `ARM64 ${sizeFormatted}${
+            legacyApkAsset ? ` · ARMv7 ${fmtSize(legacyApkAsset.size)}` : ""
+          }`;
         }
         if (statusEl) {
           statusEl.textContent = `已连接 GitHub 同步最新正式版 ${tag}（${apkAsset.name}）`;
@@ -487,7 +568,21 @@ const featureIcons: Record<string, string> = {
     display: flex;
     flex-wrap: wrap;
     gap: 14px;
-    margin-bottom: 28px;
+    margin-bottom: 18px;
+  }
+
+  .legacy-hint {
+    font-size: 0.88rem;
+    color: var(--ink);
+    opacity: 0.62;
+    margin-bottom: 26px;
+  }
+
+  .legacy-hint a {
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .hero-meta {
@@ -776,6 +871,11 @@ const featureIcons: Record<string, string> = {
     color: var(--on-primary);
     padding: 2px 8px;
     border-radius: var(--radius-pill);
+  }
+
+  .asset-badge-legacy {
+    background: var(--block-lilac);
+    color: var(--ink);
   }
 
   .asset-note {
