@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T19:03:53.150Z",
-  "nextCheckAt": "2026-10-25T23:06:31.501Z",
+  "generatedAt": "2026-10-25T22:33:56.916Z",
+  "nextCheckAt": "2026-10-26T02:35:42.531Z",
   "intervalHours": 4,
   "runner": "github-actions",
-  "durationMs": 158359,
+  "durationMs": 105623,
   "summary": {
     "total": 36,
-    "available": 0,
-    "partial": 19,
+    "available": 1,
+    "partial": 18,
     "unavailable": 17,
     "untested": 0,
-    "platformsOk": 48,
+    "platformsOk": 54,
     "platformsTested": 148
   },
   "sources": [
@@ -39,7 +39,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2638,
+          "ms": 1453,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -50,7 +50,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2025,
+          "ms": 1698,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -61,8 +61,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 570,
-          "error": "fetch failed",
+          "ms": 438,
+          "error": "parameter error",
           "urlHost": null,
           "quality": "128k"
         },
@@ -72,9 +72,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1210,
+          "ms": 1073,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         }
       ],
@@ -83,8 +83,8 @@
         "tested": 4,
         "total": 4
       },
-      "checkedAt": "2026-10-25T19:05:32.496Z",
-      "durationMs": 2641,
+      "checkedAt": "2026-10-25T22:35:12.732Z",
+      "durationMs": 1701,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -286,6 +286,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 1,
+          "tested": 4
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 1,
           "tested": 4
@@ -316,7 +322,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 6305,
+          "ms": 5605,
           "error": null,
           "urlHost": "ws.stream.qqmusic.qq.com/M500002MX8Ea4e5RDS.mp3",
           "quality": "128k"
@@ -327,9 +333,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2637,
+          "ms": 890,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -338,7 +344,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 494,
+          "ms": 424,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -349,9 +355,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2481,
+          "ms": 3482,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsdg360.hw.kugou.com/202610260635/ffd7cfdad740acd9a1899afc16646543/v…",
           "quality": "128k"
         },
         {
@@ -360,7 +366,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 11167,
+          "ms": 10315,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -371,8 +377,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:21.312Z",
-      "durationMs": 11182,
+      "checkedAt": "2026-10-25T22:35:05.956Z",
+      "durationMs": 10333,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -574,6 +580,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 4,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 4,
           "tested": 5
@@ -604,9 +616,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 907,
+          "ms": 961,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -615,7 +627,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3379,
+          "ms": 3552,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -625,10 +637,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 2097,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 737,
+          "error": null,
+          "urlHost": "car-bj.kuwo.cn/4f83361e91df463699b35801f0c32dd0/6ade83f1/nf/re…",
           "quality": "128k"
         },
         {
@@ -637,9 +649,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 448,
+          "ms": 1867,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsandroid.tx.kugou.com/202610260634/8e6f60931bace9ee2bc63fbe1fed6b5a/v…",
           "quality": "128k"
         },
         {
@@ -648,19 +660,19 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1261,
+          "ms": 2027,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
         }
       ],
       "stats": {
-        "ok": 3,
+        "ok": 4,
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:35.135Z",
-      "durationMs": 3381,
+      "checkedAt": "2026-10-25T22:35:14.432Z",
+      "durationMs": 3554,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -864,6 +876,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 3,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 4,
           "tested": 5
         }
       ]
@@ -891,10 +909,10 @@
           "name": "QQ音乐",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 23223,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 1868,
+          "error": null,
+          "urlHost": "wx.music.tc.qq.com/O4M0002MX8Ea4e5RDS.mgg",
           "quality": "128k"
         },
         {
@@ -903,9 +921,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1611,
+          "ms": 1216,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -914,7 +932,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1370,
+          "ms": 1076,
           "error": "所有后端均失败（共2个） HelloWorld KW 主API: HelloWorld KW 主API: 不支持音质 HelloWorld KW 备用API: HelloWorld KW 备用API: 获取URL失败(上游返回非200): {\"code\":4011,\"data\":{\"format\":\"None\",\"sig\":\"None\",\"url\":\"None\"},\"msg\":\"parameter error\"}",
           "urlHost": null,
           "quality": "128k"
@@ -925,9 +943,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2448,
+          "ms": 4848,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsandroid.tx.kugou.com/202610260634/8e6f60931bace9ee2bc63fbe1fed6b5a/v…",
           "quality": "128k"
         },
         {
@@ -936,19 +954,19 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3017,
+          "ms": 1271,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
         }
       ],
       "stats": {
-        "ok": 3,
+        "ok": 4,
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:28.707Z",
-      "durationMs": 23346,
+      "checkedAt": "2026-10-25T22:35:07.359Z",
+      "durationMs": 5373,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -1152,6 +1170,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 3,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 4,
           "tested": 5
         }
       ]
@@ -1180,8 +1204,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 821,
-          "error": "所有API均失败(128k) [resolve-url:不支持128k | mobi.s:TypeError: fetch failed]",
+          "ms": 498,
+          "error": "所有API均失败(128k) [resolve-url:不支持128k | mobi.s:响应中未找到有效链接]",
           "urlHost": null,
           "quality": "128k"
         },
@@ -1191,9 +1215,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1501,
+          "ms": 1615,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsdg360.hw.kugou.com/202610260635/ffd7cfdad740acd9a1899afc16646543/v…",
           "quality": "128k"
         },
         {
@@ -1202,7 +1226,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 758,
+          "ms": 831,
           "error": null,
           "urlHost": "ws.stream.qqmusic.qq.com/M500002MX8Ea4e5RDS.mp3",
           "quality": "128k"
@@ -1213,9 +1237,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1563,
+          "ms": 1877,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -1224,7 +1248,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 4940,
+          "ms": 3831,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -1246,8 +1270,8 @@
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:05:16.365Z",
-      "durationMs": 4946,
+      "checkedAt": "2026-10-25T22:35:02.120Z",
+      "durationMs": 3836,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -1452,6 +1476,12 @@
           "status": "partial",
           "ok": 4,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 4,
+          "tested": 5
         }
       ]
     },
@@ -1469,7 +1499,7 @@
       "description": "qq群：1094095648；965503129",
       "homepage": "https://github.com/Macrohard0001/HYWmusic_source",
       "expire": null,
-      "status": "partial",
+      "status": "available",
       "initOk": true,
       "initError": null,
       "platforms": [
@@ -1478,10 +1508,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 3498,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 2421,
+          "error": null,
+          "urlHost": "car-bj.kuwo.cn/ee399c24ca542de2fbd30693fdfef3e7/6ade8408/nf/re…",
           "quality": "128k"
         },
         {
@@ -1490,7 +1520,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2868,
+          "ms": 2380,
           "error": null,
           "urlHost": "ws.stream.qqmusic.qq.com/M500002MX8Ea4e5RDS.mp3",
           "quality": "128k"
@@ -1501,9 +1531,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 4185,
+          "ms": 2809,
           "error": null,
-          "urlHost": "iot102.music.126.net/Yml6PWlvdCZjaGFubmVsPW5ldGVhc2Umc2NlbmU9YW5kcmN…",
+          "urlHost": "m701.music.126.net/20261026065948/f5d2a45728e4a627e5cb0e968ac650a1…",
           "quality": "128k"
         },
         {
@@ -1512,7 +1542,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 18243,
+          "ms": 19960,
           "error": null,
           "urlHost": "103.79.184.97/api/music/proxy",
           "quality": "128k"
@@ -1567,19 +1597,19 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2237,
+          "ms": 2215,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsdg360.hw.kugou.com/202610260634/b1d1ab9f59a8f80b615ad0442b96afe0/v…",
           "quality": "128k"
         }
       ],
       "stats": {
-        "ok": 4,
+        "ok": 5,
         "tested": 5,
         "total": 9
       },
-      "checkedAt": "2026-10-25T19:05:10.459Z",
-      "durationMs": 18250,
+      "checkedAt": "2026-10-25T22:34:47.394Z",
+      "durationMs": 19966,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -1784,6 +1814,12 @@
           "status": "partial",
           "ok": 4,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "available",
+          "ok": 5,
+          "tested": 5
         }
       ]
     },
@@ -1811,9 +1847,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2058,
+          "ms": 1361,
           "error": null,
-          "urlHost": "m701.music.126.net/20261026032949/268e1cbdcd7d80c314e29b6fb4103024…",
+          "urlHost": "m701.music.126.net/20261026065944/f53acb9badcf9b4144fabd619be45080…",
           "quality": "128k"
         },
         {
@@ -1822,7 +1858,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 22397,
+          "ms": 3151,
           "error": "所有音源均失败",
           "urlHost": null,
           "quality": "128k"
@@ -1833,9 +1869,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1682,
+          "ms": 899,
           "error": null,
-          "urlHost": "kw-er.kuwo.cn/1e74b7cca761fe98ddda0bbd1de61d09/6ade52a4/resou…",
+          "urlHost": "kw-er.kuwo.cn/de4e2fd1dea7651fbefd84485ff9e3a1/6ade83e4/resou…",
           "quality": "128k"
         },
         {
@@ -1844,7 +1880,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2173,
+          "ms": 2713,
           "error": "所有音源均失败",
           "urlHost": null,
           "quality": "128k"
@@ -1855,7 +1891,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4711,
+          "ms": 3942,
           "error": "所有音源均失败",
           "urlHost": null,
           "quality": "128k"
@@ -1877,8 +1913,8 @@
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:04:48.054Z",
-      "durationMs": 22402,
+      "checkedAt": "2026-10-25T22:34:43.442Z",
+      "durationMs": 3951,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -2080,6 +2116,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 2,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 2,
           "tested": 5
@@ -2110,7 +2152,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 484,
+          "ms": 166,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2121,7 +2163,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 245,
+          "ms": 106,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2132,7 +2174,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 484,
+          "ms": 166,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2143,7 +2185,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2159,
+          "ms": 1739,
           "error": "咪咕找不到",
           "urlHost": null,
           "quality": "128k"
@@ -2154,8 +2196,8 @@
         "tested": 4,
         "total": 4
       },
-      "checkedAt": "2026-10-25T19:04:17.415Z",
-      "durationMs": 2161,
+      "checkedAt": "2026-10-25T22:34:19.634Z",
+      "durationMs": 1741,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -2360,6 +2402,12 @@
           "status": "unavailable",
           "ok": 0,
           "tested": 4
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 4
         }
       ]
     },
@@ -2386,8 +2434,8 @@
         "tested": 0,
         "total": 0
       },
-      "checkedAt": "2026-10-25T19:04:36.052Z",
-      "durationMs": 12003,
+      "checkedAt": "2026-10-25T22:34:31.439Z",
+      "durationMs": 12002,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -2589,6 +2637,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 0
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 0
@@ -2619,7 +2673,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 6359,
+          "ms": 6307,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2630,7 +2684,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 7784,
+          "ms": 6781,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2641,7 +2695,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3156,
+          "ms": 2877,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2652,7 +2706,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 5440,
+          "ms": 3893,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2663,7 +2717,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 8215,
+          "ms": 7869,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2674,8 +2728,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:04:19.576Z",
-      "durationMs": 11254,
+      "checkedAt": "2026-10-25T22:34:20.158Z",
+      "durationMs": 10886,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -2877,6 +2931,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
@@ -2907,9 +2967,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2365,
+          "ms": 1241,
           "error": null,
-          "urlHost": "m701.music.126.net/20261026032904/c0051d98bf75f3913eca5b11d00bcc1b…",
+          "urlHost": "m701.music.126.net/20261026065911/24fc3b22684c6c69c4f8eab872324578…",
           "quality": "128k"
         },
         {
@@ -2918,7 +2978,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 24658,
+          "ms": 3336,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2928,10 +2988,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 3020,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 1775,
+          "error": null,
+          "urlHost": "kw-er.kuwo.cn/de4e2fd1dea7651fbefd84485ff9e3a1/6ade83e4/resou…",
           "quality": "128k"
         },
         {
@@ -2940,7 +3000,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4023,
+          "ms": 3019,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2951,7 +3011,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 6084,
+          "ms": 3901,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -2969,12 +3029,12 @@
         }
       ],
       "stats": {
-        "ok": 1,
+        "ok": 2,
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:04:02.501Z",
-      "durationMs": 24663,
+      "checkedAt": "2026-10-25T22:34:10.426Z",
+      "durationMs": 3910,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -3178,6 +3238,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 1,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 2,
           "tested": 5
         }
       ]
@@ -3206,7 +3272,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2025,
+          "ms": 1317,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -3217,7 +3283,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1495,
+          "ms": 704,
           "error": "获取播放链接失败",
           "urlHost": null,
           "quality": "128k"
@@ -3228,7 +3294,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 839,
+          "ms": 670,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -3239,8 +3305,8 @@
         "tested": 3,
         "total": 3
       },
-      "checkedAt": "2026-10-25T19:04:27.163Z",
-      "durationMs": 2027,
+      "checkedAt": "2026-10-25T22:34:21.375Z",
+      "durationMs": 1319,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -3442,6 +3508,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 3
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 3
@@ -3472,7 +3544,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4268,
+          "ms": 3298,
           "error": "所有音质尝试均失败",
           "urlHost": null,
           "quality": "128k"
@@ -3483,9 +3555,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1409,
+          "ms": 1720,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032931/2c6cd84cc24a501a2bc8479c1f5b7426…",
+          "urlHost": "m801.music.126.net/20261026065927/383099f8a3d1a7cbcfd7db272fb033cb…",
           "quality": "128k"
         },
         {
@@ -3494,9 +3566,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1981,
+          "ms": 1085,
           "error": null,
-          "urlHost": "kw-er.kuwo.cn/37c3d00dd2147f2f5fb1f43f864fbb44/6ade52c0/resou…",
+          "urlHost": "kw-er.kuwo.cn/85f252f952245c71090ef3a0f8e9f6c7/6ade83f3/resou…",
           "quality": "128k"
         },
         {
@@ -3505,7 +3577,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2234,
+          "ms": 1848,
           "error": "未找到咪咕音乐链接",
           "urlHost": null,
           "quality": "128k"
@@ -3516,8 +3588,8 @@
         "tested": 4,
         "total": 4
       },
-      "checkedAt": "2026-10-25T19:04:30.830Z",
-      "durationMs": 4270,
+      "checkedAt": "2026-10-25T22:34:26.696Z",
+      "durationMs": 3299,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -3719,6 +3791,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 2,
+          "tested": 4
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 2,
           "tested": 4
@@ -3749,7 +3827,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 44,
+          "ms": 29,
           "error": "所有音质尝试均失败",
           "urlHost": null,
           "quality": "128k"
@@ -3760,9 +3838,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 845,
+          "ms": 1000,
           "error": null,
-          "urlHost": "m701.music.126.net/20261026032935/17706fdc3c5eacfc4bed444f2ed4faf5…",
+          "urlHost": "m701.music.126.net/20261026065931/d15657536be10ca1ccc4e3662821350a…",
           "quality": "128k"
         }
       ],
@@ -3771,8 +3849,8 @@
         "tested": 2,
         "total": 2
       },
-      "checkedAt": "2026-10-25T19:04:35.103Z",
-      "durationMs": 951,
+      "checkedAt": "2026-10-25T22:34:31.043Z",
+      "durationMs": 1103,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -3974,6 +4052,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 1,
+          "tested": 2
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 1,
           "tested": 2
@@ -4004,7 +4088,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2012,
+          "ms": 1442,
           "error": "获取链接失败，可能是该歌曲无版权或接口维护",
           "urlHost": null,
           "quality": "128k"
@@ -4015,7 +4099,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1778,
+          "ms": 1298,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -4026,7 +4110,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1033,
+          "ms": 847,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -4037,8 +4121,8 @@
         "tested": 3,
         "total": 3
       },
-      "checkedAt": "2026-10-25T19:04:34.341Z",
-      "durationMs": 2014,
+      "checkedAt": "2026-10-25T22:34:29.995Z",
+      "durationMs": 1443,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -4240,6 +4324,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 3
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 3
@@ -4270,9 +4360,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 851,
+          "ms": 1155,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032936/30d3f936e044c113b08fb42f2af641a5…",
+          "urlHost": "m701.music.126.net/20261026065932/2e176afa7c05426fcb99304e4419affd…",
           "quality": "128k"
         },
         {
@@ -4281,8 +4371,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 40006,
-          "error": "请求超时（20 秒）",
+          "ms": 29968,
+          "error": "所有音源均失败: 溯音QQ所有码率失败; HTTP 403; HTTP 403; 收集聚合: 请求错误: fetch failed; 念心SVIP: HTTP 404; 星海备: 请求错误: fetch failed; Huibq: HTTP 503; HYWmusic: 请求错误: fetch failed; fish-music: fish-music获取失败; 汽水VIP: HTTP 404",
           "urlHost": null,
           "quality": "128k"
         },
@@ -4292,9 +4382,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1494,
+          "ms": 1535,
           "error": null,
-          "urlHost": "kw-er.kuwo.cn/1e74b7cca761fe98ddda0bbd1de61d09/6ade52a4/resou…",
+          "urlHost": "kw-er.kuwo.cn/de4e2fd1dea7651fbefd84485ff9e3a1/6ade83e4/resou…",
           "quality": "128k"
         },
         {
@@ -4303,7 +4393,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 20772,
+          "ms": 20741,
           "error": "所有音源均失败: HTTP 429; 长青未返回URL; zrcdy所有搜索词失败; HTTP 404; HTTP 403; 请求错误: fetch failed; HTTP 503; 请求错误: fetch failed; fish-music获取失败",
           "urlHost": null,
           "quality": "128k"
@@ -4314,7 +4404,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 25903,
+          "ms": 24821,
           "error": "所有音源均失败: HTTP 403; 溯音咪咕失败; HTTP 404; 念心SVIP: HTTP 404; 星海备: 请求错误: fetch failed; Huibq: HTTP 503; HYWmusic: 请求错误: fetch failed; fish-music: fish-music获取失败",
           "urlHost": null,
           "quality": "128k"
@@ -4325,8 +4415,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:04:36.355Z",
-      "durationMs": 40010,
+      "checkedAt": "2026-10-25T22:34:32.148Z",
+      "durationMs": 29973,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -4528,6 +4618,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 2,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 2,
           "tested": 5
@@ -4558,9 +4654,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3937,
+          "ms": 1901,
           "error": null,
-          "urlHost": "m704.music.126.net/20261026032319/55e40fdcfc1db1d4cfa17c6cc7d4c044…",
+          "urlHost": "m804.music.126.net/20261026065656/3d321a0f3fd0e09a7936344ecf51e994…",
           "quality": "128k"
         },
         {
@@ -4569,7 +4665,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1936,
+          "ms": 1361,
           "error": "后端失败: QQ音乐 暂时无法获取，请稍后重试",
           "urlHost": null,
           "quality": "128k"
@@ -4580,9 +4676,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1347,
+          "ms": 2082,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsandroid.tx.kugou.com/202610260634/8e6f60931bace9ee2bc63fbe1fed6b5a/v…",
           "quality": "128k"
         },
         {
@@ -4590,10 +4686,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 5143,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 3995,
+          "error": null,
+          "urlHost": "car-bj.kuwo.cn/4f83361e91df463699b35801f0c32dd0/6ade83f1/nf/re…",
           "quality": "128k"
         },
         {
@@ -4602,7 +4698,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2845,
+          "ms": 1393,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -4620,12 +4716,12 @@
         }
       ],
       "stats": {
-        "ok": 3,
+        "ok": 4,
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:04:29.190Z",
-      "durationMs": 5151,
+      "checkedAt": "2026-10-25T22:34:22.694Z",
+      "durationMs": 4002,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -4829,6 +4925,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 3,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 4,
           "tested": 5
         }
       ]
@@ -4857,7 +4959,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3729,
+          "ms": 2929,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -4868,7 +4970,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3026,
+          "ms": 2857,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -4879,7 +4981,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3150,
+          "ms": 2923,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -4890,7 +4992,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2382,
+          "ms": 2229,
           "error": "source must be shorter than or equal to 32 characters,source should not be empty,source must be a string,rid must be shorter than or equal to 512 characters,rid should not be empty,rid must be a string,level must be shorter than or equal to…",
           "urlHost": null,
           "quality": "128k"
@@ -4901,7 +5003,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3828,
+          "ms": 5254,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -4912,8 +5014,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:04:13.546Z",
-      "durationMs": 3869,
+      "checkedAt": "2026-10-25T22:34:14.339Z",
+      "durationMs": 5298,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -5115,6 +5217,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 1,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 1,
           "tested": 5
@@ -5145,8 +5253,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 9221,
-          "error": "fetch failed",
+          "ms": 2795,
+          "error": "kw nuoweida failed: This resource is not available in your region or country due to copyright protection",
           "urlHost": null,
           "quality": "128k"
         },
@@ -5156,7 +5264,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 5459,
+          "ms": 3106,
           "error": null,
           "urlHost": "iot202.music.126.net/Yml6PWlvdCZjaGFubmVsPW5ldGVhc2Umc2NlbmU9YW5kcmN…",
           "quality": "128k"
@@ -5167,9 +5275,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 5842,
+          "ms": 9648,
           "error": null,
-          "urlHost": "car-er.kuwo.cn/c90603c0542c93e5891cac0201265fc9/6ade529c/resou…",
+          "urlHost": "car-er.kuwo.cn/c3b5695394056efe4f5ab777fee51376/6ade83de/resou…",
           "quality": "128k"
         },
         {
@@ -5178,7 +5286,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 9223,
+          "ms": 5308,
           "error": null,
           "urlHost": "isure6.stream.qqmusic.qq.com/C400002MX8Ea4e5RDS.m4a",
           "quality": "128k"
@@ -5189,7 +5297,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 9221,
+          "ms": 5307,
           "error": null,
           "urlHost": "isure6.stream.qqmusic.qq.com/C400002MX8Ea4e5RDS.m4a",
           "quality": "128k"
@@ -5200,8 +5308,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:03:53.207Z",
-      "durationMs": 9348,
+      "checkedAt": "2026-10-25T22:33:56.972Z",
+      "durationMs": 9767,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -5403,6 +5511,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 4,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 4,
           "tested": 5
@@ -5433,7 +5547,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 242,
+          "ms": 208,
           "error": "Invalid search response",
           "urlHost": null,
           "quality": "128k"
@@ -5444,7 +5558,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 150,
+          "ms": 143,
           "error": "Invalid search response",
           "urlHost": null,
           "quality": "128k"
@@ -5455,7 +5569,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 204,
+          "ms": 169,
           "error": "Invalid search response",
           "urlHost": null,
           "quality": "128k"
@@ -5466,7 +5580,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 233,
+          "ms": 173,
           "error": "Invalid search response",
           "urlHost": null,
           "quality": "128k"
@@ -5477,7 +5591,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 196,
+          "ms": 152,
           "error": "Invalid search response",
           "urlHost": null,
           "quality": "128k"
@@ -5488,8 +5602,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:03:53.152Z",
-      "durationMs": 281,
+      "checkedAt": "2026-10-25T22:33:56.918Z",
+      "durationMs": 220,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -5691,6 +5805,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
@@ -5721,7 +5841,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4277,
+          "ms": 2452,
           "error": "QQ音乐接口无可用地址",
           "urlHost": null,
           "quality": "128k"
@@ -5732,9 +5852,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 4062,
+          "ms": 3297,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -5743,8 +5863,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2833,
-          "error": "fetch failed",
+          "ms": 1949,
+          "error": "This resource is not available in your region or country due to copyright protection",
           "urlHost": null,
           "quality": "128k"
         },
@@ -5753,10 +5873,10 @@
           "name": "酷狗",
           "declared": true,
           "tested": true,
-          "ok": true,
-          "ms": 4845,
-          "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "ok": false,
+          "ms": 2176,
+          "error": "酷狗接口未获取到有效播放链接",
+          "urlHost": null,
           "quality": "128k"
         },
         {
@@ -5765,19 +5885,19 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4781,
-          "error": "请求咪咕专辑接口失败：fetch failed",
+          "ms": 13242,
+          "error": "咪咕音源获取地址失败：请求超时 (10000ms): http://171.80.3.149:3037/migu/url/h5v2.4?token=KonekoIloveyou@2026.....99-_&contentId=600913000009337537&copyrightId=6005752DXKE&toneFlag=PQ",
           "urlHost": null,
           "quality": "128k"
         }
       ],
       "stats": {
-        "ok": 2,
+        "ok": 1,
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:03:53.435Z",
-      "durationMs": 4899,
+      "checkedAt": "2026-10-25T22:33:57.138Z",
+      "durationMs": 13287,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -5981,6 +6101,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 2,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 1,
           "tested": 5
         }
       ]
@@ -6009,7 +6135,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 4609,
+          "ms": 2404,
           "error": null,
           "urlHost": "ws.stream.qqmusic.qq.com/M500002MX8Ea4e5RDS.mp3",
           "quality": "128k"
@@ -6020,9 +6146,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 830,
+          "ms": 2780,
           "error": null,
-          "urlHost": "m801.music.126.net/20261026032855/81f505b292ded0b9ee4cbdb07af8e61a…",
+          "urlHost": "m701.music.126.net/20261026065644/06e1fc1e414b523ea7a53fa88b07474d…",
           "quality": "128k"
         },
         {
@@ -6031,7 +6157,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 491,
+          "ms": 420,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6042,9 +6168,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2399,
+          "ms": 4975,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsdg360.hw.kugou.com/202610260634/b1d1ab9f59a8f80b615ad0442b96afe0/v…",
           "quality": "128k"
         },
         {
@@ -6053,7 +6179,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 15202,
+          "ms": 13460,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -6064,8 +6190,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:03:58.333Z",
-      "durationMs": 15212,
+      "checkedAt": "2026-10-25T22:34:06.686Z",
+      "durationMs": 13472,
       "history": [
         {
           "at": "2026-10-20T05:46:44.742Z",
@@ -6267,6 +6393,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "partial",
+          "ok": 4,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "partial",
           "ok": 4,
           "tested": 5
@@ -6297,7 +6429,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2430,
+          "ms": 2077,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6308,7 +6440,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3192,
+          "ms": 2313,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6319,7 +6451,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3268,
+          "ms": 1859,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6330,7 +6462,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1424,
+          "ms": 1278,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6341,7 +6473,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3321,
+          "ms": 3165,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -6352,8 +6484,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:53.826Z",
-      "durationMs": 4009,
+      "checkedAt": "2026-10-25T22:35:21.578Z",
+      "durationMs": 3569,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -6549,6 +6681,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
@@ -6579,7 +6717,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 128,
+          "ms": 24,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6590,7 +6728,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 213,
+          "ms": 38,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6601,7 +6739,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 258,
+          "ms": 35,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6612,7 +6750,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 204,
+          "ms": 44,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6623,7 +6761,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 201,
+          "ms": 33,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6634,8 +6772,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:53.970Z",
-      "durationMs": 506,
+      "checkedAt": "2026-10-25T22:35:25.145Z",
+      "durationMs": 227,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -6831,6 +6969,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
@@ -6861,7 +7005,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 64,
+          "ms": 11,
           "error": "Error",
           "urlHost": null,
           "quality": "128k"
@@ -6872,8 +7016,8 @@
         "tested": 1,
         "total": 1
       },
-      "checkedAt": "2026-10-25T19:05:54.453Z",
-      "durationMs": 247,
+      "checkedAt": "2026-10-25T22:35:25.354Z",
+      "durationMs": 165,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -7069,6 +7213,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 1
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 1
@@ -7099,7 +7249,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 597,
+          "ms": 80,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -7110,7 +7260,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 513,
+          "ms": 70,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -7121,7 +7271,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 699,
+          "ms": 140,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -7132,7 +7282,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2329,
+          "ms": 1807,
           "error": "咪咕找不到",
           "urlHost": null,
           "quality": "128k"
@@ -7143,8 +7293,8 @@
         "tested": 4,
         "total": 4
       },
-      "checkedAt": "2026-10-25T19:05:54.704Z",
-      "durationMs": 2386,
+      "checkedAt": "2026-10-25T22:35:25.525Z",
+      "durationMs": 1950,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -7340,6 +7490,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 4
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 4
@@ -7370,7 +7526,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 294,
+          "ms": 223,
           "error": "unknow error",
           "urlHost": null,
           "quality": "128k"
@@ -7381,7 +7537,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 570,
+          "ms": 390,
           "error": "unknow error",
           "urlHost": null,
           "quality": "128k"
@@ -7392,7 +7548,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 561,
+          "ms": 402,
           "error": "unknow error",
           "urlHost": null,
           "quality": "128k"
@@ -7403,7 +7559,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1611,
+          "ms": 1120,
           "error": "unknow error",
           "urlHost": null,
           "quality": "128k"
@@ -7414,7 +7570,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1119,
+          "ms": 394,
           "error": "unknow error",
           "urlHost": null,
           "quality": "128k"
@@ -7425,8 +7581,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:57.083Z",
-      "durationMs": 1663,
+      "checkedAt": "2026-10-25T22:35:27.497Z",
+      "durationMs": 1287,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -7622,6 +7778,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
@@ -7652,7 +7814,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 45,
+          "ms": 51,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -7663,7 +7825,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 116,
+          "ms": 113,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -7685,8 +7847,8 @@
         "tested": 2,
         "total": 3
       },
-      "checkedAt": "2026-10-25T19:05:57.799Z",
-      "durationMs": 161,
+      "checkedAt": "2026-10-25T22:35:27.747Z",
+      "durationMs": 293,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -7885,6 +8047,12 @@
           "status": "unavailable",
           "ok": 0,
           "tested": 2
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 2
         }
       ]
     },
@@ -7911,8 +8079,8 @@
         "tested": 0,
         "total": 0
       },
-      "checkedAt": "2026-10-25T19:05:57.963Z",
-      "durationMs": 12047,
+      "checkedAt": "2026-10-25T22:35:28.034Z",
+      "durationMs": 12172,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -8108,6 +8276,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 0
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 0
@@ -8138,7 +8312,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 562,
+          "ms": 477,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -8149,7 +8323,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1295,
+          "ms": 972,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -8160,7 +8334,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1304,
+          "ms": 1322,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -8171,7 +8345,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1352,
+          "ms": 1335,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -8182,7 +8356,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1374,
+          "ms": 1397,
           "error": "fetch failed",
           "urlHost": null,
           "quality": "128k"
@@ -8204,8 +8378,8 @@
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:05:58.747Z",
-      "durationMs": 2155,
+      "checkedAt": "2026-10-25T22:35:28.790Z",
+      "durationMs": 2132,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -8404,6 +8578,12 @@
           "status": "unavailable",
           "ok": 0,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
         }
       ]
     },
@@ -8431,9 +8611,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1205,
+          "ms": 1398,
           "error": null,
-          "urlHost": "m701.music.126.net/20261026033101/011c85df6d9694ed361a5b7e94cc31db…",
+          "urlHost": "m701.music.126.net/20261026070031/1b75491b7630587c07da8d68bd0b9894…",
           "quality": "128k"
         },
         {
@@ -8442,7 +8622,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 24272,
+          "ms": 3466,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -8453,9 +8633,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1091,
+          "ms": 1138,
           "error": null,
-          "urlHost": "kw-er.kuwo.cn/1e74b7cca761fe98ddda0bbd1de61d09/6ade52a4/resou…",
+          "urlHost": "kw-er.kuwo.cn/de4e2fd1dea7651fbefd84485ff9e3a1/6ade83e4/resou…",
           "quality": "128k"
         },
         {
@@ -8464,7 +8644,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3135,
+          "ms": 2524,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -8475,7 +8655,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3769,
+          "ms": 2571,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -8497,8 +8677,8 @@
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:06:00.896Z",
-      "durationMs": 24320,
+      "checkedAt": "2026-10-25T22:35:30.897Z",
+      "durationMs": 3615,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -8697,6 +8877,12 @@
           "status": "partial",
           "ok": 2,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 2,
+          "tested": 5
         }
       ]
     },
@@ -8724,8 +8910,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 20064,
-          "error": "请求超时（20 秒）",
+          "ms": 979,
+          "error": "failed",
           "urlHost": null,
           "quality": "128k"
         },
@@ -8735,7 +8921,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3662,
+          "ms": 3638,
           "error": "音源未返回播放地址",
           "urlHost": null,
           "quality": "128k"
@@ -8746,7 +8932,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 4035,
+          "ms": 3412,
           "error": "音源未返回播放地址",
           "urlHost": null,
           "quality": "128k"
@@ -8768,7 +8954,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3080,
+          "ms": 2463,
           "error": "音源未返回播放地址",
           "urlHost": null,
           "quality": "128k"
@@ -8779,8 +8965,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:06:10.080Z",
-      "durationMs": 21517,
+      "checkedAt": "2026-10-25T22:35:34.548Z",
+      "durationMs": 5066,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -8979,6 +9165,12 @@
           "status": "unavailable",
           "ok": 0,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
         }
       ]
     },
@@ -9006,9 +9198,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3975,
+          "ms": 1642,
           "error": null,
-          "urlHost": "m704.music.126.net/20261026032319/55e40fdcfc1db1d4cfa17c6cc7d4c044…",
+          "urlHost": "m804.music.126.net/20261026065656/3d321a0f3fd0e09a7936344ecf51e994…",
           "quality": "128k"
         },
         {
@@ -9017,7 +9209,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1662,
+          "ms": 1210,
           "error": "后端失败: QQ音乐 暂时无法获取，请稍后重试",
           "urlHost": null,
           "quality": "128k"
@@ -9028,9 +9220,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 1263,
+          "ms": 1537,
           "error": null,
-          "urlHost": "fsandroid.tx.kugou.com/202610260303/93610809cde64a15eb1fd0de5e67d255/v…",
+          "urlHost": "fsandroid.tx.kugou.com/202610260634/8e6f60931bace9ee2bc63fbe1fed6b5a/v…",
           "quality": "128k"
         },
         {
@@ -9038,10 +9230,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 3712,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 2942,
+          "error": null,
+          "urlHost": "car-bj.kuwo.cn/4f83361e91df463699b35801f0c32dd0/6ade83f1/nf/re…",
           "quality": "128k"
         },
         {
@@ -9050,7 +9242,7 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3835,
+          "ms": 2406,
           "error": null,
           "urlHost": "freetyst.nf.migu.cn/public/product9th/product45/2022/05/0916/2020%E…",
           "quality": "128k"
@@ -9068,12 +9260,12 @@
         }
       ],
       "stats": {
-        "ok": 3,
+        "ok": 4,
         "tested": 5,
         "total": 6
       },
-      "checkedAt": "2026-10-25T19:06:25.346Z",
-      "durationMs": 4152,
+      "checkedAt": "2026-10-25T22:35:39.565Z",
+      "durationMs": 3080,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -9271,6 +9463,12 @@
           "at": "2026-10-25T19:03:53.150Z",
           "status": "partial",
           "ok": 3,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 4,
           "tested": 5
         }
       ]
@@ -9321,7 +9519,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 1835,
+          "ms": 2389,
           "error": "咪咕官方线路获取失败",
           "urlHost": null,
           "quality": "128k"
@@ -9332,8 +9530,8 @@
         "tested": 1,
         "total": 3
       },
-      "checkedAt": "2026-10-25T19:05:52.054Z",
-      "durationMs": 1844,
+      "checkedAt": "2026-10-25T22:35:19.026Z",
+      "durationMs": 2398,
       "history": [
         {
           "at": "2026-10-22T20:07:28.563Z",
@@ -9430,6 +9628,12 @@
           "status": "unavailable",
           "ok": 0,
           "tested": 1
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 1
         }
       ]
     },
@@ -9457,9 +9661,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 2565,
+          "ms": 1364,
           "error": null,
-          "urlHost": "m701.music.126.net/20261026033039/d987d33f5ba60d03777f551afc8b92bb…",
+          "urlHost": "m801.music.126.net/20261026070017/5c848fc4221cb805b3856853e6e17b29…",
           "quality": "128k"
         },
         {
@@ -9468,9 +9672,9 @@
           "declared": true,
           "tested": true,
           "ok": true,
-          "ms": 3645,
+          "ms": 2727,
           "error": null,
-          "urlHost": "kw-er.kuwo.cn/60c4767af945ace97fbbf54ee27fd260/6ade5305/resou…",
+          "urlHost": "kw-er.kuwo.cn/e89525b15371506dfcadbdb562bcb872/6ade8426/resou…",
           "quality": "128k"
         },
         {
@@ -9478,10 +9682,10 @@
           "name": "酷我",
           "declared": true,
           "tested": true,
-          "ok": false,
-          "ms": 2896,
-          "error": "返回的播放地址无法拉流",
-          "urlHost": null,
+          "ok": true,
+          "ms": 1620,
+          "error": null,
+          "urlHost": "kw-bj.kuwo.cn/8524a4f2b53f8479a794b17d8af07cc3/6ade83e0/nf/re…",
           "quality": "128k"
         },
         {
@@ -9490,8 +9694,8 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 3505,
-          "error": "NOT_FOUND: 所有源均失败 [[128k] NOT_FOUND: 溯音酷我签名URL已过期(CDN 410)，不可播]",
+          "ms": 2051,
+          "error": "NOT_FOUND: 所有源均失败 [[128k] RATE_LIMIT: 音源[溯音酷我]已熔断]",
           "urlHost": null,
           "quality": "128k"
         },
@@ -9501,19 +9705,19 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 2800,
+          "ms": 2046,
           "error": "NOT_FOUND: 所有源均失败 [[128k] RATE_LIMIT: 音源[溯音酷我]已熔断]",
           "urlHost": null,
           "quality": "128k"
         }
       ],
       "stats": {
-        "ok": 2,
+        "ok": 3,
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:38.517Z",
-      "durationMs": 3653,
+      "checkedAt": "2026-10-25T22:35:16.289Z",
+      "durationMs": 2736,
       "history": [
         {
           "at": "2026-10-20T06:46:40.076Z",
@@ -9712,6 +9916,12 @@
           "status": "partial",
           "ok": 2,
           "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
+          "status": "partial",
+          "ok": 3,
+          "tested": 5
         }
       ]
     },
@@ -9739,7 +9949,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 5096,
+          "ms": 5031,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -9750,7 +9960,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 5177,
+          "ms": 6888,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -9761,7 +9971,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 7209,
+          "ms": 4732,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -9772,7 +9982,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 5488,
+          "ms": 3476,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -9783,7 +9993,7 @@
           "declared": true,
           "tested": true,
           "ok": false,
-          "ms": 8540,
+          "ms": 4467,
           "error": "返回的播放地址无法拉流",
           "urlHost": null,
           "quality": "128k"
@@ -9794,8 +10004,8 @@
         "tested": 5,
         "total": 5
       },
-      "checkedAt": "2026-10-25T19:05:42.170Z",
-      "durationMs": 11579,
+      "checkedAt": "2026-10-25T22:35:17.987Z",
+      "durationMs": 9584,
       "history": [
         {
           "at": "2026-10-22T02:59:55.746Z",
@@ -9913,6 +10123,12 @@
         },
         {
           "at": "2026-10-25T19:03:53.150Z",
+          "status": "unavailable",
+          "ok": 0,
+          "tested": 5
+        },
+        {
+          "at": "2026-10-25T22:33:56.916Z",
           "status": "unavailable",
           "ok": 0,
           "tested": 5
