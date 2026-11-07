@@ -56,6 +56,7 @@ const PLATFORM_NAMES = {
   kg: '酷狗',
   mg: '咪咕',
   qs: '汽水',
+  qishui: '汽水',
   qsvip: 'QQ SVIP',
   bili: 'B 站',
   ytb: 'YouTube',
@@ -86,6 +87,16 @@ const TEST_SONGS = {
   mg: [
     { songmid: '6005752DXKE', copyrightId: '6005752DXKE', contentId: '600913000009337537', albumId: '1133556323', name: '海阔天空', singer: 'Beyond', interval: '05:25', source: 'mg' },
     { songmid: '1135162566', id: '1135162566', copyrightId: '6005752DXKE', albumId: '1133556323', name: '海阔天空', singer: 'Beyond', interval: '05:25', source: 'mg' },
+  ],
+  // 汽水音乐（抖音系）没有公开网页搜索，歌曲 ID 取自官方 App 搜索接口；
+  // 音源取流只需要 id / songmid，两首用于避开单曲被风控或下架的情况。
+  qs: [
+    { id: '6705003948140398594', songmid: '6705003948140398594', name: '海阔天空', singer: 'Beyond', albumName: '华纳我爱经典系列 Beyond', interval: '03:59', source: 'qs' },
+    { id: '7676337516358617115', songmid: '7676337516358617115', name: '晴天', singer: '晚风纯音', interval: '03:57', source: 'qs' },
+  ],
+  qishui: [
+    { id: '6705003948140398594', songmid: '6705003948140398594', name: '海阔天空', singer: 'Beyond', albumName: '华纳我爱经典系列 Beyond', interval: '03:59', source: 'qishui' },
+    { id: '7676337516358617115', songmid: '7676337516358617115', name: '晴天', singer: '晚风纯音', interval: '03:57', source: 'qishui' },
   ],
 }
 
