@@ -1,12 +1,12 @@
 /*!
  * @name         星海音乐源
  * @description  GDAPI | 聚合 | ChKSz API | 全平台支持 24bit FLAC，网易、酷狗、QQ 最高支持母带
- * @version      v3.2.15
+ * @version      v3.2.17
  * @author       万去了了 / 科学大魔王
  * @homepage     https://zddyr.top/
  * @see          http://gc.kxwa.top/
- * @lastUpdate   2026-10-02
- * @update       1. 新增汽水音乐支持（测试）；2. 感谢科学大魔王的技术支持；3. 国庆快乐
+ * @lastUpdate   2026-11-04
+ * @update       优化
  * @license      仅供学习交流，请支持正版
  */
 
@@ -31,12 +31,16 @@ const KW_LOCAL_CONFIG = {
     strictHighEnd: true,
     fallbackToBackend: true,
 };
+
+// 卡密（可选）：填了就能用 QQ 等「仅认证用户」音源，不填只能走基础音源
+const LICENSE_CONFIG = {
+    code: '',
+};
 // ====================================================
 
 const URL_CONFIG = {
     domains: {
         primary: 'yy.zddyr.top',
-        fallback: 'zrcdy.dpdns.org',
         gdStudio: 'music-api.gdstudio.xyz',
         chkszNew: 'api.chksz.com'
     },
@@ -67,7 +71,7 @@ const buildUrl = (domainKey, pathKey, extraQuery = '') => {
     return url;
 };
 
-const SCRIPT_VERSION = 'v3.2.15';
+const SCRIPT_VERSION = 'v3.2.17';
 const SCRIPT_NAME = 'XingHaiMusicSource';
 const SOURCE_MAP = { tx: 'qq', mg: 'migu', kw: 'kw', kg: 'kg', qs: 'qs' };
 const PLATFORM_NAMES = { wy: '网易云音乐', tx: 'QQ音乐', kw: '酷我音乐', kg: '酷狗音乐', mg: '咪咕音乐', qs: '汽水音乐' };
@@ -94,7 +98,7 @@ const CHKSZ_QQ_SIZE_MAP = {
 const GD_BR_MAP = { '128k':'128', '320k':'320', 'flac':'740', 'hires':'999' };
 const GD_SUPPORTED_QUALITIES = new Set(['128k','320k','flac','hires']);
 
-const TOKEN_TTL = 5 * 60 * 1000;
+const TOKEN_TTL = 4 * 60 * 1000;   // 服务端有效期 5 分钟，本地提前 1 分钟换新，避开边界过期
 
 let userIp = null;
 let userToken = '';
@@ -253,37 +257,78 @@ function buildClientHeader() {
     return `${SCRIPT_NAME}/${SCRIPT_VERSION} (${deviceType})`;
 }
 
-function generateToken(ip) {
+// 令牌只能由服务器签发（/lx/api/token.php）。
+// 以前是本地拼一段 base64 就当令牌，服务端从 2026-11 起不再承认这种自签令牌，
+// 必须拿服务器用私有密钥签出的 xh3. 令牌，否则一律 403。
+let tokenPromise = null;
+
+function fetchServerToken() {
     if (!deviceId) deviceId = generateDeviceId();
-    const payload = {
-        device_id: deviceId,
-        ip: ip || '0.0.0.0',
-        timestamp: Math.floor(Date.now() / 1000),
-        random: Math.random().toString(36).substring(2, 12)
-    };
-    tokenTimestamp = Date.now();
-    return safeBase64Encode(JSON.stringify(payload));
-}
-
-function ensureTokenFresh() {
-    if (!userToken || (Date.now() - tokenTimestamp) > TOKEN_TTL) {
-        userToken = generateToken(userIp);
-    }
-}
-
-const httpFetch = (url, options = {}) => new Promise((resolve, reject) => {
-    if (!options.noAuth) ensureTokenFresh();
-    const headers = { ...(options.headers || {}) };
-    if (!options.noAuth) {
-        if (userToken) headers['X-Token'] = userToken;
-        if (clientHeader) headers['X-Client'] = clientHeader;
-    }
-    if (!headers['User-Agent']) headers['User-Agent'] = 'lx-music';
-    request(url, { ...options, headers }, (err, resp) => {
-        if (err) return reject(err);
-        resolve({ body: safeParseBody(resp.body), statusCode: resp.statusCode, headers: resp.headers || {} });
+    const url = `${buildUrl('primary', 'backend')}token.php?device_id=${encodeURIComponent(deviceId)}`;
+    return new Promise((resolve) => {
+        request(url, {
+            method: 'GET',
+            timeout: 6000,
+            headers: { 'User-Agent': 'lx-music', 'X-Client': clientHeader || 'LX-Music-Mobile' }
+        }, (err, resp) => {
+            if (err) return resolve('');
+            try {
+                const b = safeParseBody(resp.body);
+                const tk = b && b.data && b.data.token;
+                resolve(typeof tk === 'string' ? tk : '');
+            } catch (e) { resolve(''); }
+        });
     });
-});
+}
+
+async function ensureTokenFresh(force = false) {
+    if (!force && userToken && (Date.now() - tokenTimestamp) <= TOKEN_TTL) return;
+    if (!tokenPromise) tokenPromise = fetchServerToken();
+    let tk = '';
+    try { tk = await tokenPromise; } catch (e) { tk = ''; }
+    tokenPromise = null;
+    if (tk) {
+        userToken = tk;
+        tokenTimestamp = Date.now();
+    }
+}
+
+// 服务端判定令牌不可用（过期 / 换网导致 IP 不符 / 非服务器签发）时刷新一次重试
+function needRefreshToken(resp) {
+    const a = resp && resp.body && resp.body.auth;
+    if (!a) return false;
+    if (a.tk_mismatch === true) return true;
+    if (a.device_id === 'untrusted-token' || a.tk_error) return true;
+    return false;
+}
+
+// 所有请求都必须带服务器签发的令牌。
+// 拿不到令牌就不发请求 —— 没有令牌的请求服务端一律按未授权处理，
+// 与其发出去被拒，不如把原因直接抛给上层。
+const httpFetch = async (url, options = {}, retried = false) => {
+    await ensureTokenFresh();
+    if (!userToken) throw new Error('获取服务器令牌失败，请检查网络后重试');
+    const headers = { ...(options.headers || {}) };
+    headers['X-Token'] = userToken;
+    if (clientHeader) headers['X-Client'] = clientHeader;
+    const code = (LICENSE_CONFIG.code || '').trim();
+    if (code) headers['X-License'] = code;
+    if (!headers['User-Agent']) headers['User-Agent'] = 'lx-music';
+    const out = await new Promise((resolve, reject) => {
+        request(url, { ...options, headers }, (err, resp) => {
+            if (err) return reject(err);
+            resolve({ body: safeParseBody(resp.body), statusCode: resp.statusCode, headers: resp.headers || {} });
+        });
+    });
+    if (!retried && needRefreshToken(out)) {
+        userToken = '';
+        tokenTimestamp = 0;
+        tokenPromise = null;
+        await ensureTokenFresh(true);
+        return httpFetch(url, options, true);
+    }
+    return out;
+};
 
 function mapQuality(target, avail) {
     const pm = {
@@ -702,7 +747,6 @@ async function fetchIp() {
         const r = await httpFetch(buildUrl('primary', 'ip'), { timeout: 3000 });
         if (r.body?.ip) {
             userIp = r.body.ip;
-            userToken = generateToken(userIp);
         }
     } catch (e) {}
 }
@@ -711,7 +755,7 @@ async function getWyChkszUrl(id, quality) {
     const level = CHKSZ_NETEASE_LEVEL_MAP[quality];
     if (!level) throw new Error('chksz不支持该品质');
     const url = `https://${URL_CONFIG.domains.chkszNew}${URL_CONFIG.paths.chkszNetease}?id=${id}&level=${level}&apikey=${encodeURIComponent(CHKSZ_CONFIG.apikey)}`;
-    const resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000, noAuth: true });
+    const resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000 });
     if (resp.statusCode !== 200 || resp.body.code !== 200 || !resp.body.data?.url) {
         throw new Error(`chksz网易失败(${resp.statusCode}): ${resp.body?.msg || '未返回url'}`);
     }
@@ -724,7 +768,7 @@ async function getTxChkszUrl(musicInfo, quality) {
     const mid = musicInfo.songmid || musicInfo.id;
     if (!mid) throw new Error('缺少QQ mid');
     const url = `https://${URL_CONFIG.domains.chkszNew}${URL_CONFIG.paths.chkszQQ}?mid=${mid}&size=${size}&type=json&apikey=${encodeURIComponent(CHKSZ_CONFIG.apikey)}`;
-    const resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000, noAuth: true });
+    const resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000 });
     if (resp.statusCode !== 200 || resp.body.code !== 200 || !resp.body.url) {
         throw new Error(`chksz QQ失败(${resp.statusCode}): ${resp.body?.msg || '未返回url'}`);
     }
@@ -734,10 +778,10 @@ async function getTxChkszUrl(musicInfo, quality) {
 async function getWyGDUrl(id, q) {
     const br = GD_BR_MAP[q] || '320';
     const url = buildUrl('gdStudio', 'gdApi', `&${URL_CONFIG.gdParams}&types=url&source=netease&id=${id}&br=${br}`);
-    let resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000, noAuth: true });
+    let resp = await httpFetch(url, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000 });
     if (q === 'hires' && (resp.statusCode !== 200 || !resp.body.url)) {
         const fallbackUrl = buildUrl('gdStudio', 'gdApi', `&${URL_CONFIG.gdParams}&types=url&source=netease&id=${id}&br=740`);
-        resp = await httpFetch(fallbackUrl, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000, noAuth: true });
+        resp = await httpFetch(fallbackUrl, { headers: { 'User-Agent': 'LX-Music-Mobile' }, timeout: 8000 });
     }
     if (resp.statusCode !== 200 || !resp.body.url) {
         throw new Error(`GD接口状态${resp.statusCode}，未返回音频`);
@@ -912,12 +956,11 @@ async function fetchMusicUrl(source, musicInfo, quality) {
 
 // -------------------- 更新检查 --------------------
 async function checkUpdate() {
-    const versionUrls = [
-        buildUrl('primary', 'version') + '?ver=' + encodeURIComponent(SCRIPT_VERSION),
-        buildUrl('fallback', 'version') + '?ver=' + encodeURIComponent(SCRIPT_VERSION)
-    ];
     try {
-        const resp = await Promise.any(versionUrls.map(u => httpFetch(u, { timeout: 5000 })));
+        const resp = await httpFetch(
+            buildUrl('primary', 'version') + '?ver=' + encodeURIComponent(SCRIPT_VERSION),
+            { timeout: 5000 }
+        );
         if (resp.statusCode === 200 && resp.body && resp.body.update_url) {
             send(EVENT_NAMES.updateAlert, {
                 log: resp.body.changelog || resp.body.message || `发现新版本 ${resp.body.version || ''}`,
@@ -947,7 +990,7 @@ on(EVENT_NAMES.request, async ({ action, source, info }) => {
 (async () => {
     deviceId = generateDeviceId();
     clientHeader = buildClientHeader();
-    userToken = generateToken(null);
+    ensureTokenFresh();
     availablePlatforms = ['wy', 'tx', 'kg', 'kw', 'mg', 'qs'];
     const sources = {};
     availablePlatforms.forEach(p => { sources[p] = { name: PLATFORM_NAMES[p], type: 'music', actions: ['musicUrl', 'lyric', 'pic'], qualitys: MUSIC_QUALITIES[p] }; });
