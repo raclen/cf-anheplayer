@@ -353,27 +353,22 @@ ${runtime}
 
   const __require = __createPluginRuntime(lx);
 
-  // 部分插件会在加载时自行注册洛雪事件（例如只接受自己的 source），
-  // 这会抢走打包层的 request 回调，所以加载期间临时屏蔽 on/send。
+  // 部分插件会自行注册洛雪事件，加载期间屏蔽 on/send，避免抢走聚合请求。
+  // AnhePlayer 禁止替换 globalThis.lx，因此只临时修改事件方法，并在 finally 中恢复。
   function __loadPlugin(factory, label) {
     const module = { exports: {} };
     const realLx = globalThis.lx;
-    let patched = false;
+    const originalOn = realLx.on;
+    const originalSend = realLx.send;
     try {
-      const stub = Object.create(realLx || null);
-      stub.on = function () {};
-      stub.send = function () {};
-      globalThis.lx = stub;
-      patched = globalThis.lx === stub;
-    } catch (error) {
-      patched = false;
-    }
-    try {
+      realLx.on = function () {};
+      realLx.send = function () {};
       factory(module, module.exports, __require);
     } catch (error) {
       console.error('[打包音源] ' + label + ' 加载失败：' + (error && error.message ? error.message : error));
     } finally {
-      if (patched) globalThis.lx = realLx;
+      realLx.on = originalOn;
+      realLx.send = originalSend;
     }
     return module.exports || {};
   }

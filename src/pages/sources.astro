@@ -16,7 +16,7 @@ try {
 const statusMeta: Record<string, { label: string; tone: string }> = {
   available: { label: "可用", tone: "ok" },
   partial: { label: "部分可用", tone: "warn" },
-  unavailable: { label: "不可用", tone: "bad" },
+  unavailable: { label: "检测未通过", tone: "bad" },
   untested: { label: "未检测", tone: "idle" },
 };
 
@@ -158,7 +158,7 @@ const resolveDownloadName = (src: any) => {
       </article>
       <article class="stat stat-bad">
         <span class="stat-value">{summary.unavailable}</span>
-        <span class="stat-label">不可用</span>
+        <span class="stat-label">检测未通过</span>
       </article>
       <article class="stat stat-rate">
         <span class="stat-value">{passRate}<small>%</small></span>
@@ -184,7 +184,7 @@ const resolveDownloadName = (src: any) => {
           <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
         <p class="notice-text">
-          <b>检测说明：</b>本站采用固定歌曲探针测试接口连通性。因各大平台版权、VIP 权限及加密流（如 <code>.mgg</code>）差异，结果仅供存活度参考，请以客户端实际试听为准。
+          <b>检测说明：</b>本站只检测音源自身接口，不包含播放器的内置解析或跨音源兜底。因此，“检测未通过”不等于播放器无法播放。固定歌曲的版权、VIP 权限及加密流（如 <code>.mgg</code>）也会影响结果，请以客户端实际试听为准。
         </p>
       </div>
     </section>
@@ -200,7 +200,7 @@ const resolveDownloadName = (src: any) => {
 
       <div class="filter-group" role="group" aria-label="按状态筛选">
         <button class="filter-chip is-active" data-filter-status="available" type="button">可用</button>
-        <button class="filter-chip" data-filter-status="unavailable" type="button">不可用</button>
+        <button class="filter-chip" data-filter-status="unavailable" type="button">检测未通过</button>
       </div>
 
       <span class="result-count">显示 <b id="result-count">{sources.filter((s) => isAvailableLike(s.status)).length}</b> 条</span>

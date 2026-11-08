@@ -10,6 +10,9 @@
  */
 import vm from 'node:vm'
 import crypto from 'node:crypto'
+import zlib from 'node:zlib'
+import { promisify } from 'node:util'
+import { AsyncLocalStorage } from 'node:async_hooks'
 
 export const EVENT_NAMES = {
   request: 'request',
@@ -30,7 +33,7 @@ function parseScriptInfo(code) {
   const head = code.slice(0, 8000)
   const get = (key) => {
     const match = head.match(new RegExp(`@${key}[ \\t]+([^\\r\\n*]+)`))
-    return match ? match[1].trim() : null
+    return match ? match[1].trim() : ''
   }
   return {
     name: get('name'),
@@ -43,18 +46,21 @@ function parseScriptInfo(code) {
 }
 
 /** 兼容洛雪回调签名 (err, resp, body) 的 HTTP 请求实现 */
-function createRequest() {
+function createRequest(onResponse) {
   return function request(url, options = {}, callback) {
     const cb = typeof options === 'function' ? options : callback
     const opts = typeof options === 'function' ? {} : options || {}
     if (typeof cb !== 'function') return { abort() {} }
 
     const controller = new AbortController()
-    const timeout = Number(opts.timeout) > 0 ? Number(opts.timeout) : 15000
+    const timeout = Number(opts.timeout) > 0 ? Math.min(Number(opts.timeout), 60000) : 60000
     const timer = setTimeout(() => controller.abort(), timeout)
     timer.unref?.()
 
-    const headers = { 'user-agent': USER_AGENT, ...(opts.headers || {}) }
+    // HTTP 请求头不区分大小写；直接展开对象会把 User-Agent 与默认值合并，
+    // 这会改变 Flower / Grass 等音源声明的 lx-music 客户端标识。
+    const headers = new Headers(opts.headers || {})
+    if (!headers.has('user-agent')) headers.set('user-agent', USER_AGENT)
     const init = {
       method: (opts.method || 'GET').toUpperCase(),
       headers,
@@ -64,7 +70,7 @@ function createRequest() {
 
     if (opts.form) {
       init.body = new URLSearchParams(opts.form).toString()
-      headers['content-type'] = headers['content-type'] || 'application/x-www-form-urlencoded'
+      if (!headers.has('content-type')) headers.set('content-type', 'application/x-www-form-urlencoded')
     } else if (opts.formData) {
       const fd = new FormData()
       for (const [k, v] of Object.entries(opts.formData)) fd.append(k, v)
@@ -75,35 +81,44 @@ function createRequest() {
           ? opts.body
           : JSON.stringify(opts.body)
       if (typeof opts.body === 'object' && !Buffer.isBuffer(opts.body)) {
-        headers['content-type'] = headers['content-type'] || 'application/json'
+        if (!headers.has('content-type')) headers.set('content-type', 'application/json')
       }
     }
 
+    const endpoint = new URL(url)
+    // 只记录域名，避免把路径、query 或请求头中的凭据写入公开结果。
+    const requestHost = endpoint.host
     fetch(url, init)
       .then(async (res) => {
         const buf = Buffer.from(await res.arrayBuffer())
         const text = buf.toString('utf8')
-        let body = opts.binary ? buf : text
-        if (!opts.binary) {
-          try {
-            body = JSON.parse(text)
-          } catch {
-            /* 非 JSON 响应保持字符串 */
-          }
+        let body = text
+        try {
+          body = JSON.parse(text)
+        } catch {
+          /* 非 JSON 响应保持字符串；原始二进制通过 resp.raw 提供 */
         }
         const resp = {
           statusCode: res.status,
           statusMessage: res.statusText,
           headers: Object.fromEntries(res.headers.entries()),
           body,
+          raw: buf,
           bytes: buf.length,
         }
+        onResponse?.({ host: requestHost, statusCode: res.status })
         cb(null, resp, body)
       })
-      .catch((err) => cb(err, null, null))
+      .catch((err) => {
+        onResponse?.({ host: requestHost, error: err.cause?.code || err.cause?.message || err.message })
+        cb(err, null, null)
+      })
       .finally(() => clearTimeout(timer))
 
-    return { abort: () => controller.abort() }
+    // 洛雪返回可直接调用的取消函数；保留 abort 属性兼容已有音源。
+    const cancel = () => controller.abort()
+    cancel.abort = cancel
+    return cancel
   }
 }
 
@@ -116,20 +131,23 @@ const utils = {
   crypto: {
     md5: (value) => crypto.createHash('md5').update(value).digest('hex'),
     randomBytes: (size) => crypto.randomBytes(size),
+    // 与洛雪官方 helper 保持一致：AES 使用默认 PKCS#7 padding，
+    // RSA 左补零到 128 字节后进行无 padding 加密，而非 PKCS#1 分块。
     aesEncrypt: (buffer, mode = 'aes-128-cbc', key, iv) => {
       const cipher = crypto.createCipheriv(mode, key, iv || null)
-      cipher.setAutoPadding(false)
       return Buffer.concat([cipher.update(Buffer.from(buffer)), cipher.final()])
     },
     rsaEncrypt: (buffer, key) => {
       const data = Buffer.from(buffer)
-      const chunkSize = Math.ceil(key.length / 2) - 11
-      const chunks = []
-      for (let i = 0; i < data.length; i += chunkSize) {
-        chunks.push(crypto.publicEncrypt({ key, padding: crypto.constants.RSA_PKCS1_PADDING }, data.subarray(i, i + chunkSize)))
-      }
-      return Buffer.concat(chunks)
+      return crypto.publicEncrypt(
+        { key, padding: crypto.constants.RSA_NO_PADDING },
+        Buffer.concat([Buffer.alloc(128 - data.length), data]),
+      )
     },
+  },
+  zlib: {
+    inflate: promisify(zlib.inflate),
+    deflate: promisify(zlib.deflate),
   },
 }
 
@@ -154,6 +172,7 @@ export async function loadLxSourceCode(code, filename = 'remote-source.js', opti
   const { initTimeout = 12000, scriptTimeout = 15000 } = options
   const handlers = new Map()
   const logs = []
+  const requestContext = new AsyncLocalStorage()
   let inited = null
   let resolveInited
   const initedPromise = new Promise((resolve) => (resolveInited = resolve))
@@ -161,11 +180,7 @@ export async function loadLxSourceCode(code, filename = 'remote-source.js', opti
   function on(name, handler) {
     if (!handlers.has(name)) handlers.set(name, [])
     handlers.get(name).push(handler)
-    return () => {
-      const list = handlers.get(name) || []
-      const index = list.indexOf(handler)
-      if (index >= 0) list.splice(index, 1)
-    }
+    return Promise.resolve()
   }
 
   function send(name, data) {
@@ -176,13 +191,14 @@ export async function loadLxSourceCode(code, filename = 'remote-source.js', opti
       logs.push(data)
       if (logs.length > 50) logs.shift()
     }
+    return Promise.resolve()
   }
 
   const lx = {
     version: '2.0.0',
     env: 'desktop',
     EVENT_NAMES,
-    request: createRequest(),
+    request: createRequest((result) => requestContext.getStore()?.push(result)),
     on,
     send,
     utils,
@@ -249,13 +265,28 @@ export async function loadLxSourceCode(code, filename = 'remote-source.js', opti
     initError = String(syncError.message || syncError)
   }
 
+  const handler = (handlers.get(EVENT_NAMES.request) || [])[0]
+  const requestHandler = typeof handler === 'function'
+    ? (data) => requestContext.run([], async () => {
+        try {
+          return await handler(data)
+        } catch (error) {
+          const detail = requestContext.getStore().findLast((item) => item.error || item.statusCode >= 400)
+          if (!detail) throw error
+          const reason = detail.error || `HTTP ${detail.statusCode}`
+          const message = error?.message || '音源请求失败'
+          throw new Error(`${message}；${reason}（${detail.host}）`, { cause: error })
+        }
+      })
+    : null
+
   return {
     inited,
     initOk: !initError,
     initError,
     logs,
     handlers,
-    requestHandler: (handlers.get(EVENT_NAMES.request) || [])[0] || null,
+    requestHandler,
     sandbox,
   }
 }

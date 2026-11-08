@@ -41,7 +41,8 @@ pnpm preview   # 预览构建产物
 
 - 音源文件放在 `sources/优质`、`sources/一般`，可用 `scripts/sync-sources.mjs` 从本地目录同步。
 - 在线音源在 `sources/remote.json` 中维护（`url` 直链 + `mirror` 镜像），每轮检测会先下载最新脚本再测试。
-- `scripts/check-sources.mjs` 在模拟的洛雪运行环境中加载音源，对每个平台请求固定测试歌曲的播放地址，并校验地址能否真实拉流。
+- `scripts/check-sources.mjs` 在模拟的洛雪运行环境中加载音源，对每个平台请求固定测试歌曲的播放地址，并读取音频字节校验真实拉流；对拒绝 Range 的网关回退普通 GET，不会关闭拉流校验。
+- 检测只覆盖音源自身接口，不包含 AnhePlayer 的内置解析或跨音源兜底。例如播放器可能在网易平台直接使用官方外链，此时成功播放不代表所选自定义音源接口通过。页面将失败状态显示为“检测未通过”，错误信息区分 HTTP 状态、网络失败与非音频响应；固定样本结果不能替代客户端实际试听。
 - 结果同时写入 `src/data/sources-status.json`（构建时渲染页面）和 `public/sources-status.json`（线上 JSON 接口）。
 - 每条音源卡片右侧的复制按钮：在线音源复制 `sources/remote.json` 里的原始链接，本地音源复制 GitHub raw 链接（需仓库公开且已推送），可直接粘贴到洛雪音源导入框。
 - GitHub Actions（`.github/workflows/check-sources.yml`）每 4 小时执行一次并自动提交结果，Cloudflare Pages 随之重新构建。
@@ -53,8 +54,14 @@ node scripts/sync-sources.mjs "E:/gopeed downloads/音源 V261017/V261017" --cle
 # 检测全部音源（本地 + 在线）
 pnpm sources:check
 
-# 只检测文件名或在线音源 ID 包含关键字的项目
+# 只检测文件名或在线音源 ID 包含关键字的项目，保留其他既有结果
 node scripts/check-sources.mjs --only fish
+
+# 只复测 remote.json 中的在线音源，保留本地音源的既有结果
+node scripts/check-sources.mjs --remote-only
+
+# 检测器契约与音频校验回归（非 UI 测试）
+node --test scripts/lib/lx-sandbox.test.mjs scripts/check-sources.test.mjs
 ```
 
 在线音源清单示例（`sources/remote.json`）：
@@ -128,3 +135,5 @@ cf-anheplayer/
 - 调整测试歌曲：改 `scripts/check-sources.mjs` 顶部的 `TEST_SONGS`。
 - 站点域名变化时，同步修改 `astro.config.mjs` 的 `site` 与 `public/robots.txt` 的 Sitemap 地址。
 - 社区推广文在 `public/promo/article.md`，配图在同目录。文件名就是外链路径（`https://anhe-player.cc.cd/promo/文件名`），改名会让已发出的帖子裂图。
+
+

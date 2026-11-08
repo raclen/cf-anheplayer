@@ -45,6 +45,7 @@ const PLATFORM_TIMEOUT = Math.max(5000, Number(getArg('platform-timeout', '20000
 const INIT_TIMEOUT = Math.max(5000, Number(getArg('init-timeout', '12000')) || 12000)
 const VERIFY_STREAM = !hasFlag('no-verify')
 const ONLY = getArg('only', '')
+const REMOTE_ONLY = hasFlag('remote-only')
 const INTERVAL_HOURS = 4
 const HISTORY_LIMIT = 42 // 7 天 × 每天 6 次
 
@@ -151,23 +152,62 @@ function isNonAudioContentType(contentType) {
   )
 }
 
-async function verifyAudioUrl(url) {
-  if (!/^https?:\/\//i.test(url)) return false
+export async function verifyAudioUrl(url) {
+  if (!/^https?:\/\//i.test(url)) return { ok: false, error: '播放地址不是 HTTP(S) URL' }
+  let res
+  let reader
   try {
-    const res = await fetch(url, {
-      headers: { 'user-agent': USER_AGENT, range: 'bytes=0-2047' },
+    const signal = AbortSignal.timeout(12000)
+    const request = (range) => fetch(url, {
+      headers: { 'user-agent': USER_AGENT, ...(range ? { range: 'bytes=0-2047' } : {}) },
       redirect: 'follow',
-      signal: AbortSignal.timeout(12000),
+      signal,
     })
-    const contentType = res.headers.get('content-type') || ''
-    try {
+    res = await request(true)
+    // 部分网关拒绝 Range，但播放器的普通 GET 可以正常取流。
+    if (res.status === 416) {
       await res.body?.cancel()
+      res = await request(false)
+    }
+    if (res.status !== 200 && res.status !== 206) {
+      return { ok: false, error: `拉流失败：HTTP ${res.status}` }
+    }
+
+    reader = res.body?.getReader()
+    const chunks = []
+    let size = 0
+    while (reader && size < 512) {
+      const { done, value } = await reader.read()
+      if (done) break
+      const chunk = Buffer.from(value).subarray(0, 2048 - size)
+      chunks.push(chunk)
+      size += chunk.length
+    }
+    const prefix = Buffer.concat(chunks)
+    if (!prefix.length) return { ok: false, error: '拉流响应为空' }
+
+    const signature = prefix.subarray(0, 4).toString('ascii')
+    const audioMagic = signature.startsWith('ID3') || signature === 'fLaC' || signature === 'OggS' ||
+      (signature === 'RIFF' && prefix.subarray(8, 12).toString('ascii') === 'WAVE') ||
+      prefix.subarray(4, 8).toString('ascii') === 'ftyp' ||
+      (prefix[0] === 0xff && (prefix[1] & 0xe0) === 0xe0)
+    const contentType = res.headers.get('content-type') || ''
+    const textError = /^(?:[\[{]|<!doctype|<html|<\?xml)/i.test(prefix.toString('utf8').trimStart())
+    // 不只看 Content-Type：兼容误标 text/plain 的真实音频，同时排除伪装成音频的错误体。
+    if (!audioMagic && (isNonAudioContentType(contentType) || textError)) {
+      return { ok: false, error: `拉流返回非音频内容（${contentType || '未知类型'}）` }
+    }
+    return { ok: true, error: null }
+  } catch (error) {
+    const detail = error.cause?.code || error.cause?.message || trimError(error)
+    return { ok: false, error: `拉流网络失败：${detail}` }
+  } finally {
+    try {
+      if (reader) await reader.cancel()
+      else await res?.body?.cancel()
     } catch {
       /* 忽略取消流的异常 */
     }
-    return (res.status === 200 || res.status === 206) && !isNonAudioContentType(contentType)
-  } catch {
-    return false
   }
 }
 
@@ -216,10 +256,10 @@ async function testPlatform(handler, sourceKey, quality, timeout) {
         totalMs += Date.now() - started
         continue
       }
-      const streamOk = VERIFY_STREAM ? await verifyAudioUrl(url) : true
+      const stream = VERIFY_STREAM ? await verifyAudioUrl(url) : { ok: true, error: null }
       totalMs += Date.now() - started
-      if (!streamOk) {
-        lastError = '返回的播放地址无法拉流'
+      if (!stream.ok) {
+        lastError = stream.error
         continue
       }
       return { tested: true, ok: true, ms: totalMs, error: null, urlHost: urlHost(url) }
@@ -468,7 +508,7 @@ async function readPrevious() {
 
 async function main() {
   const startedAt = Date.now()
-  let files = await walk(SOURCE_DIR).catch(() => [])
+  let files = REMOTE_ONLY ? [] : await walk(SOURCE_DIR).catch(() => [])
   let remoteEntries = await readRemoteEntries()
 
   if (ONLY) {
@@ -499,7 +539,7 @@ async function main() {
   const checkedAt = new Date().toISOString()
   let finished = 0
 
-  const records = await runPool(jobs, CONCURRENCY, async (job) => {
+  const checkedRecords = await runPool(jobs, CONCURRENCY, async (job) => {
     let record
     try {
       record = await checkOne(job)
@@ -547,6 +587,12 @@ async function main() {
     return record
   })
 
+  // 局部复测只更新命中的音源，不能把其他已检测记录从页面删掉。
+  const checkedIds = new Set(checkedRecords.map((record) => record.id))
+  const records = ONLY || REMOTE_ONLY
+    ? [...checkedRecords, ...[...previous.values()].filter((record) => !checkedIds.has(record.id))]
+    : checkedRecords
+
   records.sort(
     (a, b) =>
       (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9) ||
@@ -569,6 +615,7 @@ async function main() {
     nextCheckAt: new Date(Date.now() + INTERVAL_HOURS * 3600 * 1000).toISOString(),
     intervalHours: INTERVAL_HOURS,
     runner: process.env.GITHUB_ACTIONS ? 'github-actions' : 'local',
+    checkScope: REMOTE_ONLY ? 'remote' : ONLY ? 'filtered' : 'all',
     durationMs: Date.now() - startedAt,
     summary,
     sources: records,
@@ -596,9 +643,11 @@ async function main() {
   )
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error('检测脚本异常退出：', error)
-    process.exit(1)
-  })
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error('检测脚本异常退出：', error)
+      process.exit(1)
+    })
+}
