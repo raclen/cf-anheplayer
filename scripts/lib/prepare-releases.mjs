@@ -20,19 +20,44 @@ const REPOS = {
   },
 };
 
-const USER_AGENT = "Mozilla/5.0 (compatible; AnhePlayerReleaseSync/1.0)";
+// GitHub Actions 会自动注入 GITHUB_TOKEN；Cloudflare Pages 也可在环境变量里配置。
+// 带 token 时匿名限流（60 次/小时/IP）不再生效，避免构建环境共用出口 IP 导致统计长期停在旧值。
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
+const USER_AGENT = "AnhePlayerReleaseSync/1.0";
 const TIMEOUT_MS = 10000;
+const MAX_PAGES = 10;
+
+// 更新器附属文件（签名文件、latest.json 等）不计入用户可见的下载次数
+function isUpdaterArtifact(name) {
+  return !name || name.endsWith(".sig") || name.endsWith(".json");
+}
 
 async function fetchRepoReleases(owner, repo) {
-  const url = `https://api.github.com/repos/${owner}/${repo}/releases?per_page=100`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  if (!res.ok) {
-    throw new Error(`GitHub API HTTP ${res.status}`);
+  const headers = {
+    "User-Agent": USER_AGENT,
+    Accept: "application/vnd.github+json",
+  };
+  if (GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${GITHUB_TOKEN}`;
   }
-  return await res.json();
+
+  const releases = [];
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const url = `https://api.github.com/repos/${owner}/${repo}/releases?per_page=100&page=${page}`;
+    const res = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      throw new Error(`GitHub API HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) break;
+    releases.push(...data);
+    // 不足一页说明已经取完
+    if (data.length < 100) break;
+  }
+  return releases;
 }
 
 export async function prepareReleases(root) {
@@ -47,11 +72,10 @@ export async function prepareReleases(root) {
   }
 
   const result = {
-    updatedAt: new Date().toISOString(),
     ...existing,
+    // 放在展开之后，确保 updatedAt 真正反映最后一次数据变更时间
+    updatedAt: new Date().toISOString(),
   };
-
-  let hasUpdate = false;
 
   for (const [key, config] of Object.entries(REPOS)) {
     try {
@@ -62,12 +86,17 @@ export async function prepareReleases(root) {
         continue;
       }
 
-      // 计算历史所有 releases 的总下载量
+      // 汇总历史所有正式版本的安装包下载量；更新器附属文件单独统计，不对外展示
       let totalDownloads = 0;
+      let updaterDownloads = 0;
       for (const rel of releases) {
-        if (Array.isArray(rel.assets)) {
-          for (const asset of rel.assets) {
-            totalDownloads += asset.download_count || 0;
+        if (!Array.isArray(rel.assets)) continue;
+        for (const asset of rel.assets) {
+          const count = asset.download_count || 0;
+          if (isUpdaterArtifact(asset.name)) {
+            updaterDownloads += count;
+          } else {
+            totalDownloads += count;
           }
         }
       }
@@ -96,9 +125,8 @@ export async function prepareReleases(root) {
         totalDownloads,
         assets,
       };
-      hasUpdate = true;
       console.log(
-        `[releases] ${key} 同步成功: ${tag}, 累计下载量: ${totalDownloads}, assets 数量: ${assets.length}`
+        `[releases] ${key} 同步成功: ${tag}, 全版本安装包累计下载量: ${totalDownloads}（更新器附属文件 ${updaterDownloads} 次未计入）, assets 数量: ${assets.length}`
       );
     } catch (err) {
       console.warn(
@@ -112,13 +140,17 @@ export async function prepareReleases(root) {
           totalDownloads: 0,
           assets: [],
         };
-        hasUpdate = true;
       }
     }
   }
 
-  if (hasUpdate || !existing) {
+  // 只有实际数据变化时才重写文件，避免 updatedAt 每轮构建都产生无意义改动
+  const comparable = (value) =>
+    value ? JSON.stringify({ ...value, updatedAt: "" }) : "";
+  if (!existing || comparable(result) !== comparable(existing)) {
     await fs.writeFile(cachePath, JSON.stringify(result, null, 2), "utf8");
     console.log(`[releases] 已写入最新 Release 缓存: ${cachePath}`);
+  } else {
+    console.log("[releases] Release 数据无变化，保留现有缓存");
   }
 }

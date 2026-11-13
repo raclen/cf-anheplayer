@@ -57,14 +57,25 @@ jobs:
         with:
           name: sources-status
 
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 带上 GITHUB_TOKEN 拉取，避免匿名限流让线上“累计下载”长期停在旧缓存
+      - name: 同步 Release 下载统计
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node -e 'import("./scripts/lib/prepare-releases.mjs").then(m => m.prepareReleases("."))'
+
       - name: 提交检测结果
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/sources-status.json src/data/sources-status.json
+          git add public/sources-status.json src/data/sources-status.json src/data/releases-cache.json
           if git diff --cached --quiet; then
-            echo "检测结果无变化，跳过提交"
+            echo "检测结果与下载统计无变化，跳过提交"
           else
-            git commit -m "chore: 更新洛雪音源可用性状态"
+            git commit -m "chore: 更新洛雪音源可用性状态与 Release 下载统计"
             git push
           fi

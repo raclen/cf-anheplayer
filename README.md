@@ -11,7 +11,7 @@ AnhePlayer 全系列官方宣传与下载门户，从 `zone` 主站拆分出来�
 3. **风宝音乐下载器**（`/downloader`）：Go 1.26 + 原生 WebView2 单文件 9.3MB 极轻下载器，多源聚合检索，下载自动生成内嵌 500px 封面与滚动歌词的规范 MP3。
 4. **洛雪音源状态监测**（`/sources`）：GitHub Actions 每 4 小时自动化测试所有自定义音源拉流健康度。
 
-所有产品的下载版本与文件大小均在浏览器端实时从 GitHub Releases API 动态获取，API 限流时自动平滑回退到硬编码直链。
+所有产品的下载版本与文件大小均在浏览器端实时从 GitHub Releases API 动态获取，API 限流时自动平滑回退到构建期缓存。各页 Hero 处的「累计下载次数」由构建期脚本汇总**全部历史版本**的安装包下载量写入 `src/data/releases-cache.json`，并由 GitHub Actions 每 4 小时带着 token 自动刷新提交，避免匿名 API 限流导致数字停在旧值。
 
 ## 技术栈
 
@@ -132,6 +132,7 @@ cf-anheplayer/
 - PC 功能卡片文案：改 `src/data/features.ts`。
 - 更新音源：把新文件放进 `sources/优质` 或 `sources/一般`，然后执行 `pnpm sources:check`；也可用 `scripts/sync-sources.mjs` 从本地目录整体同步。
 - 新增在线音源：在 `sources/remote.json` 里追加 `{ id, title, url, mirror }` 条目即可，无需下载脚本。
+- 下载统计：`pnpm releases:sync` 会拉取三个仓库的全部 Release，把安装包（不含 `.sig`、`latest.json` 等更新器附属文件）的历史下载量汇总进 `src/data/releases-cache.json`；构建与开发启动时也会自动执行。脚本支持 `GITHUB_TOKEN` / `GH_TOKEN` 环境变量，GitHub Actions 已自动注入，Cloudflare Pages 若配置同名变量可进一步降低限流影响。
 - 调整测试歌曲：改 `scripts/check-sources.mjs` 顶部的 `TEST_SONGS`。
 - 站点域名变化时，同步修改 `astro.config.mjs` 的 `site` 与 `public/robots.txt` 的 Sitemap 地址。
 - 社区推广文在 `public/promo/article.md`，配图在同目录。文件名就是外链路径（`https://anhe-player.cc.cd/promo/文件名`），改名会让已发出的帖子裂图。
