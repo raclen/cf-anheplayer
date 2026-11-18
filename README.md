@@ -121,6 +121,8 @@ cf-anheplayer/
 │   │   ├── mobile.astro     移动端宣传与下载页
 │   │   ├── downloader.astro 风宝音乐下载器宣传与下载页
 │   │   ├── sources.astro    音源状态页
+│   │   ├── llms.txt.ts      AI 站点索引（llms.txt 规范）
+│   │   ├── llms-full.txt.ts 站点全文纯文本，供 AI 检索
 │   │   └── 404.astro        未匹配路径的静态 404 页（noindex）
 │   ├── styles/global.css   全局样式
 │   └── utils/url.ts        站点绝对地址与 canonical 拼接工具
@@ -141,6 +143,7 @@ cf-anheplayer/
 - 站点域名变化时，同步修改 `astro.config.mjs` 的 `site` 与 `public/robots.txt` 的 Sitemap 地址。
 - 改分享图文案或配色：改 `scripts/generate-og.mjs` 的 `PAGES` 后运行 `node scripts/generate-og.mjs`，产物直接落在 `public/og/` 与 `public/og-image.png`。
 - 主动推送收录（IndexNow）：`pnpm seo:ping` 会把首页与三个产品页提交给 Bing / Yandex 等引擎；`public/<key>.txt` 是所有权校验文件，改名时需同步改 `scripts/ping-indexnow.mjs` 的 `KEY`。
+- AI 检索：`public/robots.txt` 显式允许 GPTBot / ClaudeBot / PerplexityBot / Google-Extended / Bytespider 等；`src/pages/llms.txt.ts` 与 `llms-full.txt.ts` 在构建时按数据生成站点索引与全文，问答文案统一维护在 `src/data/faq.ts`（页面可见区块、FAQPage 结构化数据、llms.txt 三处同源）。
 - 国内引擎（百度 / 搜狗 / 360）需要各自平台账号，首次上线后在站长后台手动提交 `https://anhe-player.loc.cc/sitemap-index.xml` 即可。
 - 社区推广文在 `public/promo/article.md`，配图在同目录。文件名就是外链路径（`https://anhe-player.cc.cd/promo/文件名`），改名会让已发出的帖子裂图。
 

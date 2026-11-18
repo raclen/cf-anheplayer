@@ -16,6 +16,7 @@ import {
 import { getDownloaderRelease, getMirrorUrl, fmtSize } from "@/data/releases";
 import { absoluteUrl } from "@/utils/url";
 import { buildFaqLd } from "@/utils/seo";
+import { DOWNLOADER_FAQ } from "@/data/faq";
 
 const downloader = getDownloaderRelease();
 const exeAsset = downloader.exeAsset;
@@ -53,21 +54,7 @@ const softwareLd = {
   publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
 };
 
-// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
-const faqItems = [
-  {
-    q: "风宝音乐下载器需要安装吗？",
-    a: "不需要。下载单个 anhe-downloader.exe 双击即可运行，Windows 10 / 11 已内置 WebView2 运行时，无需额外安装依赖。",
-  },
-  {
-    q: "下载的 MP3 会自动带封面和歌词吗？",
-    a: "会。程序自动抓取并内嵌 500×500 APIC 封面、USLT 歌词与 SYLT 滚动歌词，写入标准 ID3v2.3 标签，车载机头与便携播放器均可正常显示。",
-  },
-  {
-    q: "支持哪些音乐平台的搜索与下载？",
-    a: "支持 QQ 音乐、网易云、酷我、酷狗四大平台单源检索与全网聚合去重，也可粘贴歌单外链批量解析。",
-  },
-];
+const faqItems = DOWNLOADER_FAQ;
 const faqLd = buildFaqLd(faqItems);
 
 import homeScreenshot from "@/assets/screenshots/downloader/home.png";

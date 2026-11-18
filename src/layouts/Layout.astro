@@ -168,6 +168,8 @@ const toJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003
     {!noIndex && <link rel="canonical" href={canonical} />}
     <link rel="icon" type={faviconType} href={favicon} />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="llms.txt" href="/llms.txt" type="text/plain" title="站点 AI 索引" />
+    <link rel="alternate" type="application/json" href="/sources-status.json" title="音源可用性 JSON" />
     <meta name="theme-color" content="#070b16" />
     <meta name="generator" content={Astro.generator} />
     <meta name="author" content="AnhePlayer 安禾播放器" />

@@ -43,6 +43,11 @@ export default defineConfig({
   integrations: [
     prepareBuildDataIntegration,
     sitemap({
+      // llms.txt 是 AI 检索入口，不在页面路由里，需显式补进 sitemap 便于爬虫发现
+      customPages: [
+        "https://anhe-player.loc.cc/llms.txt",
+        "https://anhe-player.loc.cc/llms-full.txt",
+      ],
       // 页面内容随时会因新版本发布而更新，最后修改时间优先取真实数据时间
       lastmod: new Date(),
       serialize(item) {

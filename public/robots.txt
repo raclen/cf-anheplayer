@@ -1,4 +1,68 @@
 User-agent: *
 Allow: /
 
+# ---------- AI 爬虫与 AI 搜索：明确允许 ----------
+# OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Google Gemini / Apple / Perplexity / 其他
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# 字节跳动（豆包 / 头条搜索）
+User-agent: Bytespider
+Allow: /
+
+# 常见中转与抓取服务
+User-agent: CCBot
+Allow: /
+
+# AI 站点索引（llms.txt 规范）：https://anhe-player.loc.cc/llms.txt
+# 完整纯文本全文：https://anhe-player.loc.cc/llms-full.txt
+# 音源可用性 JSON：https://anhe-player.loc.cc/sources-status.json
+
 Sitemap: https://anhe-player.loc.cc/sitemap-index.xml

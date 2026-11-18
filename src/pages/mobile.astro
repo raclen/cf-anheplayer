@@ -17,6 +17,7 @@ import {
 import { getMobileRelease } from "@/data/releases";
 import { absoluteUrl } from "@/utils/url";
 import { buildFaqLd } from "@/utils/seo";
+import { MOBILE_FAQ } from "@/data/faq";
 
 const mobile = getMobileRelease();
 const apkAsset = mobile.apkAsset;
@@ -54,21 +55,7 @@ const softwareLd = {
   publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
 };
 
-// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
-const faqItems = [
-  {
-    q: "AnhePlayer 移动端怎么导入洛雪音源？",
-    a: "安装后进入「设置 → 洛雪音源」，选择本地 .js 音源文件或粘贴在线链接导入即可；音源只保存在本机，可在本站音源状态页挑选当前可用性较好的音源。",
-  },
-  {
-    q: "32 位老手机可以安装吗？",
-    a: "可以。下载页同时提供 ARM64-v8a 主包与 armeabi-v7a 低版本兼容包，功能一致，按设备架构选择即可。",
-  },
-  {
-    q: "移动端支持哪些音效？",
-    a: "内置 10 组基于 AutoEQ FixedBandEQ 的硬件级预设曲线，并提供图形化多段均衡器、立体声拓宽与音调倍速微调。",
-  },
-];
+const faqItems = MOBILE_FAQ;
 const faqLd = buildFaqLd(faqItems);
 
 import songImg from "@/assets/screenshots/mobile/歌曲页.jpg";

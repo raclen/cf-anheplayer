@@ -13,6 +13,7 @@ import { GITHUB_REPO_URL, GITHUB_REPO, RELEASES_URL } from "@/data/platforms";
 import { getPcRelease } from "@/data/releases";
 import { absoluteUrl } from "@/utils/url";
 import { buildFaqLd } from "@/utils/seo";
+import { PC_FAQ } from "@/data/faq";
 
 const pc = getPcRelease();
 
@@ -50,25 +51,7 @@ const softwareLd = {
   publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
 };
 
-// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
-const faqItems = [
-  {
-    q: "AnhePlayer 是免费的吗？",
-    a: "是。AnhePlayer 全系列开源免费，无广告、无内购，也不会收集或上传你的个人听歌数据。",
-  },
-  {
-    q: "AnhePlayer 支持洛雪音源吗？",
-    a: "支持。在插件管理中导入洛雪 .js 音源脚本或订阅 https 远程链接即可扩展在线音源，并支持多音质切换、音源重定向与播放失败自动换源。",
-  },
-  {
-    q: "AnhePlayer 支持哪些操作系统？",
-    a: "PC 桌面端当前提供 Windows 10 / 11 的 x64 安装包；另有 Android 7.0+ 的移动端版本与 Windows 轻量音乐下载器。",
-  },
-  {
-    q: "下载安装包从哪里获取？",
-    a: `可在本站下载页获取国内高速镜像或 ${GITHUB_REPO} 的 GitHub Releases 官方直链，版本号与文件大小会随 Release 自动同步。`,
-  },
-];
+const faqItems = PC_FAQ;
 const faqLd = buildFaqLd(faqItems);
 ---
 

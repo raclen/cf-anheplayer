@@ -7,6 +7,7 @@ import Footer from "@/components/Footer.astro";
 import Faq from "@/components/Faq.astro";
 import { absoluteUrl } from "@/utils/url";
 import { buildFaqLd } from "@/utils/seo";
+import { SOURCES_FAQ } from "@/data/faq";
 
 const statusFile = path.resolve(process.cwd(), "src/data/sources-status.json");
 let status: any = null;
@@ -144,20 +145,7 @@ const itemListLd = {
   })),
 };
 
-const faqItems = [
-  {
-    q: "洛雪音源状态多久更新一次？",
-    a: "GitHub Actions 每 4 小时自动加载全部音源，用固定测试歌曲请求各平台播放地址并校验能否真实拉流，结果随本页与公开 JSON 接口同步更新。",
-  },
-  {
-    q: "标记「检测未通过」的音源还能用吗？",
-    a: "不一定无法使用。检测只覆盖音源自身接口，不含播放器内置解析与跨音源兜底；固定歌曲的版权、VIP 权限与加密流也会影响结果，请以客户端实际试听为准。",
-  },
-  {
-    q: "检测结果会包含哪些音乐平台？",
-    a: "覆盖网易云、QQ 音乐、酷狗、酷我、咪咕等音源脚本内声明的平台；每个平台单独记录耗时与失败原因，未纳入自动检测的平台会标记为「未测」。",
-  },
-];
+const faqItems = SOURCES_FAQ;
 const faqLd = buildFaqLd(faqItems);
 ---
 
