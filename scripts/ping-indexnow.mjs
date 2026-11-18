@@ -14,22 +14,38 @@ const urlList = (paths.length ? paths : DEFAULT_PATHS).map(
 );
 
 const main = async () => {
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({
-      host: new URL(SITE).host,
-      key: KEY,
-      keyLocation: KEY_LOCATION,
-      urlList,
-    }),
+  const body = JSON.stringify({
+    host: new URL(SITE).host,
+    key: KEY,
+    keyLocation: KEY_LOCATION,
+    urlList,
   });
+
+  // 部分地区直连 api.indexnow.org 会 ECONNRESET，失败时重试一次并提示代理用法
+  let res;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body,
+      });
+      break;
+    } catch (error) {
+      if (attempt === 2) {
+        console.error(`[indexnow] 请求失败：${error.message}`);
+        console.error("提示：可设置 HTTPS_PROXY=http://127.0.0.1:10808 后重试");
+        process.exitCode = 1;
+        return;
+      }
+    }
+  }
 
   // IndexNow 成功返回 200/202；400 表示请求格式错误，403 表示 key 校验失败，422 表示 URL 与 host 不匹配
   console.log(`[indexnow] ${res.status} ${res.statusText} -> ${urlList.join(", ")}`);
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.error(body.slice(0, 500));
+    const text = await res.text().catch(() => "");
+    console.error(text.slice(0, 500));
     process.exitCode = 1;
   }
 };
