@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import Faq from "@/components/Faq.astro";
 import { Image } from "astro:assets";
 import {
   DOWNLOADER_REPO_URL,
@@ -13,9 +14,61 @@ import {
   DOWNLOADER_GUIDE_STEPS,
 } from "@/data/downloader";
 import { getDownloaderRelease, getMirrorUrl, fmtSize } from "@/data/releases";
+import { absoluteUrl } from "@/utils/url";
+import { buildFaqLd } from "@/utils/seo";
 
 const downloader = getDownloaderRelease();
 const exeAsset = downloader.exeAsset;
+
+// 下载器软件应用结构化数据
+const softwareLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "风宝音乐下载器",
+  alternateName: ["AnHe Downloader", "anhe-downloader", "安禾音乐下载器"],
+  applicationCategory: "MultimediaApplication",
+  applicationSubCategory: "音乐下载器",
+  operatingSystem: "Windows 10, Windows 11",
+  softwareVersion: downloader.version,
+  downloadUrl: absoluteUrl(Astro.site, "/downloader/#download"),
+  installUrl: absoluteUrl(Astro.site, "/downloader/#download"),
+  fileSize: exeAsset?.formattedSize,
+  datePublished: downloader.publishedAt,
+  inLanguage: "zh-CN",
+  isAccessibleForFree: true,
+  license: DOWNLOADER_REPO_URL,
+  codeRepository: DOWNLOADER_REPO_URL,
+  description:
+    "基于 Go 与 Windows 原生 Edge WebView2 构建的轻量音乐下载器，单文件 exe 免安装，支持 QQ 音乐 / 网易云 / 酷我 / 酷狗四源聚合检索，下载自动写入 ID3v2.3 标签并内嵌 500×500 封面与滚动歌词。",
+  featureList: [
+    "单文件 9.3MB 免安装运行",
+    "四源聚合检索与去重",
+    "ID3v2.3 标签与 500×500 封面内嵌",
+    "USLT 歌词与 SYLT 滚动歌词",
+    "洛雪沙箱解析，规避跨域限制",
+    "Headless 无窗口后台模式",
+  ],
+  screenshot: absoluteUrl(Astro.site, "/promo/downloader-home.webp"),
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
+  publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
+};
+
+// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
+const faqItems = [
+  {
+    q: "风宝音乐下载器需要安装吗？",
+    a: "不需要。下载单个 anhe-downloader.exe 双击即可运行，Windows 10 / 11 已内置 WebView2 运行时，无需额外安装依赖。",
+  },
+  {
+    q: "下载的 MP3 会自动带封面和歌词吗？",
+    a: "会。程序自动抓取并内嵌 500×500 APIC 封面、USLT 歌词与 SYLT 滚动歌词，写入标准 ID3v2.3 标签，车载机头与便携播放器均可正常显示。",
+  },
+  {
+    q: "支持哪些音乐平台的搜索与下载？",
+    a: "支持 QQ 音乐、网易云、酷我、酷狗四大平台单源检索与全网聚合去重，也可粘贴歌单外链批量解析。",
+  },
+];
+const faqLd = buildFaqLd(faqItems);
 
 import homeScreenshot from "@/assets/screenshots/downloader/home.png";
 
@@ -37,9 +90,14 @@ const featureIcons: Record<string, string> = {
 ---
 
 <Layout
-  title="风宝音乐下载器 · 轻量 Windows 桌面音乐下载器 (AnHe Downloader)"
-  description="基于 Go 1.26 + Windows 原生 Edge WebView2 + React 18 构建的轻量级音乐下载器。单文件 exe 仅约 9.3MB，多源聚合检索与去重、单文件 MP3 自动内嵌 500×500 封面与 USLT/SYLT 滚动歌词，洛雪沙箱无跨域限制。"
+  title="风宝音乐下载器 · 轻量 Windows 音乐下载器 (AnHe Downloader) 单文件 9.3MB"
+  description="基于 Go + Windows 原生 Edge WebView2 构建的轻量音乐下载器。单文件 exe 仅约 9.3MB，四源聚合检索与去重，MP3 自动内嵌 500×500 封面与 USLT/SYLT 滚动歌词，洛雪沙箱无跨域限制，免安装直接运行。"
+  keywords="风宝音乐下载器, AnHe Downloader, 音乐下载器, Windows 音乐下载器, MP3 下载器, 车载音乐下载, ID3 标签, 滚动歌词, 洛雪沙箱"
   favicon="/downloader-logo.png"
+  ogImage="/og/downloader.png"
+  ogImageAlt="风宝音乐下载器 · 单文件 Windows 音乐下载器"
+  jsonLd={[softwareLd, faqLd]}
+  breadcrumbs={[{ name: "音乐下载器", path: "/downloader/" }]}
 >
   <Nav current="downloader" downloadHref="#download" githubUrl={DOWNLOADER_REPO_URL} />
 
@@ -342,6 +400,8 @@ const featureIcons: Record<string, string> = {
         </div>
       </div>
     </section>
+
+    <Faq items={faqItems} title="下载器常见问题" />
 
     <!-- 系列矩阵呼应 -->
     <section class="section series-section">

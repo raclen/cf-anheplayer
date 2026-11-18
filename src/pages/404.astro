@@ -1,0 +1,65 @@
+---
+// 404 页：Cloudflare Pages 会自动用于未匹配路径，避免搜索引擎抓到空响应
+import Layout from "@/layouts/Layout.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+---
+
+<Layout
+  title="页面不存在 · AnhePlayer 安禾播放器"
+  description="你访问的页面不存在或已移动。可以回到 AnhePlayer 首页，或前往移动端、音乐下载器与洛雪音源状态页。"
+  keywords="AnhePlayer, 安禾播放器, 404"
+  noIndex
+>
+  <Nav current="pc" downloadHref="" />
+  <main>
+    <section class="notfound">
+      <div class="container">
+        <span class="eyebrow">404 · PAGE NOT FOUND</span>
+        <h1>这个页面<br /><span class="gradient-text">好像走丢了</span></h1>
+        <p class="desc">
+          链接可能已经变更或输入有误，不妨从下面这些常用入口继续：
+        </p>
+        <div class="links">
+          <a class="btn btn-primary" href="/">PC 桌面端首页</a>
+          <a class="btn btn-secondary" href="/mobile/">移动端</a>
+          <a class="btn btn-secondary" href="/downloader/">音乐下载器</a>
+          <a class="btn btn-secondary" href="/sources/">音源状态监测</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .notfound {
+    padding-block: clamp(80px, 14vw, 160px);
+    min-height: 60vh;
+    display: grid;
+    place-items: center;
+  }
+
+  .notfound h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin: 14px 0 18px;
+  }
+
+  .desc {
+    color: var(--ink);
+    opacity: 0.68;
+    margin-bottom: 32px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .links .btn {
+    text-decoration: none;
+  }
+</style>

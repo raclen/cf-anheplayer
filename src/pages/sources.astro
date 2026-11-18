@@ -4,6 +4,9 @@ import path from "node:path";
 import Layout from "@/layouts/Layout.astro";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import Faq from "@/components/Faq.astro";
+import { absoluteUrl } from "@/utils/url";
+import { buildFaqLd } from "@/utils/seo";
 
 const statusFile = path.resolve(process.cwd(), "src/data/sources-status.json");
 let status: any = null;
@@ -118,11 +121,54 @@ const resolveDownloadName = (src: any) => {
   const safeTitle = String(src.title || src.name || "音源").replace(/[\\/:*?"<>|]/g, "_").trim();
   return `${safeTitle || "source"}.js`;
 };
+
+// 音源清单结构化数据：让搜索引擎理解这是一份持续更新的可用音源目录
+const sourceItems = sources.filter((s) => isAvailableLike(s.status)).slice(0, 30);
+const itemListLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "洛雪音源可用性清单",
+  numberOfItems: summary.total,
+  itemListElement: sourceItems.map((src, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: src.title,
+    url: absoluteUrl(Astro.site, "/sources/"),
+    description: [
+      `状态：${statusMeta[src.status]?.label ?? src.status}`,
+      src.author ? `作者：${src.author}` : "",
+      `通过 ${src.stats?.ok ?? 0}/${src.stats?.tested ?? 0} 个平台`,
+    ]
+      .filter(Boolean)
+      .join(" · "),
+  })),
+};
+
+const faqItems = [
+  {
+    q: "洛雪音源状态多久更新一次？",
+    a: "GitHub Actions 每 4 小时自动加载全部音源，用固定测试歌曲请求各平台播放地址并校验能否真实拉流，结果随本页与公开 JSON 接口同步更新。",
+  },
+  {
+    q: "标记「检测未通过」的音源还能用吗？",
+    a: "不一定无法使用。检测只覆盖音源自身接口，不含播放器内置解析与跨音源兜底；固定歌曲的版权、VIP 权限与加密流也会影响结果，请以客户端实际试听为准。",
+  },
+  {
+    q: "检测结果会包含哪些音乐平台？",
+    a: "覆盖网易云、QQ 音乐、酷狗、酷我、咪咕等音源脚本内声明的平台；每个平台单独记录耗时与失败原因，未纳入自动检测的平台会标记为「未测」。",
+  },
+];
+const faqLd = buildFaqLd(faqItems);
 ---
 
 <Layout
-  title="洛雪音源状态监测 · AnhePlayer"
-  description="每 4 小时自动检测洛雪音乐自定义音源的可用性，展示每个音源在网易云、QQ 音乐、酷我、酷狗、咪咕等平台的实时取流状态。"
+  title="洛雪音源状态监测 · 实时音源可用性检测 · AnhePlayer 安禾播放器"
+  description="每 4 小时自动检测洛雪音乐自定义音源的可用性，展示每个音源在网易云、QQ 音乐、酷我、酷狗、咪咕等平台的拉流状态，并提供可随时复制的 .js 音源链接与公开 JSON 接口。"
+  keywords="洛雪音源, 洛雪音乐音源, 音源检测, 音源可用性, 洛雪音源列表, 自定义音源 js, 音乐音源监测"
+  ogImage="/og/sources.png"
+  ogImageAlt="洛雪音源可用性实时监测"
+  jsonLd={[itemListLd, faqLd]}
+  breadcrumbs={[{ name: "洛雪音源状态监测", path: "/sources/" }]}
 >
   <Nav current="sources" downloadHref="" githubUrl="https://github.com/raclen/cf-anheplayer" />
 
@@ -143,7 +189,7 @@ const resolveDownloadName = (src: any) => {
       </div>
     </section>
 
-    <section class="container status-overview" aria-label="检测概览">
+    <section class="container status-overview" id="overview" aria-label="检测概览">
       <article class="stat stat-total">
         <span class="stat-value">{summary.total}</span>
         <span class="stat-label">音源总数</span>
@@ -206,7 +252,7 @@ const resolveDownloadName = (src: any) => {
       <span class="result-count">显示 <b id="result-count">{sources.filter((s) => isAvailableLike(s.status)).length}</b> 条</span>
     </section>
 
-    <section class="container status-list" id="source-list" aria-live="polite">
+    <section class="container status-list" id="sources-list" aria-live="polite">
       {sources.length === 0 && (
         <div class="empty-state">
           <h2>还没有检测数据</h2>
@@ -348,7 +394,7 @@ const resolveDownloadName = (src: any) => {
       </div>
     </section>
 
-    <section class="container status-notes">
+    <section class="container status-notes" id="how-it-works">
       <h2>检测是怎么做的？</h2>
       <ol>
         <li><b>加载音源</b>：本地脚本直接读取；在线音源先从链接下载最新版本，直连失败时自动改走镜像。</li>
@@ -361,6 +407,8 @@ const resolveDownloadName = (src: any) => {
       </p>
     </section>
   </main>
+
+  <Faq items={faqItems} title="音源检测常见问题" />
 
   <Footer />
 

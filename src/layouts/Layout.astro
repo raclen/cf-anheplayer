@@ -1,30 +1,104 @@
 ---
 import "../styles/global.css";
+import { GITHUB_REPO_URL as PC_REPO_URL } from "@/data/platforms";
+import { MOBILE_REPO_URL } from "@/data/mobile";
+import { DOWNLOADER_REPO_URL } from "@/data/downloader";
+import { absoluteUrl, siteBaseUrl } from "@/utils/url";
 
 export interface Props {
   title?: string;
   description?: string;
+  /** 关键词（Google 已忽略，仍会被部分中文搜索引擎读取） */
+  keywords?: string;
   /** 站点图标路径；AnhePlayer 宣传页传入播放器图标 */
   favicon?: string;
   /** 手机访问时自动跳转到 /mobile（仅 PC 首页使用） */
   redirectMobile?: boolean;
+  /** 社交分享图，默认站点通用图；用于微信 / Telegram / X 等平台的卡片预览 */
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: "website" | "article";
+  /** 页面级 JSON-LD（Schema.org），可传单个对象或数组 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** 面包屑结构化数据；数组顺序为从首页到当前页（首页无需包含） */
+  breadcrumbs?: { name: string; path: string }[];
+  /** 无需收录的页面（如 404）置为 true */
+  noIndex?: boolean;
 }
 
 const {
-  title = "AnhePlayer · 支持洛雪插件的免费音乐播放器",
+  title = "AnhePlayer 安禾播放器 · 支持洛雪插件的开源音乐播放器",
   description = "AnhePlayer 是一款基于 Tauri v2 打造的轻量 Windows 桌面音乐播放器。支持洛雪插件、本地曲库、网易云私人推荐与主题定制，无广告、不上传个人数据。",
-  favicon = "/favicon.svg",
+  keywords = "AnhePlayer, 安禾播放器, 洛雪音乐, 洛雪音源, 开源音乐播放器, 免费音乐播放器, Windows 音乐播放器",
+  favicon = "/logo.png",
   redirectMobile = false,
+  ogImage = "/og-image.png",
+  ogImageAlt = "AnhePlayer 安禾播放器 · 支持洛雪插件的开源音乐播放器",
+  ogType = "website",
+  jsonLd,
+  breadcrumbs,
+  noIndex = false,
 } = Astro.props;
 
-const faviconType = favicon.endsWith(".svg") ? "image/svg+xml" : "image/png";
+const FAILOVER_FAVICON_TYPES: Record<string, string> = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  webp: "image/webp",
+  ico: "image/x-icon",
+};
+const faviconType =
+  FAILOVER_FAVICON_TYPES[(favicon.split(".").pop() || "png").toLowerCase()] || "image/png";
 
-const canonical = Astro.site
-  ? new URL(Astro.url.pathname, Astro.site).href
-  : Astro.url.href;
-const ogImage = Astro.site
-  ? new URL("/og-image.png", Astro.site).href
-  : "/og-image.png";
+const siteBase = siteBaseUrl(Astro.site);
+const canonical = absoluteUrl(Astro.site, Astro.url.pathname);
+const ogImageUrl = absoluteUrl(Astro.site, ogImage);
+
+// 站点级结构化数据：Organization + WebSite，各页面通过 @id 引用
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${siteBase}#organization`,
+  name: "AnhePlayer",
+  alternateName: ["安禾播放器", "安禾播放器系列"],
+  url: siteBase,
+  logo: absoluteUrl(Astro.site, "/logo.png"),
+  description:
+    "AnhePlayer（安禾播放器）是一套开源、免费、无广告的音乐软件系列，包含 Windows 桌面播放器、Android 移动端播放器、轻量音乐下载器与洛雪音源可用性监测。",
+  sameAs: [PC_REPO_URL, MOBILE_REPO_URL, DOWNLOADER_REPO_URL, "https://github.com/raclen/cf-anheplayer"],
+};
+
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${siteBase}#website`,
+  url: siteBase,
+  name: "AnhePlayer 安禾播放器",
+  alternateName: "安禾播放器官方下载站",
+  inLanguage: "zh-CN",
+  publisher: { "@id": `${siteBase}#organization` },
+};
+
+const pageLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+
+// 面包屑：首页 → 各产品页，帮助搜索引擎展示层级路径
+const breadcrumbLd =
+  breadcrumbs && breadcrumbs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [{ name: "首页", path: "/" }, ...breadcrumbs].map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: absoluteUrl(Astro.site, item.path),
+        })),
+      }
+    : null;
+
+if (breadcrumbLd) pageLdList.push(breadcrumbLd);
+
+// 序列化时转义 <，防止音源标题等外部文案破坏 script 标签
+const toJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -89,25 +163,42 @@ const ogImage = Astro.site
     )}
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    <meta name="keywords" content={keywords} />
+    <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
+    {!noIndex && <link rel="canonical" href={canonical} />}
     <link rel="icon" type={faviconType} href={favicon} />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#070b16" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="author" content="AnhePlayer 安禾播放器" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="zh_CN" />
-    <meta property="og:site_name" content="AnhePlayer" />
+    <meta property="og:site_name" content="AnhePlayer 安禾播放器" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- 结构化数据：站点级 Organization / WebSite + 页面级内容 -->
+    <script type="application/ld+json" is:inline set:html={toJsonLd(organizationLd)} />
+    <script type="application/ld+json" is:inline set:html={toJsonLd(websiteLd)} />
+    {pageLdList.map((ld) => (
+      <script type="application/ld+json" is:inline set:html={toJsonLd(ld)} />
+    ))}
+
+    <!-- 禁用 JS 时取消滚动淡入的初始隐藏，保证内容始终可读、可被抓取 -->
+    <noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 
     <!-- Cloudflare Web Analytics：域名未托管在 CF，需手动挂载 beacon -->
     <script

@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import Faq from "@/components/Faq.astro";
 import { Image } from "astro:assets";
 import {
   MOBILE_REPO_URL,
@@ -14,10 +15,61 @@ import {
   MOBILE_GUIDE_STEPS,
 } from "@/data/mobile";
 import { getMobileRelease } from "@/data/releases";
+import { absoluteUrl } from "@/utils/url";
+import { buildFaqLd } from "@/utils/seo";
 
 const mobile = getMobileRelease();
 const apkAsset = mobile.apkAsset;
 const legacyAsset = mobile.legacyAsset;
+
+// 移动端软件应用结构化数据
+const softwareLd = {
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  name: "AnhePlayer 移动端",
+  alternateName: ["安禾播放器移动端", "AnhePlayer Mobile", "安禾播放器 Android"],
+  applicationCategory: "MultimediaApplication",
+  applicationSubCategory: "音乐播放器",
+  operatingSystem: "Android 7.0+",
+  softwareVersion: mobile.version,
+  downloadUrl: absoluteUrl(Astro.site, "/mobile/#download"),
+  installUrl: absoluteUrl(Astro.site, "/mobile/#download"),
+  fileSize: apkAsset?.formattedSize,
+  datePublished: mobile.publishedAt,
+  inLanguage: "zh-CN",
+  isAccessibleForFree: true,
+  license: MOBILE_REPO_URL,
+  codeRepository: MOBILE_REPO_URL,
+  description:
+    "基于 Kotlin、Jetpack Compose 与 Media3 打造的 Android 音乐播放器，内置 QuickJS 洛雪音源引擎，支持酷狗 / 网易云 / QQ 音乐 / 酷我多源聚合搜索、10 档 AutoEQ 音效与无损下载。",
+  featureList: [
+    "QuickJS 洛雪音源导入与多平台换源",
+    "Material 3 动态配色与 Android Auto",
+    "10 档 AutoEQ 硬件级音效预设",
+    "本地媒体库与内嵌封面歌词",
+    "Hi-Res 无损独立下载",
+  ],
+  screenshot: absoluteUrl(Astro.site, "/promo/mobile-player.webp"),
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
+  publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
+};
+
+// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
+const faqItems = [
+  {
+    q: "AnhePlayer 移动端怎么导入洛雪音源？",
+    a: "安装后进入「设置 → 洛雪音源」，选择本地 .js 音源文件或粘贴在线链接导入即可；音源只保存在本机，可在本站音源状态页挑选当前可用性较好的音源。",
+  },
+  {
+    q: "32 位老手机可以安装吗？",
+    a: "可以。下载页同时提供 ARM64-v8a 主包与 armeabi-v7a 低版本兼容包，功能一致，按设备架构选择即可。",
+  },
+  {
+    q: "移动端支持哪些音效？",
+    a: "内置 10 组基于 AutoEQ FixedBandEQ 的硬件级预设曲线，并提供图形化多段均衡器、立体声拓宽与音调倍速微调。",
+  },
+];
+const faqLd = buildFaqLd(faqItems);
 
 import songImg from "@/assets/screenshots/mobile/歌曲页.jpg";
 import searchImg from "@/assets/screenshots/mobile/搜索页.jpg";
@@ -42,9 +94,14 @@ const featureIcons: Record<string, string> = {
 ---
 
 <Layout
-  title="AnhePlayer 移动端 · Android 7.0+ 本地与洛雪在线音乐播放器"
-  description="AnhePlayer 移动端为 Android 7.0 及以上打造，提供 64 位与 32 位双安装包。支持导入洛雪音源、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，纯净无广告。"
-  favicon="/mobile-logo.webp"
+  title="AnhePlayer 移动端下载 · Android 7.0+ 洛雪音源音乐播放器 APK"
+  description="AnhePlayer 移动端为 Android 7.0 及以上打造，提供 64 位与 32 位双安装包。支持导入洛雪音源、酷狗/网易云/QQ音乐/酷我多源搜索、10 档专业 AutoEQ 音效与无损下载导出，开源免费、纯净无广告。"
+  keywords="AnhePlayer 移动端, 安禾播放器 Android, 洛雪音源 app, Android 音乐播放器, APK 下载, AutoEQ 音效, 开源音乐播放器, Material 3 音乐播放器"
+  favicon="/mobile-logo.png"
+  ogImage="/og/mobile.png"
+  ogImageAlt="AnhePlayer 安禾播放器 Android 移动端"
+  jsonLd={[softwareLd, faqLd]}
+  breadcrumbs={[{ name: "移动端", path: "/mobile/" }]}
 >
   <script is:inline>
     // 进入移动端页面时，清除会话中的强制桌面版标记与旧版持久缓存
@@ -401,6 +458,8 @@ const featureIcons: Record<string, string> = {
       </div>
     </section>
 
+    <Faq items={faqItems} title="移动端常见问题" />
+
     <!-- 系列矩阵呼应 -->
     <section class="section series-section">
       <div class="container">
@@ -419,7 +478,7 @@ const featureIcons: Record<string, string> = {
               <p>Tauri v2 原生引擎打造，极低内存占用与洛雪插件系统</p>
               <span class="mini-link">查看桌面版 →</span>
             </a>
-            <a href="/downloader" class="series-mini-card">
+            <a href="/downloader/" class="series-mini-card">
               <span class="mini-tag">轻量下载器</span>
               <h4>风宝音乐下载器</h4>
               <p>Go + WebView2 单文件 9.3MB，MP3 自动内嵌封面与滚动歌词</p>

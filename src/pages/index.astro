@@ -8,9 +8,80 @@ import Download from "@/components/Download.astro";
 import PluginsThemes from "@/components/PluginsThemes.astro";
 import FamilySection from "@/components/FamilySection.astro";
 import Footer from "@/components/Footer.astro";
+import Faq from "@/components/Faq.astro";
+import { GITHUB_REPO_URL, GITHUB_REPO, RELEASES_URL } from "@/data/platforms";
+import { getPcRelease } from "@/data/releases";
+import { absoluteUrl } from "@/utils/url";
+import { buildFaqLd } from "@/utils/seo";
+
+const pc = getPcRelease();
+
+// PC 桌面端软件应用结构化数据：下载页最容易被识别为「软件下载」结果
+const softwareLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "AnhePlayer 安禾播放器",
+  alternateName: ["安禾播放器", "AnhePlayer PC 端"],
+  applicationCategory: "MultimediaApplication",
+  applicationSubCategory: "音乐播放器",
+  operatingSystem: "Windows 10, Windows 11",
+  softwareVersion: pc.version,
+  downloadUrl: absoluteUrl(Astro.site, "/#download"),
+  installUrl: absoluteUrl(Astro.site, "/#download"),
+  fileSize: pc.setupAsset?.formattedSize,
+  datePublished: pc.publishedAt,
+  inLanguage: "zh-CN",
+  isAccessibleForFree: true,
+  license: GITHUB_REPO_URL,
+  codeRepository: GITHUB_REPO_URL,
+  releaseNotes: `${RELEASES_URL}/tag/${pc.tag}`,
+  description:
+    "基于 Tauri v2 原生引擎的 Windows 桌面音乐播放器，支持洛雪插件音源、本地曲库管理、网易云私人推荐与主题定制，开源免费、无广告、不上传个人数据。",
+  featureList: [
+    "洛雪插件音源与远程订阅",
+    "本地曲库与歌词封面管理",
+    "网易云私人雷达与每日推荐",
+    "播放队列与多音质切换",
+    "主题市场与 .mftheme 主题包",
+    "WebDAV 备份与数据迁移",
+  ],
+  screenshot: absoluteUrl(Astro.site, "/promo/pc-home.webp"),
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
+  publisher: { "@id": `${absoluteUrl(Astro.site, "/")}#organization` },
+};
+
+// FAQ 数据同时用于页面可见区块与 FAQPage 结构化数据，保证两者一致
+const faqItems = [
+  {
+    q: "AnhePlayer 是免费的吗？",
+    a: "是。AnhePlayer 全系列开源免费，无广告、无内购，也不会收集或上传你的个人听歌数据。",
+  },
+  {
+    q: "AnhePlayer 支持洛雪音源吗？",
+    a: "支持。在插件管理中导入洛雪 .js 音源脚本或订阅 https 远程链接即可扩展在线音源，并支持多音质切换、音源重定向与播放失败自动换源。",
+  },
+  {
+    q: "AnhePlayer 支持哪些操作系统？",
+    a: "PC 桌面端当前提供 Windows 10 / 11 的 x64 安装包；另有 Android 7.0+ 的移动端版本与 Windows 轻量音乐下载器。",
+  },
+  {
+    q: "下载安装包从哪里获取？",
+    a: `可在本站下载页获取国内高速镜像或 ${GITHUB_REPO} 的 GitHub Releases 官方直链，版本号与文件大小会随 Release 自动同步。`,
+  },
+];
+const faqLd = buildFaqLd(faqItems);
 ---
 
-<Layout favicon="/logo.png" redirectMobile>
+<Layout
+  favicon="/logo.png"
+  redirectMobile
+  title="AnhePlayer 安禾播放器 · 支持洛雪插件的开源免费音乐播放器下载"
+  description="AnhePlayer 安禾播放器是基于 Tauri v2 打造的轻量 Windows 桌面音乐播放器，支持洛雪插件音源、本地曲库管理、网易云私人雷达与主题定制，开源免费、无广告、不上传个人数据。"
+  keywords="AnhePlayer, 安禾播放器, 洛雪音乐, 洛雪音源, 洛雪插件, 开源音乐播放器, Windows 音乐播放器, 免费音乐播放器下载, 网易云私人雷达"
+  ogImage="/og/pc.png"
+  ogImageAlt="AnhePlayer 安禾播放器 PC 桌面端"
+  jsonLd={[softwareLd, faqLd]}
+>
   <Nav current="pc" />
   <main>
     <Hero />
@@ -18,6 +89,7 @@ import Footer from "@/components/Footer.astro";
     <Screenshots />
     <Download />
     <PluginsThemes />
+    <Faq items={faqItems} title="关于 AnhePlayer 的常见问题" />
     <FamilySection />
   </main>
   <Footer />

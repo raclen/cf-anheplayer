@@ -19,14 +19,15 @@ const {
       : PC_GITHUB_URL,
 } = Astro.props;
 
-// 移动端页面回桌面版需要带上 ?desktop=1，否则首页会把手机用户又送回 /mobile
+// 移动端页面回桌面版需要带上 ?desktop=1，否则首页会把手机用户又送回 /mobile；
+// PC 首页本身保留根路径，有利 canonical 与内部链接一致性
 const pcHomeHref = current === "mobile" ? "/?desktop=1" : "/";
 
 const productLinks = [
   { href: pcHomeHref, key: "pc", label: "PC 桌面端" },
   { href: "/mobile/", key: "mobile", label: "移动端" },
-  { href: "/downloader", key: "downloader", label: "音乐下载器" },
-  { href: "/sources", key: "sources", label: "音源状态" },
+  { href: "/downloader/", key: "downloader", label: "音乐下载器" },
+  { href: "/sources/", key: "sources", label: "音源状态" },
 ];
 
 const pageSections: Record<string, { href: string; label: string }[]> = {
@@ -65,7 +66,7 @@ const QQ_GROUP = "5128608";
 <header class="nav" id="nav">
   <div class="container nav-inner">
     <a class="brand" href={current === "pc" || current === "mobile" ? "#top" : "/"} aria-label="AnhePlayer 首页">
-      <img src={logoSrc} alt="Logo" width="34" height="34" />
+      <img src={logoSrc} alt="AnhePlayer 安禾播放器 Logo" width="34" height="34" />
       <span>AnhePlayer</span>
       {badgeText && <span class="brand-badge">{badgeText}</span>}
     </a>

@@ -99,14 +99,16 @@ node --test scripts/lib/lx-sandbox.test.mjs scripts/check-sources.test.mjs
 cf-anheplayer/
 ├── .github/workflows/      音源定时检测任务
 ├── public/
-│   ├── logo.png            站点图标
-│   ├── og-image.png        社交分享图
+│   ├── logo.png            站点图标（apple-touch-icon.png 供 iOS 主屏使用）
+│   ├── og-image.png        站点通用社交分享图（1200×630，由 scripts/generate-og.mjs 生成）
+│   ├── og/                 各产品页专属分享图（pc / mobile / downloader / sources）
 │   ├── promo/              社区推广文的固定外链截图与正文（勿改文件名）
 │   ├── robots.txt
 │   └── sources-status.json 音源检测结果（供外部读取）
 ├── scripts/
 │   ├── check-sources.mjs   音源可用性检测
 │   ├── sync-sources.mjs    从本地目录同步音源
+│   ├── generate-og.mjs     生成社交分享图与 apple-touch-icon
 │   └── lib/lx-sandbox.mjs  洛雪运行环境模拟
 ├── sources/                洛雪自定义音源（优质 / 一般 / remote.json 在线清单）
 ├── src/
@@ -118,8 +120,10 @@ cf-anheplayer/
 │   │   ├── index.astro      PC 桌面端宣传与下载页
 │   │   ├── mobile.astro     移动端宣传与下载页
 │   │   ├── downloader.astro 风宝音乐下载器宣传与下载页
-│   │   └── sources.astro    音源状态页
-│   └── styles/global.css   全局样式
+│   │   ├── sources.astro    音源状态页
+│   │   └── 404.astro        未匹配路径的静态 404 页（noindex）
+│   ├── styles/global.css   全局样式
+│   └── utils/url.ts        站点绝对地址与 canonical 拼接工具
 ├── astro.config.mjs
 └── package.json
 ```
@@ -135,6 +139,7 @@ cf-anheplayer/
 - 下载统计：`pnpm releases:sync` 会拉取三个仓库的全部 Release，把安装包（不含 `.sig`、`latest.json` 等更新器附属文件）的历史下载量汇总进 `src/data/releases-cache.json`；构建与开发启动时也会自动执行。脚本支持 `GITHUB_TOKEN` / `GH_TOKEN` 环境变量，GitHub Actions 已自动注入，Cloudflare Pages 若配置同名变量可进一步降低限流影响。
 - 调整测试歌曲：改 `scripts/check-sources.mjs` 顶部的 `TEST_SONGS`。
 - 站点域名变化时，同步修改 `astro.config.mjs` 的 `site` 与 `public/robots.txt` 的 Sitemap 地址。
+- 改分享图文案或配色：改 `scripts/generate-og.mjs` 的 `PAGES` 后运行 `node scripts/generate-og.mjs`，产物直接落在 `public/og/` 与 `public/og-image.png`。
 - 社区推广文在 `public/promo/article.md`，配图在同目录。文件名就是外链路径（`https://anhe-player.cc.cd/promo/文件名`），改名会让已发出的帖子裂图。
 
 
