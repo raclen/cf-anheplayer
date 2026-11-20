@@ -3,7 +3,7 @@
 AnhePlayer 全系列官方宣传与下载门户，从 `zone` 主站拆分出来，独立部署在 Cloudflare Pages。
 
 - 线上地址：`https://anhe-player.loc.cc`
-- 主站：`https://raclen.ee.cd`
+- 主站：`https://raclen.top`
 
 门户涵盖安禾播放器系列三大产品与音源可用性监测中心：
 1. **PC 桌面端**（`/`）：基于 Tauri v2 + React 的跨平台轻量无损音乐播放器。
