@@ -68,11 +68,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node -e 'import("./scripts/lib/prepare-releases.mjs").then(m => m.prepareReleases("."))'
 
+      # 合并清单与页面数字同源：由刚下载的检测结果重新生成并一并提交
+      - name: 生成合并音源清单
+        run: node scripts/build-merged-sources.mjs
+
       - name: 提交检测结果
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/sources-status.json src/data/sources-status.json src/data/releases-cache.json
+          git add public/sources-status.json src/data/sources-status.json src/data/releases-cache.json public/merged-sources.json public/merged-sources.txt
           if git diff --cached --quiet; then
             echo "检测结果与下载统计无变化，跳过提交"
           else
