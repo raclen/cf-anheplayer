@@ -40,6 +40,7 @@ export const GET: APIRoute = ({ site }) => {
 ## 文档与数据
 - [站点地图](${SITE}/sitemap-index.xml)
 - [音源可用性 JSON 接口](${SITE}/sources-status.json)：字段含 summary、sources[].status、platforms[]、history[]，可程序化读取。
+- [合并音源订阅清单](${SITE}/merged-sources.json)：本轮检测通过、去重后的音源订阅 JSON；[链接列表](${SITE}/merged-sources.txt)：一行一个 .js 链接。两者随检测自动更新，不是拼接后的单个 .js 文件。
 - [完整内容（含全部问答）](${SITE}/llms-full.txt)
 
 ## 常见问题

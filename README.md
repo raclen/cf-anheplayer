@@ -44,6 +44,8 @@ pnpm preview   # 预览构建产物
 - `scripts/check-sources.mjs` 在模拟的洛雪运行环境中加载音源，对每个平台请求固定测试歌曲的播放地址，并读取音频字节校验真实拉流；对拒绝 Range 的网关回退普通 GET，不会关闭拉流校验。
 - 检测只覆盖音源自身接口，不包含 AnhePlayer 的内置解析或跨音源兜底。例如播放器可能在网易平台直接使用官方外链，此时成功播放不代表所选自定义音源接口通过。页面将失败状态显示为“检测未通过”，错误信息区分 HTTP 状态、网络失败与非音频响应；固定样本结果不能替代客户端实际试听。
 - 结果同时写入 `src/data/sources-status.json`（构建时渲染页面）和 `public/sources-status.json`（线上 JSON 接口）。
+- 合并音源：`scripts/lib/merged-sources.mjs` 从最新检测结果里挑出可用 / 部分可用的音源，按通过平台数排序、同名去重后生成 `public/merged-sources.json`（订阅清单）与 `public/merged-sources.txt`（一行一个链接）。生成逻辑与 `/sources` 页面的合并面板共用同一份代码，构建时由 `astro.config.mjs` 自动调用；也可手动执行 `pnpm sources:merged`。产物不是拼接后的 `.js`（拼接会互相覆盖），正确用法见清单里的 `usage` 字段。去重只针对 @name 完全相同的条目，显式保留项与理由写在 `DEDUP_PREFER` / `DEDUP_REASONS` 里。
+- 自定义添加音源：`/sources` 页面的表单只把用户填写的音源保存在本机浏览器的 localStorage，添加时只检查链接可达性，不执行脚本代码、不做拉流检测，也不进入定时检测；想收录进共享清单需提交 Issue 或 PR（页面提供提交片段与 Issue 链接）。
 - 每条音源卡片右侧的复制按钮：在线音源复制 `sources/remote.json` 里的原始链接，本地音源复制 GitHub raw 链接（需仓库公开且已推送），可直接粘贴到洛雪音源导入框。
 - GitHub Actions（`.github/workflows/check-sources.yml`）每 4 小时执行一次并自动提交结果，Cloudflare Pages 随之重新构建。
 
@@ -62,6 +64,12 @@ node scripts/check-sources.mjs --remote-only
 
 # 检测器契约与音频校验回归（非 UI 测试）
 node --test scripts/lib/lx-sandbox.test.mjs scripts/check-sources.test.mjs
+
+# 合并清单生成回归（去重、排序、地址解析）
+node --test scripts/lib/merged-sources.test.mjs
+
+# 手动重新生成合并清单（构建时自动执行，一般不需要）
+pnpm sources:merged
 ```
 
 在线音源清单示例（`sources/remote.json`）：

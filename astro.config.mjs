@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { prepareSources } from "./scripts/lib/prepare-sources.mjs";
 import { prepareReleases } from "./scripts/lib/prepare-releases.mjs";
+import { writeMergedSources } from "./scripts/lib/merged-sources.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,9 @@ const prepareBuildDataIntegration = {
         prepareSources(__dirname),
         prepareReleases(__dirname),
       ]);
+      // 合并音源清单（public/merged-sources.json/.txt）与页面数字同源：
+      // 由同一份检测结果与同一份去重逻辑生成，见 scripts/lib/merged-sources.mjs
+      await writeMergedSources(__dirname);
     },
   },
 };

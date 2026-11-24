@@ -93,6 +93,7 @@ ${faqBlock(DOWNLOADER_FAQ)}
 平台通过率：${status?.summary?.platformsOk ?? 0}/${status?.summary?.platformsTested ?? 0}。
 最近检测：${status?.generatedAt ?? "未知"}；下次预计：${status?.nextCheckAt ?? "未知"}。
 公开接口：${SITE}/sources-status.json
+合并音源：${SITE}/merged-sources.json（订阅清单）、${SITE}/merged-sources.txt（链接列表），均为本轮检测通过、去重后的结果，随检测自动更新。
 
 当前可用音源：
 ${available || "暂无检测数据"}

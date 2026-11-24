@@ -8,6 +8,7 @@ import Faq from "@/components/Faq.astro";
 import { absoluteUrl } from "@/utils/url";
 import { buildFaqLd } from "@/utils/seo";
 import { SOURCES_FAQ } from "@/data/faq";
+import { buildMergedSources } from "../../scripts/lib/merged-sources.mjs";
 
 const statusFile = path.resolve(process.cwd(), "src/data/sources-status.json");
 let status: any = null;
@@ -123,6 +124,12 @@ const resolveDownloadName = (src: any) => {
   return `${safeTitle || "source"}.js`;
 };
 
+// 合并音源清单：与 scripts/build-merged-sources.mjs 用同一份纯函数，
+// 构建期直接由最新检测结果算出，页面数字与 public/merged-sources.json 一致。
+const merged = buildMergedSources(status, remoteList);
+const mergedJsonUrl = absoluteUrl(Astro.site, "/merged-sources.json");
+const mergedTxtUrl = absoluteUrl(Astro.site, "/merged-sources.txt");
+
 // 音源清单结构化数据：让搜索引擎理解这是一份持续更新的可用音源目录
 const sourceItems = sources.filter((s) => isAvailableLike(s.status)).slice(0, 30);
 const itemListLd = {
@@ -220,6 +227,94 @@ const faqLd = buildFaqLd(faqItems);
         <p class="notice-text">
           <b>检测说明：</b>本站只检测音源自身接口，不包含播放器的内置解析或跨音源兜底。因此，“检测未通过”不等于播放器无法播放。固定歌曲的版权、VIP 权限及加密流（如 <code>.mgg</code>）也会影响结果，请以客户端实际试听为准。
         </p>
+      </div>
+    </section>
+
+    <!-- 合并音源：通过检测的音源去重后的订阅清单与链接列表 -->
+    <section class="container panel merged-panel" id="merged-sources" aria-label="合并音源">
+      <div class="panel-head">
+        <div>
+          <h2>合并音源</h2>
+          <p class="panel-desc">
+            本轮检测通过 {merged.totalPassing} 个，去重后保留 <b>{merged.included}</b> 个
+            （去掉 {merged.removedDuplicates.length} 个同名重复），按通过平台数排序。
+            {status?.generatedAt ? `检测时间 ${fmtFull(status.generatedAt)}。` : ""}
+          </p>
+        </div>
+        <span class="tag tag-ok">随检测自动更新</span>
+      </div>
+      <p class="panel-note">
+        这不是把多个 .js 脚本拼成一个文件——洛雪一个脚本只能注册一个音源，拼接会互相覆盖。
+        合并清单是“一次拿走全部可用音源”的订阅与链接列表：逐个导入后开启播放失败自动换源，
+        播放器会在多个音源之间兜底，这才是运行时的合并。
+      </p>
+      <div class="panel-actions">
+        <button class="action-btn action-btn-primary" id="copy-merged-json" type="button" data-copy-url={mergedJsonUrl}>复制订阅地址</button>
+        <button class="action-btn" id="copy-merged-links" type="button">复制全部链接</button>
+        <a class="action-btn" href={mergedJsonUrl} download="merged-sources.json">下载合并清单（JSON）</a>
+        <a class="action-btn" href={mergedTxtUrl} download="merged-sources.txt">下载链接列表（TXT）</a>
+      </div>
+      <p class="panel-status" id="merged-status" role="status" aria-live="polite"></p>
+      <details class="merged-details">
+        <summary>查看合并清单里的 {merged.included} 个音源</summary>
+        <ol class="merged-list">
+          {merged.sources.map((src) => (
+            <li>
+              <a href={src.path} target="_blank" rel="noopener">{src.title}</a>
+              <span class="merged-meta">{src.passed} 平台{src.version ? ` · v${String(src.version).replace(/^v/i, "")}` : ""}</span>
+            </li>
+          ))}
+        </ol>
+        {merged.removedDuplicates.length > 0 && (
+          <p class="panel-note">
+            去掉的同名重复：{merged.removedDuplicates.map((item) => `${item.name} v${String(item.version).replace(/^v/i, "")}`).join("、")}。
+            保留项的理由见仓库 scripts/lib/merged-sources.mjs。
+          </p>
+        )}
+      </details>
+    </section>
+
+    <!-- 自定义添加音源：只保存在本机浏览器，不会同步给其他人 -->
+    <section class="container panel custom-panel" id="custom-sources" aria-label="自定义添加音源">
+      <div class="panel-head">
+        <div>
+          <h2>自定义添加音源</h2>
+          <p class="panel-desc">加一个本站清单里没有的洛雪 .js 音源链接，只保存在这台设备的浏览器里。</p>
+        </div>
+        <span class="tag tag-version">仅本机保存</span>
+      </div>
+      <form class="custom-form" id="custom-source-form" novalidate>
+        <label class="field">
+          <span>音源名称 *</span>
+          <input id="custom-name" type="text" maxlength="60" placeholder="例如：我的聚合音源" autocomplete="off" required />
+        </label>
+        <label class="field field-wide">
+          <span>音源链接（.js）*</span>
+          <input id="custom-url" type="url" inputmode="url" placeholder="https://example.com/source.js" autocomplete="off" required />
+        </label>
+        <label class="field">
+          <span>镜像链接（可选）</span>
+          <input id="custom-mirror" type="url" inputmode="url" placeholder="https://example.com/mirror.js" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>主页（可选）</span>
+          <input id="custom-homepage" type="url" inputmode="url" placeholder="https://example.com" autocomplete="off" />
+        </label>
+        <div class="panel-actions">
+          <button class="action-btn action-btn-primary" id="custom-add-btn" type="submit">检测链接并添加</button>
+          <span class="panel-status" id="custom-status" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+      <p class="panel-note">
+        添加时只做链接可达性检查（能打开、内容疑似脚本），不执行脚本代码，也不做沙箱拉流检测，
+        “可达”不等于“可用”。想让它进入本站的 4 小时检测与所有人可见的清单，请用下面的方式提交给维护者。
+      </p>
+      <div id="custom-list" class="custom-list" aria-live="polite"></div>
+      <div class="panel-actions">
+        <button class="action-btn" id="copy-combined-links" type="button">复制合并清单 + 我的音源</button>
+        <button class="action-btn" id="download-custom-json" type="button">下载我的音源清单（JSON）</button>
+        <button class="action-btn" id="copy-submit-snippet" type="button">复制提交片段（remote.json）</button>
+        <a class="action-btn" id="submit-issue-link" href="https://github.com/raclen/cf-anheplayer/issues/new" target="_blank" rel="noopener">提交到 GitHub Issue</a>
       </div>
     </section>
 
@@ -512,6 +607,313 @@ const faqLd = buildFaqLd(faqItems);
         }
       });
     });
+
+    // ---- 合并音源：复制订阅地址 / 全部链接（取构建期生成的公开文件） ----
+const mergedStatus = document.getElementById("merged-status");
+const setMergedStatus = (text: string) => {
+  if (mergedStatus) mergedStatus.textContent = text;
+};
+const fetchMergedText = async () => {
+  const res = await fetch("/merged-sources.txt", { cache: "no-cache" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+};
+document.getElementById("copy-merged-json")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget as HTMLButtonElement;
+  try {
+    await copyText(button.dataset.copyUrl || "");
+    setMergedStatus("已复制订阅地址，粘贴到支持订阅清单的客户端即可。");
+  } catch {
+    setMergedStatus("复制失败，请手动复制地址栏中的 /merged-sources.json 链接。");
+  }
+});
+document.getElementById("copy-merged-links")?.addEventListener("click", async () => {
+  try {
+    await copyText(await fetchMergedText());
+    setMergedStatus("已复制全部音源链接，一行一个，按通过平台数排序。");
+  } catch {
+    setMergedStatus("读取合并清单失败，请直接下载 TXT 链接列表。");
+  }
+});
+
+// ---- 自定义添加音源：仅 localStorage，不执行任何脚本代码 ----
+const CUSTOM_KEY = "anheplayer.customSources.v1";
+type CustomSource = {
+  id: string;
+  name: string;
+  url: string;
+  mirror?: string;
+  homepage?: string;
+  verified: "unknown" | "reachable" | "unreachable";
+  checkedAt?: string;
+};
+const customForm = document.getElementById("custom-source-form") as HTMLFormElement | null;
+const customListEl = document.getElementById("custom-list");
+const customStatus = document.getElementById("custom-status");
+const customAddBtn = document.getElementById("custom-add-btn") as HTMLButtonElement | null;
+const setCustomStatus = (text: string) => {
+  if (customStatus) customStatus.textContent = text;
+};
+const loadCustomSources = (): CustomSource[] => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item.url === "string") : [];
+  } catch {
+    return [];
+  }
+};
+const saveCustomSources = (items: CustomSource[]) => {
+  try {
+    localStorage.setItem(CUSTOM_KEY, JSON.stringify(items));
+  } catch {
+    setCustomStatus("浏览器存储已满或被禁用，本次添加无法保存。");
+  }
+};
+let customSources = loadCustomSources();
+let builtinUrls = new Set<string>();
+fetchMergedText()
+  .then((text) => {
+    builtinUrls = new Set(text.split("\n").map((line) => line.trim().toLowerCase()).filter(Boolean));
+  })
+  .catch(() => {
+    builtinUrls = new Set();
+  });
+const normalizeUrl = (value: string) => value.trim().toLowerCase();
+const parseHttpsJsUrl = (value: string): URL | null => {
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "https:") return null;
+    if (!url.pathname.endsWith(".js")) return null;
+    return url;
+  } catch {
+    return null;
+  }
+};
+const parseHttpsUrl = (value: string): URL | null => {
+  if (!value.trim()) return null;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" ? url : null;
+  } catch {
+    return null;
+  }
+};
+const downloadBlob = (filename: string, text: string, type: string) => {
+  const blob = new Blob([text], { type });
+  const objectUrl = URL.createObjectURL(blob);
+  const saver = document.createElement("a");
+  saver.href = objectUrl;
+  saver.download = filename;
+  document.body.appendChild(saver);
+  saver.click();
+  saver.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+};
+const renderCustomSources = () => {
+  if (!customListEl) return;
+  customListEl.replaceChildren();
+  if (customSources.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "panel-note";
+    empty.textContent = "还没有自定义音源。添加后会在这里显示，刷新页面也不会丢（只存在本机浏览器）。";
+    customListEl.appendChild(empty);
+    return;
+  }
+  for (const item of customSources) {
+    const card = document.createElement("article");
+    card.className = "custom-card";
+    const head = document.createElement("div");
+    head.className = "custom-card-head";
+    const nameEl = document.createElement("b");
+    nameEl.textContent = item.name;
+    const badge = document.createElement("span");
+    badge.className = "tag " + (item.verified === "reachable" ? "tag-ok" : item.verified === "unreachable" ? "tag-bad" : "tag-version");
+    badge.textContent = item.verified === "reachable" ? "链接可达" : item.verified === "unreachable" ? "链接不可达" : "未验证";
+    head.append(nameEl, badge);
+    const link = document.createElement("a");
+    link.className = "custom-url";
+    link.href = item.url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = item.url;
+    const actions = document.createElement("div");
+    actions.className = "panel-actions";
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "action-btn";
+    copyBtn.textContent = "复制链接";
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await copyText(item.url);
+        setCustomStatus(`已复制「${item.name}」的链接。`);
+      } catch {
+        setCustomStatus("复制失败，请长按链接手动复制。");
+      }
+    });
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "action-btn";
+    removeBtn.textContent = "删除";
+    removeBtn.addEventListener("click", () => {
+      customSources = customSources.filter((entry) => entry.id !== item.id);
+      saveCustomSources(customSources);
+      renderCustomSources();
+      setCustomStatus(`已删除「${item.name}」。`);
+    });
+    actions.append(copyBtn, removeBtn);
+    card.append(head, link, actions);
+    customListEl.appendChild(card);
+  }
+  // 提交 Issue 的链接随自定义清单实时生成
+  const issueLink = document.getElementById("submit-issue-link") as HTMLAnchorElement | null;
+  if (issueLink) {
+    const body = customSources
+      .map((item) => `- ${item.name}\n  - url: ${item.url}${item.mirror ? `\n  - mirror: ${item.mirror}` : ""}${item.homepage ? `\n  - homepage: ${item.homepage}` : ""}`)
+      .join("\n");
+    const params = new URLSearchParams({
+      title: "新增音源：请检测并收录以下自定义音源",
+      body: `请维护者检测以下音源，确认可用后收录到 sources/remote.json 或 sources/ 目录：\n\n${body || "（暂无自定义音源）"}\n`,
+    });
+    issueLink.href = `https://github.com/raclen/cf-anheplayer/issues/new?${params.toString()}`;
+  }
+};
+const checkLinkReachable = async (url: string): Promise<CustomSource["verified"]> => {
+  try {
+    const res = await fetch(url, {
+      mode: "cors",
+      redirect: "follow",
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return "unreachable";
+    // 只读文本做“疑似脚本”判断，绝不执行返回的代码。
+    const text = await res.text();
+    const looksLikeSource =
+      text.length > 50 &&
+      (text.includes("@name") || text.includes("EVENT_NAMES") || text.includes("musicUrl") || text.includes("globalThis.lx"));
+    return looksLikeSource ? "reachable" : "unreachable";
+  } catch {
+    // 跨域拒绝、网络异常时无法在浏览器里核实，标记为未验证，不谎称失败。
+    return "unknown";
+  }
+};
+customForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const nameInput = document.getElementById("custom-name") as HTMLInputElement | null;
+  const urlInput = document.getElementById("custom-url") as HTMLInputElement | null;
+  const mirrorInput = document.getElementById("custom-mirror") as HTMLInputElement | null;
+  const homepageInput = document.getElementById("custom-homepage") as HTMLInputElement | null;
+  const name = nameInput?.value.trim() || "";
+  const url = parseHttpsJsUrl(urlInput?.value || "");
+  const mirror = mirrorInput?.value.trim() ? parseHttpsJsUrl(mirrorInput.value) : null;
+  const homepage = homepageInput?.value.trim() ? parseHttpsUrl(homepageInput.value) : null;
+  if (!name) {
+    setCustomStatus("请填写音源名称。");
+    nameInput?.focus();
+    return;
+  }
+  if (!url) {
+    setCustomStatus("音源链接必须是 https 开头、以 .js 结尾的地址。");
+    urlInput?.focus();
+    return;
+  }
+  if (mirrorInput?.value.trim() && !mirror) {
+    setCustomStatus("镜像链接也必须是 https 开头、以 .js 结尾的地址。");
+    mirrorInput.focus();
+    return;
+  }
+  if (homepageInput?.value.trim() && !homepage) {
+    setCustomStatus("主页必须是 https 开头的地址。");
+    homepageInput.focus();
+    return;
+  }
+  if (builtinUrls.has(normalizeUrl(url.href))) {
+    setCustomStatus("这个链接已经在上面的合并清单里了，不用重复添加。");
+    return;
+  }
+  if (customSources.some((item) => normalizeUrl(item.url) === normalizeUrl(url.href))) {
+    setCustomStatus("这个链接已经添加过了。");
+    return;
+  }
+  if (customAddBtn) customAddBtn.disabled = true;
+  setCustomStatus("正在检查链接是否能打开…（不执行脚本代码）");
+  const verified = await checkLinkReachable(url.href);
+  const item: CustomSource = {
+    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `custom-${Date.now()}`,
+    name,
+    url: url.href,
+    mirror: mirror?.href,
+    homepage: homepage?.href,
+    verified,
+    checkedAt: new Date().toISOString(),
+  };
+  customSources = [item, ...customSources];
+  saveCustomSources(customSources);
+  renderCustomSources();
+  customForm.reset();
+  if (customAddBtn) customAddBtn.disabled = false;
+  setCustomStatus(
+    verified === "reachable"
+      ? `已添加「${name}」：链接可打开且内容疑似音源脚本（未做拉流检测）。`
+      : verified === "unreachable"
+        ? `已添加「${name}」，但链接打不开或内容不像音源脚本，请核对地址后重新添加。`
+        : `已添加「${name}」，浏览器因跨域无法核实该链接，未验证，仅保存在本机。`,
+  );
+});
+document.getElementById("copy-combined-links")?.addEventListener("click", async () => {
+  try {
+    const mergedText = await fetchMergedText();
+    const seen = new Set(mergedText.split("\n").map((line) => line.trim()).filter(Boolean));
+    for (const item of customSources) seen.add(item.url);
+    await copyText([...seen].join("\n") + "\n");
+    setCustomStatus(`已复制合并清单 + ${customSources.length} 个自定义音源的全部链接。`);
+  } catch {
+    setCustomStatus("读取合并清单失败，请分别复制上面的合并清单与自定义链接。");
+  }
+});
+document.getElementById("download-custom-json")?.addEventListener("click", () => {
+  if (customSources.length === 0) {
+    setCustomStatus("还没有自定义音源，先添加一个再下载。");
+    return;
+  }
+  downloadBlob(
+    "my-custom-sources.json",
+    JSON.stringify(
+      {
+        sources: customSources.map((item) => ({
+          id: item.id,
+          name: item.name,
+          url: item.url,
+          ...(item.mirror ? { mirror: item.mirror } : {}),
+          ...(item.homepage ? { homepage: item.homepage } : {}),
+        })),
+      },
+      null,
+      2,
+    ) + "\n",
+    "application/json",
+  );
+  setCustomStatus("已下载我的音源清单（JSON），换设备时可凭它重新添加。");
+});
+document.getElementById("copy-submit-snippet")?.addEventListener("click", async () => {
+  if (customSources.length === 0) {
+    setCustomStatus("还没有自定义音源，先添加一个再复制提交片段。");
+    return;
+  }
+  const snippet = customSources
+    .map(
+      (item) =>
+        `  {\n    "id": "${item.name}",\n    "title": "${item.name}",\n    "category": "在线",\n    "url": "${item.url}"${item.mirror ? `,\n    "mirror": "${item.mirror}"` : ""}${item.homepage ? `,\n    "homepage": "${item.homepage}"` : ""}\n  }`,
+    )
+    .join(",\n");
+  try {
+    await copyText(snippet);
+    setCustomStatus("已复制 remote.json 提交片段，请把 id 改成英文唯一标识后再提交 PR。");
+  } catch {
+    setCustomStatus("复制失败，请用 Issue 链接提交。");
+  }
+});
+renderCustomSources();
+
 
     applyFilters();
   </script>
@@ -1218,6 +1620,230 @@ const faqLd = buildFaqLd(faqItems);
 
     .status-footer-inner a:hover {
       color: var(--ink);
+    }
+
+    /* 合并音源 / 自定义添加音源面板 */
+    .panel {
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      background: var(--canvas);
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+
+    .merged-panel {
+      border-left: 4px solid var(--semantic-success);
+    }
+
+    .custom-panel {
+      border-left: 4px solid var(--block-lilac);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .panel-head h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-desc {
+      margin-top: 4px;
+      font-size: 0.86rem;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+    }
+
+    .panel-desc b {
+      color: var(--ink);
+    }
+
+    .panel-note {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: color-mix(in srgb, var(--ink) 60%, transparent);
+    }
+
+    .panel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      font-size: 0.84rem;
+      background: var(--canvas);
+      color: var(--ink);
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      border-color: #cfcfcf;
+      background: var(--surface-soft);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    .action-btn-primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--inverse-ink);
+    }
+
+    .action-btn-primary:hover {
+      background: var(--ink);
+      color: var(--inverse-ink);
+    }
+
+    .panel-status {
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: color-mix(in srgb, var(--ink) 56%, transparent);
+      min-height: 1.2em;
+    }
+
+    .panel-status:empty {
+      display: none;
+    }
+
+    .merged-details {
+      margin-top: 8px;
+      font-size: 0.86rem;
+    }
+
+    .merged-details summary {
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: color-mix(in srgb, var(--ink) 56%, transparent);
+    }
+
+    .merged-details summary:hover {
+      color: var(--ink);
+    }
+
+    .merged-list {
+      margin-top: 12px;
+      padding-left: 20px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.86rem;
+    }
+
+    .merged-list a {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .merged-meta {
+      margin-left: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: color-mix(in srgb, var(--ink) 46%, transparent);
+    }
+
+    .custom-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.8rem;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+    }
+
+    .field-wide {
+      grid-column: span 2;
+    }
+
+    .field input {
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 0.88rem;
+      background: var(--canvas);
+      color: var(--ink);
+      width: 100%;
+    }
+
+    .field input:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 1px;
+    }
+
+    .custom-form .panel-actions {
+      grid-column: span 2;
+      margin-top: 2px;
+    }
+
+    .custom-list {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .custom-card {
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      background: var(--surface-soft);
+    }
+
+    .custom-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .custom-url {
+      display: block;
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      word-break: break-all;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .custom-card .panel-actions {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .panel {
+        padding: 18px 16px;
+      }
+      .custom-form {
+        grid-template-columns: 1fr;
+      }
+      .field-wide,
+      .custom-form .panel-actions {
+        grid-column: span 1;
+      }
     }
 
     @media (max-width: 900px) {

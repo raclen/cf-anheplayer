@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "sources:check": "node scripts/check-sources.mjs",
+    "sources:merged": "node scripts/build-merged-sources.mjs",
     "sources:sync": "node scripts/sync-sources.mjs",
     "sources:convert": "node scripts/convert-subscription.mjs",
     "releases:sync": "node -e 'import(\"./scripts/lib/prepare-releases.mjs\").then(m => m.prepareReleases(\".\"))'",
